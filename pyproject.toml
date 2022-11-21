@@ -8,6 +8,7 @@ authors = ["Dmitrii Orlov <dmtree.dev@yahoo.com>"]
 python = "^3.10"
 
 [tool.poetry.dev-dependencies]
+mkdocs = "^1.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

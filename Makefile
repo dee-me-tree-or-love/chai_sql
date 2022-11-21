@@ -14,3 +14,7 @@ init-test-sqlite: .tmp/test.db
 .PHONY: delete-test-sqlite
 delete-test-sqlite:
 	rm -rf ${TMPD_DIR}/${TEST_DB}
+
+.PHONY: serve-docs
+serve-docs:
+	poetry run mkdocs serve
