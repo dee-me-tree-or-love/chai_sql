@@ -30,6 +30,11 @@ theme:
 
 # Extensions
 markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
   - md_in_html
   - toc:
       permalink: true
