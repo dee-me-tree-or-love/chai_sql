@@ -86,4 +86,4 @@ Condition     :=     TRUE | FALSE
 
 ## References
 
-- TODO: add paper
+- Guagliardo, P., & Libkin, L. (2017). A formal semantics of SQL queries, its validation, and applications. _Proceedings of the VLDB Endowment, 11_(1), 27–39. <https://doi.org/10.14778/3151113.3151116>
