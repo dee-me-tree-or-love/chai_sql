@@ -1,4 +1,5 @@
 # Features for the Typed SQL checker
+<!-- TODO: reference this in the Docs->DeveloperResources? -->
 
 - [ ] comment-based SQL type annotations
   - [ ] raw SQL with type annotations in comments should be parseable

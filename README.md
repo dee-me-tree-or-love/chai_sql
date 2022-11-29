@@ -8,6 +8,10 @@ Internship project about adding an optional type system to SQL
 
 <!-- TODO: describe how to install `typed_sql` -->
 
+## Supported features
+
+<!-- TODO: describe supported & planned features -->
+
 <!--mkdocs-intro-end-->
 
 ## Development
