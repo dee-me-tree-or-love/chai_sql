@@ -1,12 +1,13 @@
 TMPD_DIR=.tmp
 TEST_DB=test.db
+DATA_DIR=data
 
 
 # Core targets
 # ~~~~~~~~~~~~
 
 ${TMPD_DIR}/${TEST_DB}:
-	sqlite3 -init resources/bootstrap.sql ${TMPD_DIR}/${TEST_DB} ""
+	sqlite3 -init ${DATA_DIR}/bootstrap.sql ${TMPD_DIR}/${TEST_DB} ""
 
 
 # User facing targets
@@ -23,7 +24,7 @@ delete-test-sqlite:
 
 .PHONY:	run-test-sqlite-queries
 run-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
-	sqlite3 ${TMPD_DIR}/${TEST_DB} < resources/queries.sql
+	sqlite3 ${TMPD_DIR}/${TEST_DB} < ${DATA_DIR}/queries.sql
 
 .PHONY: serve-docs
 serve-docs:
