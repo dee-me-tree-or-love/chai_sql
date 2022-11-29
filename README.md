@@ -2,7 +2,15 @@
 
 Internship project about adding an optional type system to SQL
 
-## Getting started
+<!--mkdocs-intro-start-->
+
+## Installation
+
+<!-- TODO: describe how to install `typed_sql` -->
+
+<!--mkdocs-intro-end-->
+
+## Development
 
 ### `poetry`
 

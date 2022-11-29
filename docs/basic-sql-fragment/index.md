@@ -1,3 +1,7 @@
+---
+title: SQL fragment
+...
+
 # Basic SQL Fragment
 
 Following the paper by Guagliardo & Libkin (2017), we start with the
@@ -9,7 +13,8 @@ The syntax below is an adaption of the basic SQL fragment.
 
 ### Queries
 
-```plaintext title="Query syntax"
+<!-- TODO: find out which syntax highlighting would work best here -->
+```plaintext  title="Query syntax"
 -- tables
 tau:beta :=   T1 AS N1, ..., Tk AS Nk
               for tau = (T1,...,Tk), beta=(N1,...,Nk), k > 0
