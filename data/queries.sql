@@ -8,7 +8,7 @@ SELECT "People:";
 SELECT p.id, p.name
 FROM person AS p;
 
-SELECT "Cat Friends:";
+SELECT "Cat Friends: Cat, Person, Years";
 
-SELECT cf.id, cf.catId, cf.personId, cf.years
+SELECT cf.catId, cf.personId, cf.years
 FROM catFriends AS cf;
