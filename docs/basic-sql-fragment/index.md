@@ -26,22 +26,24 @@ The syntax below is an adaption of the proposed basic SQL fragment to
 
 ```abnf  title="Query syntax"
 ; utility definitions
-_Token_       = 1*HEXDIG
-Alias         = _Token_
+TOKEN         = 1*HEXDIG
+Alias         = TOKEN
 
 ; tables
-Table         = _Token_
+Table         = TOKEN
 TableAccess   = Table ["AS" Alias]
               / TableAccess "," Table ["AS" Alias]
 
 ; columns
-Column        = _Token_
+Column        = TOKEN
 ColumnAccess  = Column ["AS" Alias]
               / ColumnAccess "," Column ["AS" Alias]
 
 ; query
-Query  = "SELECT" ["DISTINCT"] ColumnAccess "FROM" TableAccess "WHERE" Condition
-       / "SELECT" ["DISTINCT"] "*" "FROM" TableAccess "WHERE" Condition
+Query  = "SELECT" ["DISTINCT"] ColumnAccess 
+         "FROM" TableAccess "WHERE" Condition
+       / "SELECT" ["DISTINCT"] "*" 
+         "FROM" TableAccess "WHERE" Condition
        / Query ("UNION" / "INTERSECT" / "EXCEPT") ["ALL"] Query
 ```
 
@@ -68,8 +70,12 @@ Query  = "SELECT" ["DISTINCT"] ColumnAccess "FROM" TableAccess "WHERE" Condition
 <!-- FIXME: rewrite to ABNF -->
 <!-- TODO: define the predicate ABNF syntax -->
 ```abnf  title="Condition syntax"
-; Assuming `Predicate` syntax for base types is defined
-Condition     = "TRUE" | "FALSE" 
+; predicate
+Predicate     = TOKEN
+
+; condition
+Condition     = "TRUE" 
+              / "FALSE" 
               / Predicate
               / Column "IS" ["NOT"] "NULL"
               / Column "IS" ["NOT"] "IN" Query
@@ -91,37 +97,35 @@ Condition     = "TRUE" | "FALSE"
 
 #### Condition type inference rules
 
-```plaintext  title="Condition type inference"
+<!-- TODO: consider which syntax format works best here -->
+```hs title="Condition type inference"
+-- Basics
+-- ~~~~~~
+(C0)                        |- TRUE          : bool
+--
+(C1)                        |- FALSE         : bool
 
-(C0) ----------------
-        TRUE: bool
+-- Stanadrd logics
+-- ~~~~~~~~~~~~~~~
+(C2) x : bool & y : bool    |- x AND y       : bool
+--
+(C3) x : bool & y : bool    |- x OR y        : bool
+--
+(C4) x : bool               |- NOT x         : bool
 
-(C1) ----------------
-       FALSE: bool
-
-       X: bool     Y: bool
-(C2) ----------------------
-         X AND Y: bool
-
-       X: bool     Y: bool
-(C3) ----------------------
-         X OR Y: bool
-
-         X: bool
-(C4) ----------------
-       NOT X: bool
-
-         T: Name
-(C5) --------------------------
-       T IS [NOT] NULL: bool
-
-       T: Name        Q: Query
-(C6) ---------------------------
-         T [NOT] IN Q: bool
-
-         Q: Query
-(C7) -------------------
-       EXISTS Q: bool
+-- Query checking
+-- ~~~~~~~~~~~~~~
+(C5) t : ColumnReference    |- t IS NULL     : bool
+--
+(C5) t : ColumnReference    |- t IS NOT NULL : bool
+--
+(C6) t   : ColumnReference
+     & q : QueryResult      |- t IN q        : bool
+--
+(C7) t   : ColumnReference
+     & q : QueryResult      |- t NOT IN q    : bool
+--
+(C8) q : QueryResult        |- EXISTS q      : bool
 ```
 
 ---
@@ -130,3 +134,8 @@ Condition     = "TRUE" | "FALSE"
 
 - Guagliardo, P., & Libkin, L. (2017). A formal semantics of SQL queries, its validation, and applications. _Proceedings of the VLDB Endowment, 11_(1), 27–39. <https://doi.org/10.14778/3151113.3151116>
 - Foster, E. C., & Godbole, S. (2016). Bnf syntax for selected sql statements. In E. C. Foster & S. Godbole (Eds.), _Database Systems: A Pragmatic Approach_ (pp. 539–583). Apress. <https://doi.org/10.1007/978-1-4842-1191-5_29>
+
+## Extra reading
+
+- <https://en.wikipedia.org/wiki/Typing_rule>
+- <https://stanford-cs221.github.io/autumn2021-extra/modules/logic/inference-rules.pdf>
