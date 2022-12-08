@@ -6,9 +6,13 @@ Internship project about adding an optional type system to SQL
 
 ## Installation
 
+*Coming soon!*
+
 <!-- TODO: describe how to install `typed_sql` -->
 
 ## Supported features
+
+*Coming soon!*
 
 <!-- TODO: describe supported & planned features -->
 
@@ -16,7 +20,7 @@ Internship project about adding an optional type system to SQL
 
 ## Development
 
-### `poetry`
+### [`poetry`](./pyproject.toml)
 
 For the management of this project and its dependencies, we use `poetry`.
 
