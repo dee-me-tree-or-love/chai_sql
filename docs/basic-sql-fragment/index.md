@@ -18,6 +18,13 @@ The syntax below is an adaption of the proposed basic SQL fragment to
 ### Included features
 
 <!-- TODO: add list of included and not included features of SQL -->
+Following the work of Guagliardo and Libkin (2017, p.29), this syntax covers only the following features:
+
+- [ ] Basic 
+
+### Semantic interpretation
+
+<!-- TODO: elaborate on the semantics of SQL discussed by Guagliardo and Libkin -->
 
 ## Queries
 
@@ -40,9 +47,9 @@ ColumnAccess  = Column ["AS" Alias]
               / ColumnAccess "," Column ["AS" Alias]
 
 ; query
-Query  = "SELECT" ["DISTINCT"] ColumnAccess 
+Query  = "SELECT" ["DISTINCT"] ColumnAccess
          "FROM" TableAccess "WHERE" Condition
-       / "SELECT" ["DISTINCT"] "*" 
+       / "SELECT" ["DISTINCT"] "*"
          "FROM" TableAccess "WHERE" Condition
        / Query ("UNION" / "INTERSECT" / "EXCEPT") ["ALL"] Query
 ```
@@ -50,19 +57,78 @@ Query  = "SELECT" ["DISTINCT"] ColumnAccess
 ### Typing Queries
 
 <!-- TODO: What about query like `SELECT 1;`? -->
-<!-- TODO: add support to the follwing stuff: -->
-- [ ] column `SELECT-FROM-WHERE` statement
-- [ ] asterix `SELECT-FROM-WHERE` statement
+- [x] column `SELECT-FROM-WHERE` statement
+- [x] asterix `SELECT-FROM-WHERE` statement
 - [ ] constant `SELECT-FROM-WHERE` statement
-- [ ] support for `DISTINCT` select modifier
-- [ ] query `UNION`, `INTERSECT`, `EXCEPT` operators
-- [ ] `ALL` modifier for query operators
+- [x] selection with `DISTINCT` select modifier
+- [x] compound queries `UNION`, `INTERSECT`, and `EXCEPT`
+- [x] compound queries with `ALL` modifier
 
 #### Query type inference rules
 
-<!-- TODO: follow the semantics chapter to work this out -->
-```plaintext  title="Query type inference"
+<!-- TODO(backlog): follow the semantics chapter to work this out -->
+<!-- FIXME: explain type polymorphism & operators  -->
+```hs  title="Query type inference"
+-- Basics
+-- ~~~~~~
+-- TODO: consider these to make it less ambigious?
+--   (QB0) FROM s : TableReference[XS] |- FROM s : QueryResult[XS]
+--   (QB0) s : TableReference[XS] |- FROM s : QueryResult[XS]
+(QB0) s : TableReference[XS] |- s : QueryResult[XS]
+--
 
+-- Selections
+-- ~~~~~~~~~~
+-- See https://www.sqlite.org/lang_select.html
+(QS0)   s : QueryResult[XS] -- apply (QB0) -- FIXME: this doesn't make sense atm
+     &  p : bool
+     |- SELECT * FROM s WHERE p : QueryResult[XS]
+--
+(QS1)   s : QueryResult[XS]
+     &  p : bool
+     -- TODO: define QueryResult<Distinct>[A]
+     |- SELECT DISTINCT * FROM s WHERE p : QueryResult<Distinct>[XS]
+--
+-- TODO: define QueryResult[A] -> Selection[B]
+(QS2)   c : QueryResult[XS] -> Selection[YS]
+     &  s : QueryResult[XS]
+     &  p : bool
+     |- SELECT c FROM s WHERE p : QueryResult[YS]
+--
+(QS3)   c : QueryResult[XS] -> Selection[YS]
+     &  s : QueryResult[XS]
+     &  p : bool
+     |- SELECT DISTINCT c FROM s WHERE p : QueryResult<Distinct>[YS]
+
+-- Compound queries
+-- ~~~~~~~~~~~~~~~~
+-- See https://www.sqlite.org/lang_select.html#compound_select_statements
+(QO0)   q1 : QueryResult[XS]
+     &  q2 : QueryResult[YS]
+     -- TODO: define A + B
+     |- q1 UNION q2 : QueryResult<Distinct>[XS + YS]
+--
+(QO1)   q1 : QueryResult[XS]
+     &  q2 : QueryResult[YS]
+     -- TODO: define A & B
+     |- q1 INTERSECT q2 : QueryResult<Distinct>[XS & YS]
+--
+(QO2)   q1 : QueryResult[XS]
+     &  q2 : QueryResult[YS]
+     -- TODO: define A / B
+     |- q1 EXCEPT q2 : QueryResult<Distinct>[XS / YS]
+--
+(QO3)   q1 : QueryResult[XS]
+     &  q2 : QueryResult[YS]
+     |- q1 UNION ALL q2 : QueryResult[XS + YS]
+--
+(QO4)   q1 : QueryResult[XS]
+     &  q2 : QueryResult[YS]
+     |- q1 INTERSECT ALL q2 : QueryResult[XS & YS]
+--
+(QO5)   q1 : QueryResult[XS]
+     &  q2 : QueryResult[YS]
+     |- q1 EXCEPT ALL q2 : QueryResult[XS / YS]
 ```
 
 ## Conditions
@@ -87,7 +153,6 @@ Condition     = "TRUE"
 
 ### Typing conditions
 
-<!-- TODO: add support to the follwing stuff: -->
 - [x] Base cases: `TRUE | FALSE `
 - [ ] Predicate logic on basic SQL types
 - [x] `NULL` comparison
@@ -101,12 +166,14 @@ Condition     = "TRUE"
 ```hs title="Condition type inference"
 -- Basics
 -- ~~~~~~
+--
 (C0)                        |- TRUE          : bool
 --
 (C1)                        |- FALSE         : bool
 
 -- Stanadrd logics
 -- ~~~~~~~~~~~~~~~
+--
 (C2) x : bool & y : bool    |- x AND y       : bool
 --
 (C3) x : bool & y : bool    |- x OR y        : bool
@@ -115,17 +182,20 @@ Condition     = "TRUE"
 
 -- Query checking
 -- ~~~~~~~~~~~~~~
+--
 (C5) t : ColumnReference    |- t IS NULL     : bool
 --
 (C5) t : ColumnReference    |- t IS NOT NULL : bool
 --
-(C6) t   : ColumnReference
-     & q : QueryResult      |- t IN q        : bool
+(C6) q : QueryResult        |- EXISTS q      : bool
 --
-(C7) t   : ColumnReference
-     & q : QueryResult      |- t NOT IN q    : bool
+(C7)    t : ColumnReference
+     &  q : QueryResult
+     |- t IN q     : bool
 --
-(C8) q : QueryResult        |- EXISTS q      : bool
+(C8)    t : ColumnReference
+     &  q : QueryResult
+     |- t NOT IN q : bool
 ```
 
 ---

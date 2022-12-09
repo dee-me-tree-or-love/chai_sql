@@ -1,0 +1,34 @@
+; utility definitions
+TOKEN         = 1*HEXDIG
+Alias         = TOKEN
+
+; tables
+Table         = TOKEN
+TableAccess   = Table ["AS" Alias]
+              / TableAccess "," Table ["AS" Alias]
+
+; columns
+Column        = TOKEN
+ColumnAccess  = Column ["AS" Alias]
+              / ColumnAccess "," Column ["AS" Alias]
+
+; query
+Query  = "SELECT" ["DISTINCT"] ColumnAccess 
+         "FROM" TableAccess "WHERE" Condition
+       / "SELECT" ["DISTINCT"] "*" 
+         "FROM" TableAccess "WHERE" Condition
+       / Query ("UNION" / "INTERSECT" / "EXCEPT") ["ALL"] Query
+
+; predicate assumption
+Predicate     = TOKEN
+
+; condition
+Condition     = "TRUE" 
+              / "FALSE" 
+              / Predicate
+              / Column "IS" ["NOT"] "NULL"
+              / Column "IS" ["NOT"] "IN" Query
+              / "EXISTS" Query
+              / Condition "AND" Condition
+              / Condition "OR" Condition
+              / "NOT" Condition
