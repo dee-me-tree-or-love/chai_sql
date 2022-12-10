@@ -1,0 +1,30 @@
+{
+  "name": "typed_sql",
+  "version": "0.0.1",
+  "description": "Internship project about adding an optional type system to SQL",
+  "main": "abnf-tester.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node abnf-tester.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dee-me-tree-or-love/typed_sql.git"
+  },
+  "author": "d.orlov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dee-me-tree-or-love/typed_sql/issues"
+  },
+  "homepage": "https://github.com/dee-me-tree-or-love/typed_sql#readme",
+  "dependencies": {
+    "apg": "^3.1.2",
+    "apg-js": "^4.1.2",
+    "commander": "^9.4.1",
+    "heket": "^1.4.2"
+  }
+}

@@ -30,10 +30,11 @@ Following the work of Guagliardo and Libkin (2017, p.29), this syntax covers onl
 
 <!-- TODO: find out which syntax highlighting would work best here -->
 <!-- TODO: rewrite the syntax to an easier format -->
+<!-- TODO: fix this! -->
 
 ```abnf  title="Query syntax"
 ; utility definitions
-TOKEN         = 1*HEXDIG
+TOKEN         = "foo"
 Alias         = TOKEN
 
 ; tables
@@ -47,11 +48,17 @@ ColumnAccess  = Column ["AS" Alias]
               / ColumnAccess "," Column ["AS" Alias]
 
 ; query
-Query  = "SELECT" ["DISTINCT"] ColumnAccess
-         "FROM" TableAccess "WHERE" Condition
-       / "SELECT" ["DISTINCT"] "*"
-         "FROM" TableAccess "WHERE" Condition
-       / Query ("UNION" / "INTERSECT" / "EXCEPT") ["ALL"] Query
+Query  = "SELECT" ["DISTINCT"] ColumnAccess 
+         "FROM" TableAccess ";"
+       / "SELECT" ["DISTINCT"] ColumnAccess 
+         "FROM" TableAccess 
+         "WHERE" Condition ";"
+       / "SELECT" ["DISTINCT"] "*" 
+         "FROM" TableAccess 
+         "WHERE" Condition ";"
+       / Query
+       ("UNION" / "INTERSECT" / "EXCEPT")
+       ["ALL"] Query ";"
 ```
 
 ### Typing Queries

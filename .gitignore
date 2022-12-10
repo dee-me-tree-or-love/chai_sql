@@ -1,2 +1,6 @@
+# General project utils
 .tmp/*
 !.tmp/.gitkeep
+
+# For JS
+**/node_modules
