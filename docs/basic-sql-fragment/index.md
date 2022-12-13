@@ -13,7 +13,7 @@ The syntax below is an adaption of the proposed basic SQL fragment to
 [ABNF](https://en.wikipedia.org/wiki/Augmented_Backus%E2%80%93Naur_form).
 
 <!-- TODO: review if there are better things to fork -->
-> *The SQL ABNF syntax is inspired on the BNF proposed by Foster and Godbole (2016).*
+> *The SQL syntax below is inspired on the BNF proposed by Foster and Godbole (2016).*
 
 ### Included features
 
@@ -57,8 +57,9 @@ Query  = "SELECT" ["DISTINCT"] ColumnAccess
          "FROM" TableAccess 
          "WHERE" Condition ";"
        / Query
-       ("UNION" / "INTERSECT" / "EXCEPT")
-       ["ALL"] Query ";"
+         ("UNION" / "INTERSECT" / "EXCEPT")
+         ["ALL"]
+         Query ";"
 ```
 
 ### Typing Queries
@@ -113,29 +114,29 @@ Query  = "SELECT" ["DISTINCT"] ColumnAccess
 (QO0)   q1 : QueryResult[XS]
      &  q2 : QueryResult[YS]
      -- TODO: define A + B
-     |- q1 UNION q2 : QueryResult<Distinct>[XS + YS]
+     |- q1 UNION q2 : QueryResult<Distinct>[All[XS]]
 --
 (QO1)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[YS]
+     &  q2 : QueryResult[XS]
      -- TODO: define A & B
-     |- q1 INTERSECT q2 : QueryResult<Distinct>[XS & YS]
+     |- q1 INTERSECT q2 : QueryResult<Distinct>[Both[XS]]
 --
 (QO2)   q1 : QueryResult[XS]
      &  q2 : QueryResult[YS]
      -- TODO: define A / B
-     |- q1 EXCEPT q2 : QueryResult<Distinct>[XS / YS]
+     |- q1 EXCEPT q2 : QueryResult<Distinct>[OnlyLeft[XS]]
 --
 (QO3)   q1 : QueryResult[XS]
      &  q2 : QueryResult[YS]
-     |- q1 UNION ALL q2 : QueryResult[XS + YS]
+     |- q1 UNION ALL q2 : QueryResult[All[XS]]
 --
 (QO4)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[YS]
-     |- q1 INTERSECT ALL q2 : QueryResult[XS & YS]
+     &  q2 : QueryResult[XS]
+     |- q1 INTERSECT ALL q2 : QueryResult[Both[XS]]
 --
 (QO5)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[YS]
-     |- q1 EXCEPT ALL q2 : QueryResult[XS / YS]
+     &  q2 : QueryResult[XS]
+     |- q1 EXCEPT ALL q2 : QueryResult[OnlyLeft[XS]]
 ```
 
 ## Conditions

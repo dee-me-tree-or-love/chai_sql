@@ -1,12 +1,1 @@
-; queries
-; selections
-select-stmt = "SELECT" ["DISTINCT" / "ALL"] ws result-column ";"
-
-result-column = single-term ; single case
-              ; / single-term "," result-column ; set of terms
-single-term = star-term / foo-term
-star-term = "*"
-foo-term = "foo"
-
-; utilities
-ws = SP ; explicit white space
+; TODO: define the usable ABNF syntax
