@@ -1,12 +1,8 @@
 {
-  "name": "typed_sql",
+  "name": "abnf-tester",
   "version": "0.0.1",
   "description": "Internship project about adding an optional type system to SQL",
   "main": "abnf-tester.js",
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
-  },
   "scripts": {
     "start": "node abnf-tester.js",
     "test": "echo \"Error: no test specified\" && exit 1"
