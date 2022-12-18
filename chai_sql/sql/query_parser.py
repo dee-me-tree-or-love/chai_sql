@@ -1,8 +1,8 @@
-from typing import Iterable, Sequence
+from typing import Iterator, Sequence
 
 import sqlparse
 
-from chai_sql.models import SqlAst
+from chai_sql.models import RawSqlAst
 
 
 def _get_sqlparse_asts(t: str) -> Sequence[sqlparse.sql.Statement]:
@@ -30,10 +30,10 @@ def _get_sqlparse_asts(t: str) -> Sequence[sqlparse.sql.Statement]:
     return sqlparse.parse(t)
 
 
-def _sqlparse_ast_2_sql(s: sqlparse.sql.Statement) -> SqlAst:
+def _sqlparse_ast_2_sql(s: sqlparse.sql.Statement) -> RawSqlAst:
     raise NotImplementedError()
 
 
-def parse(raw_sql: str) -> Iterable[SqlAst]:
+def parse(raw_sql: str) -> Iterator[RawSqlAst]:
     asts = _get_sqlparse_asts(raw_sql)
     return (_sqlparse_ast_2_sql(s) for s in asts)

@@ -25,8 +25,19 @@ unit-test:
 
 .PHONY: mypy-check
 mypy-check:
-	poetry run mypy typed_sql
+	poetry run mypy .
 
+.PHONY: clean-cache
+clean-cache:
+	@find . \( -iname "__pycache__" -o -iname ".hypothesis" \) -print0 | xargs -0 rm -rf
+	@rm -rf .eggs *.egg-info/ .coverage build/ .cache .pytest_cache
+
+# MKDocs
+# ``````
+
+.PHONY: serve-docs
+serve-docs:
+	poetry run mkdocs serve
 
 # SQLite management
 # `````````````````
@@ -47,13 +58,6 @@ clean-test-sqlite: delete-test-sqlite init-test-sqlite
 .PHONY:	run-test-sqlite-queries
 run-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
 	sqlite3 ${TMPD_DIR}/${TEST_DB} < ${DATA_DIR}/queries.sql
-
-# MKDocs
-# ``````
-
-.PHONY: serve-docs
-serve-docs:
-	poetry run mkdocs serve
 
 # Utility targets
 # ~~~~~~~~~~~~~~~
