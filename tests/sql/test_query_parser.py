@@ -1,11 +1,11 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
 from chai_sql.models import RawSqlAst, RawSqlToken
 from chai_sql.sql.query_parser import parse
 
-__base_parse_checks__ = {
+__base_parse_checks__: Dict[str, Any] = {
     "tree": (True, lambda x: isinstance(x, RawSqlAst)),
     "tokens": (
         True,

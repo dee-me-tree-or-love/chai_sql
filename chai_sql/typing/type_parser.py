@@ -1,14 +1,9 @@
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, Protocol
 
 from arpeggio.cleanpeg import ParserPEG
 
 from chai_sql.models import ChaiSqlAst, RawSqlAst
-
-# TODO:
-#   Consider:
-#       1. Arpeggio: http://textx.github.io/Arpeggio/2.0/
-#       2. DHParser: https://gitlab.lrz.de/badw-it/DHParser
 
 TYPE_GRAMMAR_PEG = """
 // lang:cleanpeg
@@ -23,7 +18,15 @@ trigger = "@"
 app_reference = "chai_sql" / "chai" / "ChaiSQL" / "cs"
 """
 
-P = TypeVar("P")
+T = TypeVar("T")
+
+
+class Parseable(Protocol):
+    def parse(self: T, *args: Any, **kwargs: Any) -> Any:
+        ...
+
+
+P = TypeVar("P", bound=Parseable)
 R = TypeVar("R")
 
 
@@ -35,6 +38,7 @@ class ParserWrapper(Generic[P, R]):
         return self.parser.parse(text, *args, **kwargs)
 
 
+# TODO: define what is the return of the parser here
 def _get_arpeggio_parser(debug=False) -> ParserWrapper[ParserPEG, Any]:
     """
     Prepares the Arpeggio-based type info parser.
