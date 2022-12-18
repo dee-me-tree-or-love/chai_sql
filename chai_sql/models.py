@@ -5,6 +5,7 @@ from typing import Generic, Tuple, TypeVar, Iterator
 T = TypeVar("T")
 
 
+# TODO: this should become a RawSqlAstNode with references to parents
 @dataclass
 class RawSqlToken:
     position: Tuple[int, int]
