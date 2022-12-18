@@ -35,7 +35,7 @@ class ParserWrapper(Generic[P, R]):
         return self.parser.parse(text, *args, **kwargs)
 
 
-def _get_arpeggio_parser() -> ParserWrapper[ParserPEG, Any]:
+def _get_arpeggio_parser(debug=False) -> ParserWrapper[ParserPEG, Any]:
     """
     Prepares the Arpeggio-based type info parser.
 
@@ -53,16 +53,13 @@ def _get_arpeggio_parser() -> ParserWrapper[ParserPEG, Any]:
         >>> parser.parse("@cs:check")
         [ [ trigger '@' [0], [  'cs' [1] ],  ':' [3], [  'check' [4] ] ], EOF [9] ]
     """
-    opts = {
-        # TODO: define a better approach for DEBUG settings
-        # "debug":True
-    }
-    parser = ParserPEG(TYPE_GRAMMAR_PEG, "typer_statement", **opts)
+    # TODO: define a better approach for DEBUG settings
+    parser = ParserPEG(TYPE_GRAMMAR_PEG, "typer_statement", debug=debug)
     return ParserWrapper(parser)
 
 
-def get_default_parser() -> ParserWrapper[ParserPEG, Any]:
-    return _get_arpeggio_parser()
+def get_default_parser(**kwargs) -> ParserWrapper[ParserPEG, Any]:
+    return _get_arpeggio_parser(**kwargs)
 
 
 def parse(text: str, parser: ParserWrapper[P, R]) -> R:
