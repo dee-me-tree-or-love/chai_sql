@@ -5,13 +5,13 @@ from chai_sql.sql.query_parser import parse
 
 from typing import Any
 
-__base_parse_checks__ = dict(
-    tree=(True, lambda x: isinstance(x, RawSqlAst)),
-    tokens=(
+__base_parse_checks__ = {
+    "tree": (True, lambda x: isinstance(x, RawSqlAst)),
+    "tokens": (
         True,
         lambda x: all((isinstance(t, RawSqlToken) for t in x.tokens())),
     ),
-)
+}
 
 
 @pytest.mark.parametrize(
@@ -43,6 +43,26 @@ __base_parse_checks__ = dict(
                 **{
                     "values": (
                         ["select", "*", "from", "cats"],
+                        lambda x: (
+                            [
+                                t.value.lower()
+                                for t in x.tokens()
+                                if "keyword" in t.option.lower()
+                                or "wildcard" in t.option.lower()
+                                or "name" in t.option.lower()
+                            ]
+                        ),
+                    ),
+                },
+            },
+        ),
+        (
+            "-- foo\nselect name, age from cats;",
+            {
+                **__base_parse_checks__,
+                **{
+                    "values": (
+                        ["select", "name", "age", "from", "cats"],
                         lambda x: (
                             [
                                 t.value.lower()
