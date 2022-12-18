@@ -1,7 +1,7 @@
 [tool.poetry]
 authors = ["Dmitrii Orlov <dmtree.dev@yahoo.com>"]
 description = ""
-name = "typed_sql"
+name = "chai_sql"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
