@@ -2,7 +2,7 @@ from typing import Iterable, Sequence
 
 import sqlparse
 
-from typed_sql.models import SqlAst
+from chai_sql.models import SqlAst
 
 
 def _get_sqlparse_asts(t: str) -> Sequence[sqlparse.sql.Statement]:
