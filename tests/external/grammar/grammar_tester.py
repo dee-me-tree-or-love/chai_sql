@@ -3,7 +3,6 @@ from typing import Any, Callable, Tuple
 import click
 from abnf import Rule
 
-
 # FIXME: this seems to be broken
 # FIXME: don't use ABNF, it seems problematic. Use EBNF instead? ANTLR uses EBNF...
 
