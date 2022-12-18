@@ -1,4 +1,5 @@
-site_name: Typed SQL
+site_name: Chai SQL
+# TODO: design & add logo for the docs
 
 theme:
   name: material
@@ -33,6 +34,8 @@ plugins:
 
 # Extensions
 markdown_extensions:
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite

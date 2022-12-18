@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "name": "Main",
+      "path": "."
+    },
+    {
+      "name": "Docs",
+      "path": "./docs"
+    },
+    {
+      "name": "Utils",
+      "path": "./utils"
+    }
+  ]
+}

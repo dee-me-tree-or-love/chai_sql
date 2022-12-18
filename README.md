@@ -1,31 +1,43 @@
-# typed_sql
+# Chai SQL
 
-Internship project about adding an optional type system to SQL
+Internship project adding an optional type system to SQL
 
-<!--mkdocs-intro-start-->
+## Examples
 
+<!--mkdocs-intro-examples-start-->
+```sql  title="ChaiSQL"
+-- Coming soon!
+```
+<!--mkdocs-intro-examples-end-->
+
+<!-- :: User content -->
+
+<!--mkdocs-intro-details-start-->
 ## Installation
 
 <!-- TODO: describe how to install `typed_sql` -->
+*Coming soon!*
 
 ## Supported features
 
 <!-- TODO: describe supported & planned features -->
+*Coming soon!*
+<!--mkdocs-intro-details-end-->
 
-<!--mkdocs-intro-end-->
-
+<!-- :: Developer content -->
 ## Development
 
-### `poetry`
+### Python project: `chai_sql`
 
-For the management of this project and its dependencies, we use `poetry`.
+#### We use [`poetry`](https://python-poetry.org/) to configure `chai_sql`
 
-You can install it with `pip install poetry`.
+You can install it with `pip install poetry`.  
+The project configuration can be found in [`pyproject.toml`](./pyproject.toml).
 
-#### `poetry install` - to setup all requirements
+##### `poetry install` - to setup all requirements
 
 #### `poetry run <dependency executable>` - to run an executable module with `poetry`
 
-### [`Makefile`](./Makefile)
+### For various tasks: [`Makefile`](./Makefile)
 
-The `Makefile` provides some utility targets for repository development tasks.
+The [`Makefile`](./Makefile) contains utility targets for repository development tasks.
