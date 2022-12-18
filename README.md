@@ -1,6 +1,6 @@
-# typed_sql
+# Chai SQL
 
-Internship project about adding an optional type system to SQL
+Internship project adding an optional type system to SQL
 
 ## Examples
 

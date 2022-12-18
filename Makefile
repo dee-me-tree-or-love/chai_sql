@@ -1,6 +1,9 @@
 TMPD_DIR=.tmp
 TEST_DB=test.db
 DATA_DIR=data
+POETRY_RUN=poetry run
+OK_MSG="✅ Done!"
+OK_CLEAN_MSG="🧹 Done!"
 
 # User facing targets
 # ~~~~~~~~~~~~~~~~~~~
@@ -9,51 +12,57 @@ DATA_DIR=data
 # `````````````````
 
 .PHONY: style-fix
-style-fix: black-fix isort-fix
+style-fix: black isort
 
-.PHONY: isort-fix
-isort-fix:
-	poetry run isort .
-
-.PHONY: black-fix
-black-fix:
-	poetry run black .
+.PHONY: style-fix
+style-check: FLAG=--check
+style-check: black isort
 
 .PHONY: unit-test
 unit-test:
-	poetry run pytest --doctest-modules
+	${POETRY_RUN} pytest --doctest-modules
 
 .PHONY: mypy-check
 mypy-check:
-	poetry run mypy .
+	${POETRY_RUN} mypy .
 
 .PHONY: clean-cache
 clean-cache:
-	@find . \( -iname "__pycache__" -o -iname ".hypothesis" \) -print0 | xargs -0 rm -rf
-	@rm -rf .eggs *.egg-info/ .coverage build/ .cache .pytest_cache
+	find . \( -iname "__pycache__" -o -iname ".hypothesis" \) -print0 | xargs -0 rm -rf
+	rm -rf .eggs *.egg-info/ .coverage build/ .cache .pytest_cache
+	@echo ${OK_CLEAN_MSG}
+
+.PHONY: isort
+isort:
+	${POETRY_RUN} isort ${FLAG} .
+
+.PHONY: black
+black:
+	${POETRY_RUN} black ${FLAG} .
+
 
 # MKDocs
 # ``````
 
 .PHONY: serve-docs
 serve-docs:
-	poetry run mkdocs serve
+	${POETRY_RUN} mkdocs serve
 
 # SQLite management
 # `````````````````
 
-.PHONY: init-test-sqlite
-init-test-sqlite: ${TMPD_DIR}/${TEST_DB}
-	@echo "✅ Done!"
+.PHONY: db-init-test-sqlite
+db-init-test-sqlite: ${TMPD_DIR}/${TEST_DB}
+	@echo ${OK_MSG}
 
-.PHONY: delete-test-sqlite
-delete-test-sqlite:
+.PHONY: db-delete-test-sqlite
+db-delete-test-sqlite:
 	@echo "🪣 Removing sqlite data..."
 	rm -rf ${TMPD_DIR}/${TEST_DB}
-	@echo "🧹 Done!"
+	@echo ${OK_CLEAN_MSG}
 
-.PHONY: clean-test-sqlite
-clean-test-sqlite: delete-test-sqlite init-test-sqlite
+.PHONY: db-clean-test-sqlite
+db-clean-test-sqlite: db-delete-test-sqlite db-init-test-sqlite
 
 .PHONY:	run-test-sqlite-queries
 run-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
