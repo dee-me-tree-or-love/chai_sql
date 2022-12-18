@@ -10,6 +10,18 @@ python-versions = ">=3"
 typing-extensions = ">=4,<5"
 
 [[package]]
+name = "arpeggio"
+version = "2.0.0"
+description = "Packrat parser interpreter"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+dev = ["wheel", "mkdocs", "mike", "twine"]
+test = ["flake8", "coverage", "coveralls", "pytest"]
+
+[[package]]
 name = "attrs"
 version = "22.1.0"
 description = "Classes Without Boilerplate"
@@ -469,12 +481,16 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "9c28106efcaaf065574a42db83fe036f772b892376963c063a4122ddfe91b6f3"
+content-hash = "9832ea762c95839f8e3fcb32823c3017e60859b27f7962a5b865495c39b74582"
 
 [metadata.files]
 abnf = [
     {file = "abnf-2.0.2-py3-none-any.whl", hash = "sha256:8a75429ced7dc1a915c54a1b6e56356666f7690c51ad51c2f26d8280f8cb7551"},
     {file = "abnf-2.0.2.tar.gz", hash = "sha256:6276831f20e9f5276037154243a10003cfa5ee9f2e838f516943e3941f82e9b8"},
+]
+arpeggio = [
+    {file = "Arpeggio-2.0.0-py2.py3-none-any.whl", hash = "sha256:448e332deb0e9ccd04046f1c6c14529d197f41bc2fdb3931e43fc209042fbdd3"},
+    {file = "Arpeggio-2.0.0.tar.gz", hash = "sha256:d6b03839019bb8a68785f9292ee6a36b1954eb84b925b84a6b8a5e1e26d3ed3d"},
 ]
 attrs = [
     {file = "attrs-22.1.0-py2.py3-none-any.whl", hash = "sha256:86efa402f67bf2df34f51a335487cf46b1ec130d02b8d39fd248abfd30da551c"},

@@ -1,9 +1,9 @@
+from typing import Any
+
 import pytest
 
 from chai_sql.models import RawSqlAst, RawSqlToken
 from chai_sql.sql.query_parser import parse
-
-from typing import Any
 
 __base_parse_checks__ = {
     "tree": (True, lambda x: isinstance(x, RawSqlAst)),

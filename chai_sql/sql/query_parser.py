@@ -1,11 +1,10 @@
-from typing import Iterator, Sequence, Generic, TypeVar
+from typing import Generic, Iterator, Sequence, TypeVar
 
 # See Colab for experiments with `sqlparse`
 #   https://colab.research.google.com/drive/100hW8Qw5iSNafhi54Ucriw1SA0bdBgjX?usp=sharing
 import sqlparse
 
 from chai_sql.models import KnownSqlOptions, RawSqlAst, RawSqlToken
-
 
 T = TypeVar("T")
 
