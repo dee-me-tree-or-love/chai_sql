@@ -12,22 +12,22 @@ OK_CLEAN_MSG="🧹 Done!"
 # `````````````````
 
 .PHONY: style-fix
-style-fix: black isort
+style-fix sf: black isort
 
 .PHONY: style-fix
-style-check: FLAG=--check
-style-check: black isort
+style-check sc: FLAG=--check
+style-check sc: black isort
 
 .PHONY: unit-test
-unit-test:
+unit-test ut:
 	${POETRY_RUN} pytest --doctest-modules
 
 .PHONY: mypy-check
-mypy-check:
+mypy-check mpc:
 	${POETRY_RUN} mypy .
 
 .PHONY: clean-cache
-clean-cache:
+clean-cache cc:
 	find . \( -iname "__pycache__" -o -iname ".hypothesis" \) -print0 | xargs -0 rm -rf
 	rm -rf .eggs *.egg-info/ .coverage build/ .cache .pytest_cache
 	@echo ${OK_CLEAN_MSG}
