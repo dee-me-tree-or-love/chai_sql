@@ -5,6 +5,14 @@
       "path": "."
     },
     {
+      "name": "Sources",
+      "path": "./chai_sql"
+    },
+    {
+      "name": "Tests",
+      "path": "./tests"
+    },
+    {
       "name": "Docs",
       "path": "./docs"
     },
