@@ -35,12 +35,12 @@ def test_parse_start_with_schema(base_parser):
     assert result[0][0].value == "@"
     assert result[0][1].rule_name == "app_reference"
     assert result[0][1].value == "chai_sql"
-    #  result[0][2] is matched by ":", which has no name
+    # result[0][2] is matched by ":", which has no name
     assert result[0][2].rule_name == ""
     assert result[0][2].value == ":"
     assert result[0][3].rule_name == "app_command"
     assert result[0][3].value.startswith("check")
-    # nested inside the check
+    # the input is nested inside the check
     assert result[0][3][1].rule_name == ""
     assert result[0][3][1].value == "("
     assert result[0][3][2].rule_name == "app_input"
