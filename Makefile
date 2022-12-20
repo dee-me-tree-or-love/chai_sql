@@ -44,8 +44,8 @@ black:
 # MKDocs
 # ``````
 
-.PHONY: serve-docs
-serve-docs:
+.PHONY: docs-serve
+docs-serve:
 	${POETRY_RUN} mkdocs serve
 
 # SQLite management
@@ -64,8 +64,8 @@ db-delete-test-sqlite:
 .PHONY: db-clean-test-sqlite
 db-clean-test-sqlite: db-delete-test-sqlite db-init-test-sqlite
 
-.PHONY:	run-test-sqlite-queries
-run-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
+.PHONY: db-exec-test-sqlite-queries
+db-exec-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
 	sqlite3 ${TMPD_DIR}/${TEST_DB} < ${DATA_DIR}/queries.sql
 
 # Utility targets
