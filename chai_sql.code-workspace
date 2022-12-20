@@ -12,5 +12,8 @@
       "name": "Utils",
       "path": "./utils"
     }
-  ]
+  ],
+  "settings": {
+    "python.terminal.activateEnvironment": false
+  }
 }
