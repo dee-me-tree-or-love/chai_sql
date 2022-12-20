@@ -69,28 +69,24 @@ SELECT "> Exist experiments";
 
 SELECT COUNT(*), "-- anything"
 FROM cat AS c
-WHERE
-    EXISTS (SELECT * FROM person AS p);
+WHERE EXISTS (SELECT * FROM person AS p);
 
 SELECT COUNT(*), "-- anything 1?"
 FROM cat AS c
-WHERE
-    EXISTS (SELECT 1 FROM person AS p);
+WHERE EXISTS (SELECT 1 FROM person AS p);
 
 SELECT COUNT(*), "-- same name"
 FROM cat AS c
-WHERE
-    EXISTS (
-        SELECT 1 
-        FROM person AS p 
-        WHERE p.name = c.name
-    );
+WHERE EXISTS (
+    SELECT 1 
+    FROM person AS p 
+    WHERE p.name = c.name
+);
 
 SELECT COUNT(*), "-- different name?"
 FROM cat AS c
-WHERE
-    NOT EXISTS (
-        SELECT 1 
-        FROM person AS p 
-        WHERE p.name = c.name
-    );
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM person AS p 
+    WHERE p.name = c.name
+);
