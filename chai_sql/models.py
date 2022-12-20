@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Generic, Iterator, Tuple, TypeVar
+from typing import Generic, Iterator, Sequence, Tuple, TypeVar
 
 T = TypeVar("T")
 
@@ -32,3 +32,26 @@ class RawSqlAst(Generic[T]):
 
 class ChaiSqlAst:
     pass
+
+
+@dataclass
+class ChaiSqlType:
+    name: str
+
+
+@dataclass
+class ChaiSqlAttribute:
+    name: str
+    type_spec: ChaiSqlType
+
+
+@dataclass
+class ChaiSqlRelation:
+    name: str
+    attributes: Sequence[ChaiSqlAttribute]
+
+
+@dataclass
+class ChaiSqlSchema:
+    types: Sequence[ChaiSqlType]
+    relations: Sequence[ChaiSqlRelation]

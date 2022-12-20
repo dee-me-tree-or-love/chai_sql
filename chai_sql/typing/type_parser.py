@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar, Protocol
+from typing import Any, Generic, Protocol, TypeVar
 
 from arpeggio.cleanpeg import ParserPEG
 
