@@ -222,7 +222,7 @@ and
 ## Syntactic sugar reference
 
 > - [ ] (backlog): Feature supported in Python `chai_sql`
->   - [ ] parser
+>   - [x] parser
 >   - [ ] evaluation
 
 - TODO: develop a syntactic sugar reference
