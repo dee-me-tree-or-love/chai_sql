@@ -28,10 +28,7 @@ Following the work of Guagliardo and Libkin (2017, p.29), this syntax covers onl
 
 ## Queries
 
-<!-- TODO: find out which syntax highlighting would work best here -->
-<!-- TODO: rewrite the syntax to an easier format -->
-<!-- TODO: fix this! -->
-
+<!-- TODO: rewrite to PEGs -->
 ```abnf  title="Query syntax"
 ; utility definitions
 TOKEN         = "foo"
@@ -48,101 +45,97 @@ ColumnAccess  = Column ["AS" Alias]
               / ColumnAccess "," Column ["AS" Alias]
 
 ; query
-Query  = "SELECT" ["DISTINCT"] ColumnAccess 
-         "FROM" TableAccess ";"
-       / "SELECT" ["DISTINCT"] ColumnAccess 
-         "FROM" TableAccess 
-         "WHERE" Condition ";"
-       / "SELECT" ["DISTINCT"] "*" 
-         "FROM" TableAccess 
-         "WHERE" Condition ";"
+Query  = "SELECT" ["DISTINCT"] ColumnAccess QueryFrom
+       / "SELECT" ["DISTINCT"] "*" QueryFrom
        / Query
          ("UNION" / "INTERSECT" / "EXCEPT")
          ["ALL"]
          Query ";"
+
+QueryFrom = "FROM" TableAccess ";"
+          / "FROM" TableAccess "WHERE" Condition ";"
 ```
 
 ### Typing Queries
 
-<!-- TODO: What about query like `SELECT 1;`? -->
-- [x] column `SELECT-FROM-WHERE` statement
-- [x] asterix `SELECT-FROM-WHERE` statement
-- [ ] constant `SELECT-FROM-WHERE` statement
-- [x] selection with `DISTINCT` select modifier
-- [x] compound queries `UNION`, `INTERSECT`, and `EXCEPT`
-- [x] compound queries with `ALL` modifier
+- [x] terms
+  - [x] table access
+  - [x] column access
+  - [x] asterix access
+  - [x] constant access
+  - [x] aliases
+- [ ] queries
+  - [x] from
+  - [x] from where
+  - [x] select
+  - [x] select distinct
+  - [ ] compound queries
 
 #### Query type inference rules
 
 <!-- TODO(backlog): follow the semantics chapter to work this out -->
-<!-- FIXME: explain type polymorphism & operators  -->
+<!-- TODO: rewrite this into PEGs? -->
 ```hs  title="Query type inference"
--- Basics
--- ~~~~~~
--- TODO: consider these to make it less ambigious?
---   (QB0) FROM s : TableReference[XS] |- FROM s : QueryResult[XS]
---   (QB0) s : TableReference[XS] |- FROM s : QueryResult[XS]
-(QB0) s : TableReference[XS] |- s : QueryResult[XS]
---
-
--- Selections
--- ~~~~~~~~~~
--- See https://www.sqlite.org/lang_select.html
-(QS0)   s : QueryResult[XS] -- apply (QB0) -- FIXME: this doesn't make sense atm
-     &  p : bool
-     |- SELECT * FROM s WHERE p : QueryResult[XS]
---
-(QS1)   s : QueryResult[XS]
-     &  p : bool
-     -- TODO: define QueryResult<Distinct>[A]
-     |- SELECT DISTINCT * FROM s WHERE p : QueryResult<Distinct>[XS]
---
--- TODO: define QueryResult[A] -> Selection[B]
-(QS2)   c : QueryResult[XS] -> Selection[YS]
-     &  s : QueryResult[XS]
-     &  p : bool
-     |- SELECT c FROM s WHERE p : QueryResult[YS]
---
-(QS3)   c : QueryResult[XS] -> Selection[YS]
-     &  s : QueryResult[XS]
-     &  p : bool
-     |- SELECT DISTINCT c FROM s WHERE p : QueryResult<Distinct>[YS]
-
--- Compound queries
--- ~~~~~~~~~~~~~~~~
--- See https://www.sqlite.org/lang_select.html#compound_select_statements
-(QO0)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[YS]
-     -- TODO: define A + B
-     |- q1 UNION q2 : QueryResult<Distinct>[All[XS]]
---
-(QO1)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[XS]
-     -- TODO: define A & B
-     |- q1 INTERSECT q2 : QueryResult<Distinct>[Both[XS]]
---
-(QO2)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[YS]
-     -- TODO: define A / B
-     |- q1 EXCEPT q2 : QueryResult<Distinct>[OnlyLeft[XS]]
---
-(QO3)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[YS]
-     |- q1 UNION ALL q2 : QueryResult[All[XS]]
---
-(QO4)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[XS]
-     |- q1 INTERSECT ALL q2 : QueryResult[Both[XS]]
---
-(QO5)   q1 : QueryResult[XS]
-     &  q2 : QueryResult[XS]
-     |- q1 EXCEPT ALL q2 : QueryResult[OnlyLeft[XS]]
+-- Terms
+-- `````
+     -- TODO: currently no term "expressions" are typed
+     --   - [ ] add support for full-names: e.g. R.C
+     --   - [ ] add support for expressions: e.g. coalesce(X,Y,...)
+     -- TODO: define type-operation `includes? XS YS`
+(T0) G |- t : BT /\ includes? BT BaseTypes |= t : BT
+(T1) G |- t_1 : BT_1 /\ ... /\ t_n : BT_n
+       |= t_1, ..., t_n : BT_1, ..., BT_n
+(T2) G |- t_1, ..., t_m : BT_1, ..., BT_m
+       |= t_1 as N_1, ..., t_m as N_m : BT_1, ..., BT_m
+-- Relations
+-- `````````
+     -- TODO: will this deal with subqueries?
+(R0) G |- r : DbView<x>[YS] /\ includes? DbView<x>[YS] Schema 
+       |= r : DbView<x>[YS]
+     -- TODO: define type-operation (`U`)nion: `XS U YS`
+(R1) G |- r_1 : DbView<x_1>[YS_1] /\ ... /\ r_n : DbView<x_n>[YS_n]
+       |= r_1, ..., r_n : DbView<bag>[YS_1 U ... U YS_n]
+(R2) G |- r_1, ..., r_n : DbView<x>[YS_1 U ... U YS_n]
+       |= r_1 as N_1, ...,  r_m as N_m : DbView<x>[YS_1 U ... U YS_n]
+-- Query sources
+-- `````````````
+(S0) G |- s : DbView<x>[YS]
+       |= FROM s : DbView<x>[YS]
+     -- NB: Trilean is the type of 3VL used in SQL
+     --     see: https://en.wikipedia.org/wiki/Three-valued_logic
+(S1) G |- s : DbView<x>[YS] /\ c : Trilean
+       |= FROM s WHERE c : DbView<x>[YS]
+-- Queries
+-- ```````
+(Q0) G |- t : BTS |= SELECT t ;          : DbView<bag>[BTS]
+(Q1) G |- t : BTS |= SELECT DISTINCT t ; : DbView<set>[BTS]
+(Q2) G |- t : BTS /\ fw : DbView<x>[YS] /\ includes? BTS YS
+       |= SELECT t fw; : DbView<bag>[BTS]
+(Q3) G |- t : BTS /\ fw : DbView<x>[YS] /\ includes? BTS YS
+       |= SELECT DISTINCT t fw; : DbView<set>[BTS]
+     -- NB: Here we deviate from Guagliardo & Libkin (2017) by not
+     --     making a distinction between the scope of `SELECT * ...`
+(Q4) G |- fw : DbView<x>[YS] |= SELECT * fw; : DbView<bag>[YS]
+(Q5) G |- fw : DbView<x>[YS] |= SELECT DISTINCT * fw; : DbView<set>[YS]
+-- Query operations
+-- ````````````````
+(O0) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
+       |= q_1 UNION ALL q_2 : DbView<bag>[YS]
+(O1) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
+       |= q_1 INTERSECT ALL q_2 : DbView<bag>[YS]
+(O2) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
+       |= q_1 EXCEPT ALL q_2 : DbView<bag>[YS]
+(O3) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
+       |= q_1 UNION q_2 : DbView<set>[YS]
+(O4) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
+       |= q_1 INTERSECT q_2 : DbView<set>[YS]
+(O5) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
+       |= q_1 EXCEPT q_2 : DbView<set>[YS]
 ```
 
 ## Conditions
 
-<!-- FIXME: rewrite to ABNF -->
-<!-- TODO: define the predicate ABNF syntax -->
+<!-- FIXME: rewrite to PEGs -->
 ```abnf  title="Condition syntax"
 ; predicate
 Predicate     = TOKEN
@@ -161,49 +154,44 @@ Condition     = "TRUE"
 
 ### Typing conditions
 
-- [x] Base cases: `TRUE | FALSE `
-- [ ] Predicate logic on basic SQL types
+- [x] Base cases: `TRUE | FALSE | NULL`
 - [x] `NULL` comparison
 - [x] `IN` value inclusion comparison
 - [x] `EXISTS` non-empty query check
-- [x] Basic boolean logic: `AND`, `OR`, `NOT`
+- [x] Basic boolean logic: `AND`, `OR`, `NOT`, `IS`, `IS NOT`
+- [ ] Extended predicate logic
 
 #### Condition type inference rules
 
-<!-- TODO: consider which syntax format works best here -->
+<!-- TODO: fix this up -->
 ```hs title="Condition type inference"
 -- Basics
--- ~~~~~~
---
-(C0)                        |- TRUE          : bool
---
-(C1)                        |- FALSE         : bool
+-- ``````
+(C0) |= <true>   : Trilean
+(C1) |= <false>  : Trilean
+(C2) |= <null>   : Trilean
 
 -- Stanadrd logics
--- ~~~~~~~~~~~~~~~
---
-(C2) x : bool & y : bool    |- x AND y       : bool
---
-(C3) x : bool & y : bool    |- x OR y        : bool
---
-(C4) x : bool               |- NOT x         : bool
-
--- Query checking
--- ~~~~~~~~~~~~~~
---
-(C5) t : ColumnReference    |- t IS NULL     : bool
---
-(C5) t : ColumnReference    |- t IS NOT NULL : bool
---
-(C6) q : QueryResult        |- EXISTS q      : bool
---
-(C7)    t : ColumnReference
-     &  q : QueryResult
-     |- t IN q     : bool
---
-(C8)    t : ColumnReference
-     &  q : QueryResult
-     |- t NOT IN q : bool
+-- ```````````````
+(L0) G |- x : Trilean /\ y : Trilean |= x AND y : Trilean
+(L1) G |- x : Trilean /\ y : Trilean |= x OR y : Trilean
+(L2) G |- x : Trilean |= NOT x : Trilean
+(L3) G |- l : BTS /\ r : BTS /\ len? BTS 1
+       |= l IS r : Trilean
+(L4) G |- l : BTS /\ r : BTS /\ len? BTS 1
+       |= l IS NOT r: Trilean
+-- Query predicates
+-- ``````````````
+     -- TODO: define type operation `len? XS N`
+(P2) G |- q : DbView<x>[YS]  |= EXISTS q : Trilean
+(P4) G |- t : BTS_a /\ ts : BTS_b /\ len? BTS_a 1 /\ includes? BTS_a BTS_b
+       |= t IN ts : Trilean
+(P5) G |- t : BTS_a /\ ts : BTS_b /\ len? BTS_a 1 /\ includes? BTS_a BTS_b
+       |= t NOT IN ts : Trilean
+(P4) G |- t : BTS /\ q : DbView<x>[YS] /\ len? BTS 1 /\ includes? BTS YS
+       |= t IN q : Trilean
+(P5) G |- t : BTS /\ q : DbView<x>[YS] /\ len? BTS 1 /\ includes? BTS YS
+       |= t NOT IN q : Trilean
 ```
 
 ---
@@ -212,6 +200,7 @@ Condition     = "TRUE"
 
 - Guagliardo, P., & Libkin, L. (2017). A formal semantics of SQL queries, its validation, and applications. _Proceedings of the VLDB Endowment, 11_(1), 27–39. <https://doi.org/10.14778/3151113.3151116>
 - Foster, E. C., & Godbole, S. (2016). Bnf syntax for selected sql statements. In E. C. Foster & S. Godbole (Eds.), _Database Systems: A Pragmatic Approach_ (pp. 539–583). Apress. <https://doi.org/10.1007/978-1-4842-1191-5_29>
+  - TODO: maybe this can be removed?
 
 ## Extra reading
 
