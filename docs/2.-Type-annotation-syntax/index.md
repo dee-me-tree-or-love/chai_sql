@@ -73,7 +73,7 @@ This method allows to check data types parameterized with a database schema.
 >   - [ ] parser for the database format
 >   - [ ] evaluation
 
-- [ ] [ChaiSQL Simple Schema]
+- [x] [ChaiSQL Simple Schema](../4.-Simple-DB-schema-specification/index.md)
 - [ ] [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema)
 
 ### Specifying type hints
