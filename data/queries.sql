@@ -90,3 +90,13 @@ WHERE NOT EXISTS (
     FROM person AS p 
     WHERE p.name = c.name
 );
+
+SELECT "> Type hint experiments";
+
+-- @chaisql:returns DbView<bag>[String, String]
+SELECT
+    -- @chaisql:returns String
+    p.name,
+    -- @chaisql:returns String
+    "friend" AS class
+FROM person AS p;
