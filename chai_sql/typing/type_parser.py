@@ -10,12 +10,15 @@ TYPE_GRAMMAR_PEG = """
 typer_statement = (app_control) EOF
 // Base application controls
 app_control = trigger app_reference ":" app_command
-app_command = app_check
-app_check = "check" ("(" app_input ")")?
-app_input = r'[^()]'*
+app_command = app_check / app_returns / app_newtype
+app_check = "check" ("(" app_schema_input ")")?
+app_schema_input = r'[^()]'*
+app_returns = "returns" app_type_reference
+app_newtype = "newtype" app_type_reference "=" app_type_reference
+app_type_reference = r'[^(\\=\\.)]'*
 // Common pieces
 trigger = "@"
-app_reference = "chai_sql" / "chai" / "ChaiSQL" / "cs"
+app_reference = "chai_sql" / "chaisql" / "ChaiSQL" / "chai" / "cs"
 """
 
 T = TypeVar("T")
@@ -49,13 +52,10 @@ def _get_arpeggio_parser(debug=False) -> ParserWrapper[ParserPEG, Any]:
     Examples:
         >>> parser = _get_arpeggio_parser()
         >>> parser.parse("@chai_sql:check")
-        [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [  'check' [10] ] ], EOF [15] ]
+        [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [ [  'check' [10] ] ] ], EOF [15] ]
 
-        >>> parser.parse("@chai:check")
-        [ [ trigger '@' [0], [  'chai' [1] ],  ':' [5], [  'check' [6] ] ], EOF [11] ]
-
-        >>> parser.parse("@cs:check")
-        [ [ trigger '@' [0], [  'cs' [1] ],  ':' [3], [  'check' [4] ] ], EOF [9] ]
+        >>> parser.parse("@chai_sql:check(schema.foo)")
+        [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [ [  'check' [10],  '(' [15], [  's' [16],  ...  'o' [25] ],  ')' [26] ] ] ], EOF [27] ]
     """
     # TODO: define a better approach for DEBUG settings
     parser = ParserPEG(TYPE_GRAMMAR_PEG, "typer_statement", debug=debug)

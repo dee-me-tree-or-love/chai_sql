@@ -20,7 +20,7 @@ The syntax below is an adaption of the proposed basic SQL fragment to
 <!-- TODO: add list of included and not included features of SQL -->
 Following the work of Guagliardo and Libkin (2017, p.29), this syntax covers only the following features:
 
-- [ ] Basic 
+- TODO: provide the list of supported features!
 
 ### Semantic interpretation
 
@@ -64,11 +64,14 @@ QueryFrom = "FROM" TableAccess ";"
   - [x] asterix access
   - [x] constant access
   - [x] aliases
+  - [ ] term expressions
+  - [ ] term aggregations
 - [ ] queries
   - [x] from
   - [x] from where
   - [x] select
   - [x] select distinct
+  - [ ] aggregations
   - [ ] compound queries
 
 #### Query type inference rules
@@ -107,7 +110,7 @@ QueryFrom = "FROM" TableAccess ";"
        |= FROM s WHERE c : DbView<x>[YS]
 -- Queries
 -- ```````
-(Q0) G |- t : BTS |= SELECT t ;          : DbView<bag>[BTS]
+(Q0) G |- t : BTS |= SELECT t ; : DbView<bag>[BTS]
 (Q1) G |- t : BTS |= SELECT DISTINCT t ; : DbView<set>[BTS]
 (Q2) G |- t : BTS /\ fw : DbView<x>[YS] /\ includes? BTS YS
        |= SELECT t fw; : DbView<bag>[BTS]

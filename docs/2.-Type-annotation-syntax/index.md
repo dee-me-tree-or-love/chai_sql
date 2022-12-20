@@ -70,9 +70,10 @@ This method allows to check data types parameterized with a database schema.
 ##### Supported schema formats
 
 > - [ ] (backlog): Features supported in Python `chai_sql`
->   - [x] parser
+>   - [ ] parser for the database format
 >   - [ ] evaluation
 
+- [ ] [ChaiSQL Simple Schema]
 - [ ] [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema)
 
 ### Specifying type hints
@@ -80,7 +81,7 @@ This method allows to check data types parameterized with a database schema.
 #### Returned types
 
 > - [ ] (backlog): Feature supported in Python `chai_sql`
->   - [ ] parser
+>   - [x] parser
 >   - [ ] evaluation
 
 ```sql
@@ -136,7 +137,7 @@ This method allows to check data types parameterized with a database schema.
 #### New type alias
 
 > - [ ] (backlog): Feature supported in Python `chai_sql`
->   - [ ] parser
+>   - [x] parser
 >   - [ ] evaluation
 
 ```sql
