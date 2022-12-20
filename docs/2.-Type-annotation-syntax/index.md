@@ -1,6 +1,6 @@
 # Type Annotations for SQL
 
-<!-- TODO: give an introduction -->
+<!-- TODO: provide an introduction -->
 <!-- FIXME: describe the running example schema -->
 
 ## Type Annotation examples
@@ -45,7 +45,9 @@ Full syntactic sugar reference is available [below](#syntactic-sugar-reference).
 
 #### Without loading a DB schema
 
--- [ ] (backlog): Feature supported in Python `chai_sql`
+> - [ ] (backlog): Feature supported in Python `chai_sql`
+>   - [x] parser
+>   - [ ] evaluation
 
 This method allows to only check abstract data types and types of constants.
 
@@ -55,7 +57,9 @@ This method allows to only check abstract data types and types of constants.
 
 #### With loading a DB schema
 
--- [ ] (backlog): Feature supported in Python `chai_sql`
+> - [ ] (backlog): Feature supported in Python `chai_sql`
+>   - [x] parser
+>   - [ ] evaluation
 
 This method allows to check data types parameterized with a database schema.
 
@@ -65,7 +69,9 @@ This method allows to check data types parameterized with a database schema.
 
 ##### Supported schema formats
 
--- [ ] (backlog): Features supported in Python `chai_sql`
+> - [ ] (backlog): Features supported in Python `chai_sql`
+>   - [x] parser
+>   - [ ] evaluation
 
 - [ ] [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema)
 
@@ -73,7 +79,9 @@ This method allows to check data types parameterized with a database schema.
 
 #### Returned types
 
--- [ ] (backlog): Feature supported in Python `chai_sql`
+> - [ ] (backlog): Feature supported in Python `chai_sql`
+>   - [ ] parser
+>   - [ ] evaluation
 
 ```sql
 -- @chaisql:returns <T>
@@ -127,7 +135,9 @@ This method allows to check data types parameterized with a database schema.
 
 #### New type alias
 
--- [ ] (backlog): Feature supported in Python `chai_sql`
+> - [ ] (backlog): Feature supported in Python `chai_sql`
+>   - [ ] parser
+>   - [ ] evaluation
 
 ```sql
 -- @chaisql:newtype <T> = <R>
@@ -210,7 +220,9 @@ and
 
 ## Syntactic sugar reference
 
--- [ ] (backlog): Feature supported in Python `chai_sql`
+> - [ ] (backlog): Feature supported in Python `chai_sql`
+>   - [ ] parser
+>   - [ ] evaluation
 
 - TODO: develop a syntactic sugar reference
 
