@@ -1,13 +1,13 @@
 import pytest
 
-from chai_sql.typing.type_parser import _get_arpeggio_parser, parse
+from chai_sql.typing.type_parser import get_default_parser, parse
 
-__ARPEGGIO_PARSER__ = _get_arpeggio_parser()
+__BASE_PARSER__ = get_default_parser()
 
 
 @pytest.fixture
 def base_parser():
-    return __ARPEGGIO_PARSER__
+    return __BASE_PARSER__
 
 
 # TODO(tech-debt): fix up repetition and pattern duplication

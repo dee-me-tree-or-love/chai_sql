@@ -16,6 +16,8 @@ To support basic schema operations, we provide a simple syntax for describing DB
 
 This schema is purposefully simplified and allows to specify only the very basic information about the relations.
 
+Only the checked features below are supported:
+
 - [x] Table names
 - [x] Column names
 - [x] Column value types
@@ -23,11 +25,12 @@ This schema is purposefully simplified and allows to specify only the very basic
 - [ ] Constraints
 - [ ] Dependencies
 - [ ] Indexes
+- [ ] Comments
 
 ### Example
 
 ```hs title="Example schema definition in Chai SQL schema syntax"
-types: [Number, String, Boolean]
+types: { Number, String, Boolean }
 
 relation Cat: {
     id: Number,
@@ -49,7 +52,7 @@ Below is the defintion of the abstract syntax of the schema file:
 ```hs title="Approximate syntax definition for Chai SQL schemas"
 -- Collection of declared type names
 (
-    types: [(<Type>,)*]
+    types: { (<Type>,)* }
 )?
 
 -- Listing of all relations

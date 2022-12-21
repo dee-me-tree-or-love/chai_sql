@@ -13,16 +13,19 @@ app_control = trigger app_reference ":" app_command
 app_command = app_check / app_returns / app_newtype
 app_check = app_check_alias ( "(" app_schema_input ")" )?
 app_check_alias = "check" / "ck"
-app_schema_input = r'[^()]'*
+app_schema_input = r'[^\\(\\)]'*
 app_returns = app_returns_alias app_type_reference
 app_returns_alias = "returns" / "~"
 app_newtype = app_newtype_alias app_type_reference "=" app_type_reference
 app_newtype_alias = "newtype" / "+"
-app_type_reference = r'[^(\\=\\.)]'*
+// TODO: review whether type references should be improved
+app_type_reference = r'[a-zA-Z]'*
 // Common pieces
 trigger = "@"
 app_reference = "chai_sql" / "chaisql" / "ChaiSQL" / "chai" / "cs"
 """
+
+# TODO: make this a part of a separate shared package!
 
 T = TypeVar("T")
 
