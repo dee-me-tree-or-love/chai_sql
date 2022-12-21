@@ -27,7 +27,7 @@ jobs:
       - name: Dependencies
         run: poetry install --no-interaction --no-root
       - name: Unit tests
-        run: make unit-tests
+        run: make unit-test
   check-style:
     runs-on: ubuntu-latest
     steps:
