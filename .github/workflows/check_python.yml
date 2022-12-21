@@ -1,0 +1,45 @@
+name: Check Python code
+
+run-name: ${{ github.actor }} is checking the Python code
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    paths:
+      - "**/chai_sql/**"
+      - ".github/**"
+
+# TODO: add matrix runner support for different Python versions
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Dependencies
+        run: poetry install --no-interaction --no-root
+      - name: Unit tests
+        run: make unit-tests
+  check-style:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Dependencies
+        run: poetry install --no-interaction --no-root
+      - name: Lint
+        run: make style-check
