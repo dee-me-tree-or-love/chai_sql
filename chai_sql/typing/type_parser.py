@@ -1,9 +1,16 @@
 from dataclasses import dataclass
 from typing import Any, Generic, Protocol, TypeVar
 
-from arpeggio.cleanpeg import ParserPEG
-
-from chai_sql.models import ChaiSqlAst, RawSqlAst
+from chai_sql.models import (
+    ChaiSqlAst,
+    GenericParserResult,
+    GenericParserWrapper,
+    RawSqlAst,
+)
+from chai_sql.shared.arpeggio_parser_wrapper import (
+    ArpeggioParserWrapper,
+    wrap_arpeggio_parser,
+)
 
 TYPE_GRAMMAR_PEG = """
 // lang:cleanpeg
@@ -25,35 +32,13 @@ trigger = "@"
 app_reference = "chai_sql" / "chaisql" / "ChaiSQL" / "chai" / "cs"
 """
 
-# TODO: make this a part of a separate shared package!
 
-T = TypeVar("T")
-
-
-class Parseable(Protocol):
-    def parse(self: T, *args: Any, **kwargs: Any) -> Any:
-        ...
-
-
-P = TypeVar("P", bound=Parseable)
-R = TypeVar("R")
-
-
-@dataclass
-class ParserWrapper(Generic[P, R]):
-    parser: P
-
-    def parse(self, text: str, *args, **kwargs) -> R:
-        return self.parser.parse(text, *args, **kwargs)
-
-
-# TODO: define what is the return of the parser here
-def _get_arpeggio_parser(debug=False) -> ParserWrapper[ParserPEG, Any]:
+def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
     """
     Prepares the Arpeggio-based type info parser.
 
     Returns:
-        ParserPEG: an Arpeggio parser
+        ArpeggioParserWrapper: a wrapped Arpeggio parser
 
     Examples:
         >>> parser = _get_arpeggio_parser()
@@ -63,16 +48,14 @@ def _get_arpeggio_parser(debug=False) -> ParserWrapper[ParserPEG, Any]:
         >>> parser.parse("@chai_sql:check(schema.foo)")
         [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [ [ [  'check' [10] ],  '(' [15], [  's' [16],  ...  'f' [23],  'o' [24],  'o' [25] ],  ')' [26] ] ] ], EOF [27] ]
     """
-    # TODO: define a better approach for DEBUG settings
-    parser = ParserPEG(TYPE_GRAMMAR_PEG, "typer_statement", debug=debug)
-    return ParserWrapper(parser)
+    return wrap_arpeggio_parser(TYPE_GRAMMAR_PEG, "typer_statement", debug=debug)
 
 
-def get_default_parser(**kwargs) -> ParserWrapper[ParserPEG, Any]:
+def get_default_parser(**kwargs) -> ArpeggioParserWrapper:
     return _get_arpeggio_parser(**kwargs)
 
 
-def parse(text: str, parser: ParserWrapper[P, R]) -> R:
+def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
     return parser.parse(text)
 
 

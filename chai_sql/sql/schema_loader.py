@@ -1,13 +1,17 @@
 from dataclasses import dataclass
 from typing import Any, Generic, Protocol, TypeVar
 
-from arpeggio.cleanpeg import ParserPEG
-
 from chai_sql.models import (
     ChaiSqlAttribute,
     ChaiSqlRelation,
     ChaiSqlSchema,
     ChaiSqlType,
+    GenericParserResult,
+    GenericParserWrapper,
+)
+from chai_sql.shared.arpeggio_parser_wrapper import (
+    ArpeggioParserWrapper,
+    wrap_arpeggio_parser,
 )
 
 SCHEMA_GRAMMAR_PEG = """
@@ -28,50 +32,29 @@ name_spec = r'[a-zA-Z]'*
 binder = ":"
 """
 
-# TODO: make this a part of a separate shared package!
-# FIXME: solve the duplication
 
-T = TypeVar("T")
-
-
-class Parseable(Protocol):
-    def parse(self: T, *args: Any, **kwargs: Any) -> Any:
-        ...
-
-
-P = TypeVar("P", bound=Parseable)
-R = TypeVar("R")
-
-
-@dataclass
-class ParserWrapper(Generic[P, R]):
-    parser: P
-
-    def parse(self, text: str, *args, **kwargs) -> R:
-        return self.parser.parse(text, *args, **kwargs)
-
-
-def _get_arpeggio_parser(debug=False) -> ParserWrapper[ParserPEG, Any]:
+def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
     """
-    Prepares the Arpeggio-based type info parser.
+    Prepares the Arpeggio-based schema parser.
 
     Returns:
-        ParserPEG: an Arpeggio parser
+        ArpeggioParserWrapper: a wrapped Arpeggio parser
+
+    Examples:
+        TODO: add examples
     """
-    # TODO: define a better approach for DEBUG settings
-    parser = ParserPEG(SCHEMA_GRAMMAR_PEG, "schema", debug=debug)
-    return ParserWrapper(parser)
+    return wrap_arpeggio_parser(SCHEMA_GRAMMAR_PEG, "schema", debug=debug)
 
 
-def get_default_parser(**kwargs) -> ParserWrapper[ParserPEG, Any]:
+def get_default_parser(**kwargs) -> ArpeggioParserWrapper:
     return _get_arpeggio_parser(**kwargs)
 
 
-def parse(text: str, parser: ParserWrapper[P, R]) -> R:
+def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
     return parser.parse(text)
 
 
-def construct(parse_result: R) -> ChaiSqlSchema:
+def translate(parse_result: GenericParserResult) -> ChaiSqlSchema:
     raise NotImplementedError()
 
 

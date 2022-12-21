@@ -1,8 +1,29 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Generic, Iterator, Sequence, Tuple, TypeVar
+from typing import Any, Generic, Iterator, Protocol, Sequence, Tuple, TypeAlias, TypeVar
 
 T = TypeVar("T")
+
+
+class Parseable(Protocol):
+    def parse(self: T, *args: Any, **kwargs: Any) -> Any:
+        ...
+
+
+P = TypeVar("P", bound=Parseable)
+R = TypeVar("R")
+
+
+@dataclass
+class ParserWrapper(Generic[P, R]):
+    parser: P
+
+    def parse(self, text: str, *args, **kwargs) -> R:
+        return self.parser.parse(text, *args, **kwargs)
+
+
+GenericParserWrapper: TypeAlias = ParserWrapper[P, R]
+GenericParserResult: TypeAlias = R
 
 
 # TODO: this should become a RawSqlAstNode with references to parents
