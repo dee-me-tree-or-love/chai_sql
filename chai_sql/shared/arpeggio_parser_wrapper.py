@@ -16,6 +16,15 @@ def wrap_arpeggio_parser(
 
     Returns:
         ParserPEG: an Arpeggio parser
+
+    Examples:
+    >>> grammar = 'greeting = "hello" / "hi"'
+    >>> start = "greeting"
+    >>> parser = wrap_arpeggio_parser(grammar, start)
+    >>> parser.parse("hello")
+    [  'hello' [0] ]
+    >>> parser.parse("hi")
+    [  'hi' [0] ]
     """
     parser = ParserPEG(peg_grammar, start_rule, debug=debug)
     return ParserWrapper(parser)
