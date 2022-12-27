@@ -82,7 +82,7 @@ def _sqlparse_2_sql_ast(s: sqlparse.sql.Statement) -> SqlAst:
     return SqlAst(_sqlparse_statement_2_command(s), _sqlparse_statement_2_tree(s))
 
 
-def parse(raw_sql: str) -> Iterator[SqlParseRoseTree]:
+def parse(raw_sql: str) -> Iterator[SqlAst]:
     """
     Returns an Abstract Syntax Tree represtentation of the raw SQL queries.
     Each SQL statement in the SQL query becomes a separate item yielded by the iterator.

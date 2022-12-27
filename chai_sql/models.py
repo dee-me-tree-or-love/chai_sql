@@ -39,24 +39,6 @@ GenericParserWrapper: TypeAlias = ParserWrapper[P, R]
 GenericParserResult: TypeAlias = R
 
 
-class SqlCommand(Enum):
-    NOT_SUPPORTED = 0
-    SELECT = 1
-
-
-@dataclass
-class SqlAstNode:
-    # TODO: restrict the node kinds
-    kind: str
-    value: str
-
-
-@dataclass
-class SqlAst(Generic[T]):
-    command: SqlCommand
-    tree: RoseTree[T, SqlAstNode]
-
-
 S = TypeVar("S")
 N = TypeVar("N")
 
@@ -78,8 +60,38 @@ class RoseTree(Generic[S, N]):
                 yield c_subtree
 
 
-class ChaiSqlAst:
-    pass
+class SqlCommand(Enum):
+    NOT_SUPPORTED = 0
+    SELECT = 1
+
+
+@dataclass
+class SqlAstNode:
+    # TODO: restrict the node kinds
+    kind: str
+    value: str
+
+
+@dataclass
+class ChaiSqlAstNode(SqlAstNode):
+    type_spec: str
+
+
+@dataclass
+class SqlAst(Generic[S]):
+    command: SqlCommand
+    tree: RoseTree[S, SqlAstNode]
+
+
+@dataclass
+class ChaiSqlAst(Generic[S]):
+    command: SqlCommand
+    tree: RoseTree[S, ChaiSqlAstNode]
+
+
+@dataclass
+class ChaiSqlTypeSpec:
+    value: str
 
 
 @dataclass

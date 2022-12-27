@@ -3,10 +3,12 @@ from typing import Any, Generic, Protocol, TypeVar
 
 from chai_sql.models import (
     ChaiSqlAst,
-    ChaiSqlSchema,
+    ChaiSqlAstNode,
+    ChaiSqlTypeSpec,
     GenericParserResult,
     GenericParserWrapper,
     SqlAst,
+    SqlAstNode,
 )
 from chai_sql.shared.arpeggio_parser_wrapper import (
     ArpeggioParserWrapper,
@@ -60,8 +62,13 @@ def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
     return parser.parse(text)
 
 
-def translate(parse_result: GenericParserResult) -> ChaiSqlSchema:
-    raise NotImplementedError()
+def type_comment_to_type_spec(comment: str) -> ChaiSqlTypeSpec:
+    return ChaiSqlTypeSpec(value=comment)
+
+
+def sql_ast_node_2_chai_sql_ast_node(node: SqlAstNode) -> ChaiSqlAstNode:
+    type_spec = node.value
+    return ChaiSqlAstNode(**node.__dict__, type_spec=type_spec)
 
 
 def annotate(sql: SqlAst) -> ChaiSqlAst:
