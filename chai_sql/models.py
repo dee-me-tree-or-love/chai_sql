@@ -1,6 +1,19 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Generic, Iterator, Protocol, Sequence, Tuple, TypeAlias, TypeVar
+from itertools import chain
+from typing import (
+    Any,
+    Generic,
+    Iterator,
+    List,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeAlias,
+    TypeVar,
+)
 
 T = TypeVar("T")
 
@@ -49,6 +62,39 @@ class RawSqlAst(Generic[T]):
     def tokens(self) -> Iterator[RawSqlToken]:
         # TODO: make this an abstract function
         raise NotImplementedError()
+
+
+class KnownSqlCommand(Enum):
+    NOT_SUPPORTED = 0
+    SELECT = 1
+
+
+@dataclass
+class SqlAstNode:
+    children: Iterator[SqlAstNode]
+    nr_children: int
+    value: str
+    # TODO: restrict the token family
+    family: str
+
+
+@dataclass
+class SqlAst(Generic[T]):
+    source: T
+    command: KnownSqlCommand
+
+    def roots(self) -> Iterator[SqlAstNode]:
+        # TODO: make this an abstract function
+        raise NotImplementedError()
+
+    def dfs_nodes(self) -> Iterator[SqlAstNode]:
+        return chain.from_iterable(self.__dfs_iter(node) for node in self.roots())
+
+    def __dfs_iter(self, node: SqlAstNode) -> Iterator[SqlAstNode]:
+        yield node
+        for child in node.children:
+            for c_node in self.__dfs_iter(child):
+                yield c_node
 
 
 class ChaiSqlAst:
