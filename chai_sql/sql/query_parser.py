@@ -4,7 +4,7 @@ from typing import Generic, Iterator, Sequence, TypeVar
 #   https://colab.research.google.com/drive/100hW8Qw5iSNafhi54Ucriw1SA0bdBgjX?usp=sharing
 import sqlparse
 
-from chai_sql.models import KnownSqlCommand, RawSqlAst, RawSqlToken, SqlAst, SqlAstNode
+from chai_sql.models import KnownSqlCommand, SqlAst, SqlAstNode
 
 T = TypeVar("T")
 

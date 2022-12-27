@@ -5,7 +5,7 @@ from chai_sql.models import (
     ChaiSqlAst,
     GenericParserResult,
     GenericParserWrapper,
-    RawSqlAst,
+    SqlAst,
 )
 from chai_sql.shared.arpeggio_parser_wrapper import (
     ArpeggioParserWrapper,
@@ -59,5 +59,5 @@ def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
     return parser.parse(text)
 
 
-def annotate(sql: RawSqlAst) -> ChaiSqlAst:
+def annotate(sql: SqlAst) -> ChaiSqlAst:
     raise NotImplementedError()
