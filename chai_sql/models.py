@@ -60,6 +60,10 @@ class RoseTree(Generic[S, N]):
                 yield c_subtree
 
 
+# Vanilla SQL
+# -----------
+
+
 class SqlCommand(Enum):
     NOT_SUPPORTED = 0
     SELECT = 1
@@ -73,14 +77,19 @@ class SqlAstNode:
 
 
 @dataclass
-class ChaiSqlAstNode(SqlAstNode):
-    type_spec: str
+class SqlAst(Generic[S]):
+    # FIXME: rename to `kind`
+    command: SqlCommand
+    tree: RoseTree[S, SqlAstNode]
+
+
+# ChaiSQL
+# -------
 
 
 @dataclass
-class SqlAst(Generic[S]):
-    command: SqlCommand
-    tree: RoseTree[S, SqlAstNode]
+class ChaiSqlAstNode(SqlAstNode):
+    type_tree: TypeCommandAst
 
 
 @dataclass
@@ -89,9 +98,24 @@ class ChaiSqlAst(Generic[S]):
     tree: RoseTree[S, ChaiSqlAstNode]
 
 
+# Type Info
+# ---------
+
+
 @dataclass
-class ChaiSqlTypeSpec:
+class TypeCommandAstNode:
+    # TODO: restrict the node kinds
+    kind: str
     value: str
+
+
+@dataclass
+class TypeCommandAst(Generic[S]):
+    tree: RoseTree[S, TypeCommandAstNode]
+
+
+# Schema loading
+# --------------
 
 
 @dataclass

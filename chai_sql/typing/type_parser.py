@@ -4,11 +4,12 @@ from typing import Any, Generic, Protocol, TypeVar
 from chai_sql.models import (
     ChaiSqlAst,
     ChaiSqlAstNode,
-    ChaiSqlTypeSpec,
     GenericParserResult,
     GenericParserWrapper,
+    RoseTree,
     SqlAst,
     SqlAstNode,
+    TypeCommandAst,
 )
 from chai_sql.shared.arpeggio_parser_wrapper import (
     ArpeggioParserWrapper,
@@ -24,12 +25,12 @@ app_command = app_check / app_returns / app_newtype
 app_check = app_check_alias ( "(" app_schema_input ")" )?
 app_check_alias = "check" / "ck"
 app_schema_input = r'[^\\(\\)]'*
-app_returns = app_returns_alias app_type_reference
+app_returns = app_returns_alias app_type_expression
 app_returns_alias = "returns" / "~"
-app_newtype = app_newtype_alias app_type_reference "=" app_type_reference
+app_newtype = app_newtype_alias app_type_expression "=" app_type_expression
 app_newtype_alias = "newtype" / "+"
 // TODO: review whether type references should be improved
-app_type_reference = r'[a-zA-Z]'*
+app_type_expression = r'[a-zA-Z]'*
 // Common pieces
 trigger = "@"
 app_reference = "chai_sql" / "chaisql" / "ChaiSQL" / "chai" / "cs"
@@ -54,22 +55,23 @@ def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
     return wrap_arpeggio_parser(TYPE_GRAMMAR_PEG, "typer_statement", debug=debug)
 
 
-def get_default_parser(**kwargs) -> ArpeggioParserWrapper:
-    return _get_arpeggio_parser(**kwargs)
-
-
-def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
+def _arpeggio_parse(text, **kwargs):
+    parser = _get_arpeggio_parser(**kwargs)
     return parser.parse(text)
 
 
-def type_comment_to_type_spec(comment: str) -> ChaiSqlTypeSpec:
-    return ChaiSqlTypeSpec(value=comment)
+def _arpeggio_tree_2_type_command(_) -> TypeCommandAst:
+    return TypeCommandAst(tree=RoseTree(None, None, 0, []))
 
 
-def sql_ast_node_2_chai_sql_ast_node(node: SqlAstNode) -> ChaiSqlAstNode:
-    type_spec = node.value
-    return ChaiSqlAstNode(**node.__dict__, type_spec=type_spec)
+def _parse_arpegio_comment(comment: str, **kwargs) -> TypeCommandAst:
+    tree = _arpeggio_parse(comment, **kwargs)
+    return _arpeggio_tree_2_type_command(tree)
 
 
-def annotate(sql: SqlAst) -> ChaiSqlAst:
+def expand_chai_sql_comments(tree: SqlAst) -> ChaiSqlAst:
+    raise NotImplementedError()
+
+
+def propagate_types(sql: ChaiSqlAst) -> ChaiSqlAst:
     raise NotImplementedError()
