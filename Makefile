@@ -23,7 +23,7 @@ unit-test ut:
 	${POETRY_RUN} pytest --doctest-modules
 
 .PHONY: mypy-check
-mypy-check mpc:
+mypy-check mc:
 	${POETRY_RUN} mypy .
 
 .PHONY: clean-cache
