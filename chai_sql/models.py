@@ -39,37 +39,43 @@ GenericParserWrapper: TypeAlias = ParserWrapper[P, R]
 GenericParserResult: TypeAlias = R
 
 
-class KnownSqlCommand(Enum):
+class SqlCommand(Enum):
     NOT_SUPPORTED = 0
     SELECT = 1
 
 
 @dataclass
 class SqlAstNode:
-    children: Iterator[SqlAstNode]
-    nr_children: int
+    # TODO: restrict the node kinds
+    kind: str
     value: str
-    # TODO: restrict the token family
-    family: str
 
 
 @dataclass
 class SqlAst(Generic[T]):
-    source: T
-    command: KnownSqlCommand
+    command: SqlCommand
+    tree: RoseTree[T, SqlAstNode]
 
-    def roots(self) -> Iterator[SqlAstNode]:
-        # TODO: make this an abstract function
-        raise NotImplementedError()
 
-    def dfs_nodes(self) -> Iterator[SqlAstNode]:
-        return chain.from_iterable(self.__dfs_iter(node) for node in self.roots())
+S = TypeVar("S")
+N = TypeVar("N")
 
-    def __dfs_iter(self, node: SqlAstNode) -> Iterator[SqlAstNode]:
-        yield node
-        for child in node.children:
-            for c_node in self.__dfs_iter(child):
-                yield c_node
+
+@dataclass
+class RoseTree(Generic[S, N]):
+    source: S
+    node: N | None
+    nr_children: int
+    children: List[RoseTree[S, N]]
+
+    def dfs_iter(self) -> Iterator[RoseTree[S, N]]:
+        return chain.from_iterable(map(self.__dfs_iter, self.children))
+
+    def __dfs_iter(self, subtree: RoseTree[S, N]) -> Iterator[RoseTree[S, N]]:
+        yield subtree
+        for child in subtree.children:
+            for c_subtree in self.__dfs_iter(child):
+                yield c_subtree
 
 
 class ChaiSqlAst:

@@ -2,14 +2,14 @@ from typing import Any, Dict
 
 import pytest
 
-from chai_sql.models import SqlAst, SqlAstNode
+from chai_sql.models import RoseTree, SqlAst, SqlAstNode
 from chai_sql.sql.query_parser import parse
 
 __base_parse_checks__: Dict[str, Any] = {
-    "tree": (True, lambda x: isinstance(x, SqlAst)),
-    "tokens": (
+    "ast": (True, lambda x: isinstance(x, SqlAst)),
+    "rose-trees": (
         True,
-        lambda x: all((isinstance(t, SqlAstNode) for t in x.dfs_nodes())),
+        lambda x: all((isinstance(t, RoseTree) for t in x.tree.dfs_iter())),
     ),
 }
 
@@ -22,14 +22,14 @@ __base_parse_checks__: Dict[str, Any] = {
             {
                 **__base_parse_checks__,
                 **{
-                    "values": (
+                    "node-values": (
                         ["select", "1"],
                         lambda x: (
                             [
-                                t.value.lower()
-                                for t in x.dfs_nodes()
-                                if "keyword" in t.family.lower()
-                                or "literal" in t.family.lower()
+                                t.node.value.lower()
+                                for t in x.tree.dfs_iter()
+                                if "keyword" in t.node.kind.lower()
+                                or "literal" in t.node.kind.lower()
                             ]
                         ),
                     ),
@@ -45,11 +45,11 @@ __base_parse_checks__: Dict[str, Any] = {
                         ["select", "*", "from", "cats"],
                         lambda x: (
                             [
-                                t.value.lower()
-                                for t in x.dfs_nodes()
-                                if "keyword" in t.family.lower()
-                                or "wildcard" in t.family.lower()
-                                or "name" in t.family.lower()
+                                t.node.value.lower()
+                                for t in x.tree.dfs_iter()
+                                if "keyword" in t.node.kind.lower()
+                                or "wildcard" in t.node.kind.lower()
+                                or "name" in t.node.kind.lower()
                             ]
                         ),
                     ),
@@ -65,11 +65,11 @@ __base_parse_checks__: Dict[str, Any] = {
                         ["select", "name", "age", "from", "cats"],
                         lambda x: (
                             [
-                                t.value.lower()
-                                for t in x.dfs_nodes()
-                                if "keyword" in t.family.lower()
-                                or "wildcard" in t.family.lower()
-                                or "name" in t.family.lower()
+                                t.node.value.lower()
+                                for t in x.tree.dfs_iter()
+                                if "keyword" in t.node.kind.lower()
+                                or "wildcard" in t.node.kind.lower()
+                                or "name" in t.node.kind.lower()
                             ]
                         ),
                     ),
@@ -90,13 +90,15 @@ def test_parse_sql_2_ast(test_input, check_map):
 def test_comment_info_in_parse_sql_2_ast():
     commented_sql = "-- Foo, Bar, Bop\nselect *, name from cats;"
     parse_result = parse(commented_sql)
-    for ast in parse_result:
-        nodes = list(ast.dfs_nodes())
-        comments = [n for n in nodes if "comment" in n.family.lower()]
-        assert ["-- Foo, Bar, Bop"] == [c.value.strip() for c in comments]
-        identifiers = [
-            n
-            for n in nodes
-            if "wildcard" in n.family.lower() or "name" in n.family.lower()
-        ]
-        assert ["*", "name", "cats"] == [c.value.strip() for c in identifiers]
+    ast = next(parse_result)
+    tree = ast.tree
+    nodes = [t.node for t in tree.dfs_iter()]
+    comments = [n for n in nodes if "comment" in n.kind.lower()]
+    assert len(comments) == 1
+    comment_values = [c.value.strip() for c in comments]
+    assert comment_values == ["-- Foo, Bar, Bop"]
+    identifiers = [
+        n for n in nodes if "wildcard" in n.kind.lower() or "name" in n.kind.lower()
+    ]
+    identifier_values = [c.value.strip() for c in identifiers]
+    assert identifier_values == ["*", "name", "cats"]

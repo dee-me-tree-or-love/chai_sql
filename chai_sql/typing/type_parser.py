@@ -3,6 +3,7 @@ from typing import Any, Generic, Protocol, TypeVar
 
 from chai_sql.models import (
     ChaiSqlAst,
+    ChaiSqlSchema,
     GenericParserResult,
     GenericParserWrapper,
     SqlAst,
@@ -57,6 +58,10 @@ def get_default_parser(**kwargs) -> ArpeggioParserWrapper:
 
 def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
     return parser.parse(text)
+
+
+def translate(parse_result: GenericParserResult) -> ChaiSqlSchema:
+    raise NotImplementedError()
 
 
 def annotate(sql: SqlAst) -> ChaiSqlAst:
