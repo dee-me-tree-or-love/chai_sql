@@ -11,6 +11,9 @@ OK_CLEAN_MSG="🧹 Done!"
 # Project dev tools
 # `````````````````
 
+.PHONY: full-check
+full-check fc: style-fix unit-test mypy-check
+
 .PHONY: style-fix
 style-fix sf: black isort
 
