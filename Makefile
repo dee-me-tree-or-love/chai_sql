@@ -12,22 +12,22 @@ OK_CLEAN_MSG="🧹 Done!"
 # `````````````````
 
 .PHONY: style-fix
-style-fix: black isort
+style-fix sf: black isort
 
 .PHONY: style-fix
-style-check: FLAG=--check
-style-check: black isort
+style-check sc: FLAG=--check
+style-check sc: black isort
 
 .PHONY: unit-test
-unit-test:
+unit-test ut:
 	${POETRY_RUN} pytest --doctest-modules
 
 .PHONY: mypy-check
-mypy-check:
+mypy-check mpc:
 	${POETRY_RUN} mypy .
 
 .PHONY: clean-cache
-clean-cache:
+clean-cache cc:
 	find . \( -iname "__pycache__" -o -iname ".hypothesis" \) -print0 | xargs -0 rm -rf
 	rm -rf .eggs *.egg-info/ .coverage build/ .cache .pytest_cache
 	@echo ${OK_CLEAN_MSG}
@@ -44,8 +44,8 @@ black:
 # MKDocs
 # ``````
 
-.PHONY: serve-docs
-serve-docs:
+.PHONY: docs-serve
+docs-serve:
 	${POETRY_RUN} mkdocs serve
 
 # SQLite management
@@ -64,8 +64,8 @@ db-delete-test-sqlite:
 .PHONY: db-clean-test-sqlite
 db-clean-test-sqlite: db-delete-test-sqlite db-init-test-sqlite
 
-.PHONY:	run-test-sqlite-queries
-run-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
+.PHONY: db-exec-test-sqlite-queries
+db-exec-test-sqlite-queries: ${TMPD_DIR}/${TEST_DB}
 	sqlite3 ${TMPD_DIR}/${TEST_DB} < ${DATA_DIR}/queries.sql
 
 # Utility targets
