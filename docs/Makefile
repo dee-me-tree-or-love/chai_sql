@@ -4,5 +4,9 @@ POETRY_RUN=poetry run
 # ``````
 
 .PHONY: docs-serve
-docs-serve:
+docs-serve serve:
 	${POETRY_RUN} mkdocs serve
+
+.PHONY: docs-build
+docs-build build:
+	${POETRY_RUN} mkdocs build
