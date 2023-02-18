@@ -4,7 +4,7 @@ This is the Python implementation (WIP) of ChaiSQL
 
 ---
 
-## Using [`poetry`](https://python-poetry.org/) to manage `chai_sql` project
+## [`poetry`](https://python-poetry.org/) to manage `chai_sql` project
 
 > To find out how to [install poetry, read here](https://python-poetry.org/docs/#installation).
 
@@ -14,7 +14,7 @@ The project configuration can be found in [`pyproject.toml`](./pyproject.toml).
 
 ---
 
-## For various development tasks: [`Makefile`](./Makefile)
+## [`Makefile`](./Makefile) for other development tasks
 
 The [`Makefile`](./Makefile) contains utility targets.
 
