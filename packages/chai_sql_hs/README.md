@@ -1,14 +1,14 @@
 # `chai-sql`
 
-This is the Haskell implementation (WIP) of ChaiSQL
+This is the home of Haskell implementation (WIP) of ChaiSQL
 
 ## Requirements
 
-<!-- TODO: describe requirements -->
+<!-- TODO: describe requirements: `stack`? -->
 
-## Haskell source: [`./chai-sql`](./chai-sql/)
+## Haskell project: [`./chai-sql`](./chai-sql/)
 
-All the package artifacts are contained in the [`./chai-sql`](./chai-sql/) directory
+All the Haskell artifacts are contained in the [`./chai-sql`](./chai-sql/).
 
 ### Why Haskell?
 

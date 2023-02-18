@@ -1,6 +1,6 @@
 # `chai-sql`
 
-<!-- TODO: elaboarte -->
+This is the Haskell implementation (WIP) of ChaiSQL.
 
 ## [`stack`](https://docs.haskellstack.org/en/stable/) for project management
 
