@@ -1,4 +1,4 @@
-# Chai SQL
+# ChaiSQL
 
 Internship project adding an optional type system to SQL
 
@@ -25,12 +25,14 @@ SELECT
 FROM people AS p;
 ```
 
-See more in the [`./docs`](./docs/index.md)
 <!--mkdocs-intro-examples-end-->
+
+See more in the [`docs`](./docs/src/index.md)
 
 <!-- :: User content -->
 
 <!--mkdocs-intro-details-start-->
+
 ## Installation
 
 <!-- TODO: describe how to install `typed_sql` -->
@@ -40,6 +42,7 @@ See more in the [`./docs`](./docs/index.md)
 
 <!-- TODO: describe supported & planned features -->
 *Coming soon!*
+
 <!--mkdocs-intro-details-end-->
 
 <!-- :: Developer content -->
