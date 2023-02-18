@@ -4,12 +4,12 @@ from typing import Generic, Iterator, Sequence, TypeVar
 #   https://colab.research.google.com/drive/100hW8Qw5iSNafhi54Ucriw1SA0bdBgjX?usp=sharing
 import sqlparse
 
-from chai_sql.models import KnownSqlOptions, RawSqlAst, RawSqlToken
+from chai_sql.models import RoseTree, SqlAst, SqlAstNode, SqlCommandKind
 
 T = TypeVar("T")
 
 
-def _get_sqlparse_asts(t: str) -> Sequence[sqlparse.sql.Statement]:
+def _sqlparse_parse(t: str) -> Sequence[sqlparse.sql.Statement]:
     """Parse the raw SQL using `sqlparse`
 
     Args:
@@ -20,106 +20,87 @@ def _get_sqlparse_asts(t: str) -> Sequence[sqlparse.sql.Statement]:
 
     Examples:
         >>> simple_sql = "select * from foo;"
-        >>> _get_sqlparse_asts(simple_sql)
+        >>> _sqlparse_parse(simple_sql)
         (<Statement 'select...' at 0x...>,)
-        >>> _tokens = _get_sqlparse_asts(simple_sql)[0].tokens
+        >>> _tokens = _sqlparse_parse(simple_sql)[0].tokens
         >>> next(_tokens[0].flatten())
         <DML 'select' at 0x...>
 
         >>> comments_in_sql = "-- bar\\nselect * from foo;"
-        >>> _get_sqlparse_asts(comments_in_sql)
+        >>> _sqlparse_parse(comments_in_sql)
         (<Statement '-- bar...' at 0x...>,)
 
         >>> multiple_statements_in_sql = "-- bar\\nselect * from foo; select * from foobar;"
-        >>> _get_sqlparse_asts(multiple_statements_in_sql)
+        >>> _sqlparse_parse(multiple_statements_in_sql)
         (<Statement '-- bar...' at 0x...>, <Statement 'select...' at 0x...>)
     """
     return sqlparse.parse(t)
 
 
-def _sqlparse_statement_2_known_option(
+def _sqlparse_statement_2_command(
     s: sqlparse.sql.Statement,
-) -> KnownSqlOptions:
+) -> SqlCommandKind:
     """
     Determines whether the passed SQL statement is a known option.
 
     Examples:
         >>> simple_sql = "select * from foo;"
-        >>> statement_1 = _get_sqlparse_asts(simple_sql)[0]
-        >>> _sqlparse_statement_2_known_option(statement_1)
-        <KnownSqlOptions.SELECT: 1>
+        >>> statement_1 = _sqlparse_parse(simple_sql)[0]
+        >>> _sqlparse_statement_2_command(statement_1)
+        <SqlCommandKind.SELECT: 1>
 
         >>> complex_sql = "insert into foo values 'baz';"
-        >>> statement_2 = _get_sqlparse_asts(complex_sql)[0]
-        >>> _sqlparse_statement_2_known_option(statement_2)
-        <KnownSqlOptions.NOT_SUPPORTED: 0>
+        >>> statement_2 = _sqlparse_parse(complex_sql)[0]
+        >>> _sqlparse_statement_2_command(statement_2)
+        <SqlCommandKind.NOT_SUPPORTED: 0>
     """
     try:
-        return KnownSqlOptions[s.get_type().upper()]
+        return SqlCommandKind[s.get_type().upper()]
     except KeyError:
-        # TODO: add logging
-        return KnownSqlOptions.NOT_SUPPORTED
+        # TODO(tech-debt): add logging
+        return SqlCommandKind.NOT_SUPPORTED
 
 
-class SqlParseRawSqlAst(RawSqlAst[sqlparse.sql.Statement], Generic[T]):
-    def tokens(self):
-        """
-        Examples:
-            >>> simple_sql = "select * from foo;"
-            >>> statement_1 = _get_sqlparse_asts(simple_sql)[0]
-            >>> sql_tree = SqlParseRawSqlAst(KnownSqlOptions.SELECT, statement_1)
-            >>> tokens = sql_tree.tokens()
-            >>> next(tokens)
-            RawSqlToken(position=(0, 0), option='...Keyword.DML', value='select')
-            >>> next(tokens)
-            RawSqlToken(position=(1, 0), option='...Whitespace', value=' ')
-            >>> next(tokens)
-            RawSqlToken(position=(2, 0), option='...Wildcard', value='*')
-            >>> next(tokens)
-            RawSqlToken(position=(3, 0), option='...Whitespace', value=' ')
-            >>> next(tokens)
-            RawSqlToken(position=(4, 0), option='...Keyword', value='from')
-            >>> next(tokens)
-            RawSqlToken(position=(5, 0), option='...Whitespace', value=' ')
-            >>> next(tokens)
-            RawSqlToken(position=(6, 0), option='...Name', value='foo')
-            >>> next(tokens)
-            RawSqlToken(position=(7, 0), option='...Punctuation', value=';')
-            >>> try: next(tokens)
-            ... except StopIteration: print('Iterator exhausted')
-            Iterator exhausted
-        """
-        return (
-            RawSqlToken((index_group, index_elmnt), str(token.ttype), token.value)
-            for index_group, group in enumerate(self.origin.tokens)
-            for index_elmnt, token in enumerate(group.flatten())
-        )
+SqlParseRoseTree = RoseTree[sqlparse.sql.Token, SqlAstNode]
 
 
-def _sqlparse_ast_2_sql(s: sqlparse.sql.Statement) -> SqlParseRawSqlAst:
-    s_option = _sqlparse_statement_2_known_option(s)
-    return SqlParseRawSqlAst(s_option, s)
+def _sqlparse_statement_2_node(statement: sqlparse.sql.Statement) -> SqlAstNode:
+    return SqlAstNode(kind=str(statement.ttype), value=statement.value)
 
 
-def parse(raw_sql: str) -> Iterator[RawSqlAst]:
+def _sqlparse_statement_2_tree(statement: sqlparse.sql.Statement) -> SqlParseRoseTree:
+    subtree_base = statement.tokens if statement.is_group else []
+    return SqlParseRoseTree(
+        source=statement,
+        node=_sqlparse_statement_2_node(statement),
+        nr_children=len(subtree_base),
+        children=list(map(_sqlparse_statement_2_tree, subtree_base)),
+    )
+
+
+def _sqlparse_2_sql_ast(s: sqlparse.sql.Statement) -> SqlAst:
+    return SqlAst(_sqlparse_statement_2_command(s), _sqlparse_statement_2_tree(s))
+
+
+def parse(raw_sql: str) -> Iterator[SqlAst]:
     """
-    Returns an Abstract Syntax Tree-ish represtentation of the raw SQL queries.
+    Returns an Abstract Syntax Tree represtentation of the raw SQL queries.
     Each SQL statement in the SQL query becomes a separate item yielded by the iterator.
 
     Args:
         raw_sql (str): an SQL query.
 
     Returns:
-        Iterator[RawSqlAst]: an iterator with custom RawSqlAst objects
+        Iterator[SqlAst]: an iterator with custom SqlAst objects
 
     Examples:
-        >>> l1 = list(parse("select * from foo;"))
-        >>> (len(l1), l1)
-        (1, [SqlParseRawSqlAst(option=<KnownSqlOptions.SELECT: 1>, origin=<...>)])
+        >>> asts1 = list(parse("select * from foo;"))
+        >>> (len(asts1), asts1)
+        (1, [SqlAst(kind=<SqlCommandKind.SELECT: 1>, tree=RoseTree(...)])
 
         >>> l2 = list(parse("select * from foo; select * from bar;"))
         >>> (len(l2), l2)
-        (2, [SqlParseRawSqlAst(option=<KnownSqlOptions.SELECT: 1>, origin=<...>), SqlParseRawSqlAst(option=<KnownSqlOptions.SELECT: 1>, origin=<...>)])
+        (2, [SqlAst(kind=<SqlCommandKind.SELECT: 1>, tree=RoseTree(...), SqlAst(kind=<SqlCommandKind.SELECT: 1>, tree=RoseTree(...)])
     """
-    asts = _get_sqlparse_asts(raw_sql)
-    return (_sqlparse_ast_2_sql(s) for s in asts)
+    asts = _sqlparse_parse(raw_sql)
+    return (_sqlparse_2_sql_ast(s) for s in asts)

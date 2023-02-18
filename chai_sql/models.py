@@ -1,6 +1,19 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Generic, Iterator, Protocol, Sequence, Tuple, TypeAlias, TypeVar
+from itertools import chain
+from typing import (
+    Any,
+    Generic,
+    Iterator,
+    List,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeAlias,
+    TypeVar,
+)
 
 T = TypeVar("T")
 
@@ -26,33 +39,83 @@ GenericParserWrapper: TypeAlias = ParserWrapper[P, R]
 GenericParserResult: TypeAlias = R
 
 
-# TODO: this should become a RawSqlAstNode with references to parents
+S = TypeVar("S")
+N = TypeVar("N")
+
+
 @dataclass
-class RawSqlToken:
-    position: Tuple[int, int]
-    # TODO: add an enum for Known Token Options
-    option: str
-    value: str
+class RoseTree(Generic[S, N]):
+    source: S
+    node: N | None
+    nr_children: int
+    children: List[RoseTree[S, N]]
+
+    def dfs_iter(self) -> Iterator[RoseTree[S, N]]:
+        return chain.from_iterable(map(self.__dfs_iter, self.children))
+
+    def __dfs_iter(self, subtree: RoseTree[S, N]) -> Iterator[RoseTree[S, N]]:
+        yield subtree
+        for child in subtree.children:
+            for c_subtree in self.__dfs_iter(child):
+                yield c_subtree
 
 
-class KnownSqlOptions(Enum):
+# Vanilla SQL
+# -----------
+
+
+class SqlCommandKind(Enum):
     NOT_SUPPORTED = 0
     SELECT = 1
 
 
 @dataclass
-class RawSqlAst(Generic[T]):
-    option: KnownSqlOptions
-    origin: T
-
-    # TODO: make it a property?
-    def tokens(self) -> Iterator[RawSqlToken]:
-        # TODO: make this an abstract function
-        raise NotImplementedError()
+class SqlAstNode:
+    # TODO: restrict the node kinds
+    kind: str
+    value: str
 
 
-class ChaiSqlAst:
-    pass
+@dataclass
+class SqlAst(Generic[S]):
+    kind: SqlCommandKind
+    tree: RoseTree[S, SqlAstNode]
+
+
+# ChaiSQL
+# -------
+
+
+@dataclass
+class ChaiSqlAnnotatedAstNode:
+    sql_node: SqlAstNode
+    type_tree: TypeCommandAst
+
+
+@dataclass
+class ChaiSqlAnnotatedAst(Generic[S]):
+    kind: SqlCommandKind
+    tree: RoseTree[S, ChaiSqlAnnotatedAstNode]
+
+
+# Type Info
+# ---------
+
+
+@dataclass
+class TypeCommandAstNode:
+    # TODO: restrict the kind type
+    kind: str
+    value: str
+
+
+@dataclass
+class TypeCommandAst(Generic[S]):
+    tree: RoseTree[S, TypeCommandAstNode]
+
+
+# Schema loading
+# --------------
 
 
 @dataclass

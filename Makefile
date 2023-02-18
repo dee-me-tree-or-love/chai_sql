@@ -1,5 +1,5 @@
 TMPD_DIR=.tmp
-TEST_DB=test.db
+TEST_DB=test.sqlite
 DATA_DIR=data
 POETRY_RUN=poetry run
 OK_MSG="✅ Done!"
@@ -10,6 +10,9 @@ OK_CLEAN_MSG="🧹 Done!"
 
 # Project dev tools
 # `````````````````
+
+.PHONY: full-check
+full-check fc: style-fix unit-test mypy-check
 
 .PHONY: style-fix
 style-fix sf: black isort
@@ -23,7 +26,7 @@ unit-test ut:
 	${POETRY_RUN} pytest --doctest-modules
 
 .PHONY: mypy-check
-mypy-check mpc:
+mypy-check mc:
 	${POETRY_RUN} mypy .
 
 .PHONY: clean-cache

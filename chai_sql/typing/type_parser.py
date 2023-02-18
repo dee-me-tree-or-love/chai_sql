@@ -2,10 +2,13 @@ from dataclasses import dataclass
 from typing import Any, Generic, Protocol, TypeVar
 
 from chai_sql.models import (
-    ChaiSqlAst,
     GenericParserResult,
     GenericParserWrapper,
-    RawSqlAst,
+    RoseTree,
+    SqlAst,
+    SqlAstNode,
+    TypeCommandAst,
+    TypeCommandAstNode,
 )
 from chai_sql.shared.arpeggio_parser_wrapper import (
     ArpeggioParserWrapper,
@@ -21,12 +24,12 @@ app_command = app_check / app_returns / app_newtype
 app_check = app_check_alias ( "(" app_schema_input ")" )?
 app_check_alias = "check" / "ck"
 app_schema_input = r'[^\\(\\)]'*
-app_returns = app_returns_alias app_type_reference
+app_returns = app_returns_alias app_type_expression
 app_returns_alias = "returns" / "~"
-app_newtype = app_newtype_alias app_type_reference "=" app_type_reference
+app_newtype = app_newtype_alias app_type_expression "=" app_type_expression
 app_newtype_alias = "newtype" / "+"
 // TODO: review whether type references should be improved
-app_type_reference = r'[a-zA-Z]'*
+app_type_expression = r'[a-zA-Z]'*
 // Common pieces
 trigger = "@"
 app_reference = "chai_sql" / "chaisql" / "ChaiSQL" / "chai" / "cs"
@@ -42,6 +45,7 @@ def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
 
     Examples:
         >>> parser = _get_arpeggio_parser()
+
         >>> parser.parse("@chai_sql:check")
         [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [ [ [  'check' [10] ] ] ] ], EOF [15] ]
 
@@ -51,13 +55,41 @@ def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
     return wrap_arpeggio_parser(TYPE_GRAMMAR_PEG, "typer_statement", debug=debug)
 
 
-def get_default_parser(**kwargs) -> ArpeggioParserWrapper:
-    return _get_arpeggio_parser(**kwargs)
-
-
-def parse(text: str, parser: GenericParserWrapper) -> GenericParserResult:
+def _arpeggio_parse(text, **kwargs):
+    parser = _get_arpeggio_parser(**kwargs)
     return parser.parse(text)
 
 
-def annotate(sql: RawSqlAst) -> ChaiSqlAst:
-    raise NotImplementedError()
+TypeRoseTree = RoseTree[Any, TypeCommandAstNode]
+
+
+def _arpeggio_tree_2_type_tree(parse_tree: Any) -> TypeRoseTree:
+    node = TypeCommandAstNode(kind=parse_tree.rule_name, value=rule_name.flat_str())
+    try:
+        subtree_base = [subtree for subtree in parse_tree]
+        return TypeRoseTree(
+            source=parse_tree,
+            node=node,
+            nr_children=len(subtree_base),
+            children=list(map(_arpeggio_tree_2_type_tree, subtree_base)),
+        )
+    except TypeError:
+        return TypeRoseTree(
+            source=parse_tree,
+            node=node,
+            nr_children=0,
+            children=[],
+        )
+
+
+def _parse_arpegio_comment(comment: str, **kwargs) -> TypeCommandAst:
+    """
+    Examples:
+        TODO: specify doctests
+    """
+    tree = _arpeggio_parse(comment, **kwargs)
+    return TypeCommandAst(tree=_arpeggio_tree_2_type_tree(tree))
+
+
+def parse(comment: str) -> TypeCommandAst:
+    return _parse_arpegio_comment(comment)

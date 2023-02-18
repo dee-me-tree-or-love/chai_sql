@@ -100,3 +100,12 @@ SELECT
     -- @chaisql:returns String
     "friend" AS class
 FROM person AS p;
+
+
+SELECT "> Manual join?";
+
+-- @chaisql:returns DbView <set> {catName: String, personName: String, years: Number}
+SELECT DISTINCT c.name as catName, p.name as personName, cf.years
+FROM cat as c, person as p, catFriends as cf
+WHERE   c.id = cf.catId
+    AND p.id = cf.personId;
