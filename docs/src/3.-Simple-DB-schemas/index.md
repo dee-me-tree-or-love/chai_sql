@@ -2,7 +2,7 @@
 title: Simple DB schemas
 ...
 
-# Simple DB schema for Chai SQL
+# Simple DB schema for ChaiSQL
 
 > - [ ] (backlog): Features supported in Python `chai_sql`
 >   - [ ] parser for the database format
@@ -29,7 +29,7 @@ Only the checked features below are supported:
 
 ### Example
 
-```hs title="Example schema definition in Chai SQL schema syntax"
+```hs title="Example schema definition in ChaiSQL schema syntax"
 types: { Number, String, Boolean }
 
 relation Cat: {
@@ -49,7 +49,7 @@ relation Person: {
 Below is the defintion of the abstract syntax of the schema file:
 
 <!-- TODO: rewrite the syntax as PEG -->
-```hs title="Approximate syntax definition for Chai SQL schemas"
+```hs title="Approximate syntax definition for ChaiSQL schemas"
 -- Collection of declared type names
 (
     types: { (<Type>,)* }

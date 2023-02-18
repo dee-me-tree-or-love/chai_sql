@@ -1,4 +1,4 @@
-# Chai SQL
+# ChaiSQL
 
 Internship project adding an optional type system to SQL
 
@@ -25,12 +25,20 @@ SELECT
 FROM people AS p;
 ```
 
-See more in the [`./docs`](./docs/index.md)
 <!--mkdocs-intro-examples-end-->
+
+## Documentation
+
+More information about ChaiSQL is available in:
+
+- [`./docs`](./docs/) directory
+- on the [MkDocs](https://www.mkdocs.org/)-powered website:
+  ChaiSQL Documentation (*link coming soon*).
 
 <!-- :: User content -->
 
 <!--mkdocs-intro-details-start-->
+
 ## Installation
 
 <!-- TODO: describe how to install `typed_sql` -->
@@ -40,22 +48,13 @@ See more in the [`./docs`](./docs/index.md)
 
 <!-- TODO: describe supported & planned features -->
 *Coming soon!*
+
 <!--mkdocs-intro-details-end-->
 
 <!-- :: Developer content -->
 ## Development
 
-### Python project: `chai_sql`
+The implementation of ChaiSQL is currently in progress and is at an early stage.  
+The solutions may change and different experimental implementations (all WIP) are mentioned below.
 
-#### We use [`poetry`](https://python-poetry.org/) to configure `chai_sql`
-
-You can install it with `pip install poetry`.  
-The project configuration can be found in [`pyproject.toml`](./pyproject.toml).
-
-##### `poetry install` - to setup all requirements
-
-#### `poetry run <dependency executable>` - to run an executable module with `poetry`
-
-### For various tasks: [`Makefile`](./Makefile)
-
-The [`Makefile`](./Makefile) contains utility targets for repository development tasks.
+### Python implementation: [`./packages/chai_sql_py/`](./packages/chai_sql_py/)

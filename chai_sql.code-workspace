@@ -9,8 +9,8 @@
       "path": "./docs"
     },
     {
-      "name": "Utils",
-      "path": "./utils"
+      "name": "ChaiSQL (Python)",
+      "path": "./packages/chai_sql_py"
     }
   ],
   "settings": {

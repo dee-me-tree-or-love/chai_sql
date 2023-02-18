@@ -1,5 +1,9 @@
-site_name: Chai SQL
+site_name: ChaiSQL
 # TODO: design & add logo for the docs
+
+docs_dir: src
+edit_uri: tree/main/docs/src
+repo_url: https://github.com/dee-me-tree-or-love/chai_sql
 
 theme:
   name: material
