@@ -14,12 +14,12 @@ OK_CLEAN_MSG="🧹 Done!"
 .PHONY: full-check
 full-check fc: style-fix unit-test mypy-check
 
-.PHONY: style-fix
-style-fix sf: black isort
-
-.PHONY: style-fix
+.PHONY: style-check
 style-check sc: FLAG=--check
 style-check sc: black isort
+
+.PHONY: style-fix
+style-fix sf: black isort
 
 .PHONY: unit-test
 unit-test ut:
