@@ -51,4 +51,4 @@ See more in the [`docs`](./docs/src/index.md)
 The implementation of ChaiSQL is currently in progress and is at an early stage.  
 The solutions may change and different experimental implementations (all WIP) are mentioned below.
 
-### Python implementation: [`./packages/chai_sql_py/README.md`](./packages/chai_sql_py/README.md)
+### Python implementation: [`./packages/chai_sql_py/`](./packages/chai_sql_py/)
