@@ -45,17 +45,7 @@ See more in the [`./docs`](./docs/index.md)
 <!-- :: Developer content -->
 ## Development
 
-### Python project: `chai_sql`
+The implementation of ChaiSQL is currently in progress and is at an early stage.  
+The solutions may change and different experimental implementations (all WIP) are mentioned below.
 
-#### We use [`poetry`](https://python-poetry.org/) to configure `chai_sql`
-
-You can install it with `pip install poetry`.  
-The project configuration can be found in [`pyproject.toml`](./pyproject.toml).
-
-##### `poetry install` - to setup all requirements
-
-#### `poetry run <dependency executable>` - to run an executable module with `poetry`
-
-### For various tasks: [`Makefile`](./Makefile)
-
-The [`Makefile`](./Makefile) contains utility targets for repository development tasks.
+### Python implementation: [`./packages/chai_sql_py/README.md`](./packages/chai_sql_py/README.md)
