@@ -31,7 +31,7 @@ FROM people AS p;
 
 More information about ChaiSQL is available in:
 
-- [`docs`](./docs/src/index.md)
+- [`./docs`](./docs/) directory
 - on the [MkDocs](https://www.mkdocs.org/)-powered website:
   ChaiSQL Documentation (*link coming soon*).
 
