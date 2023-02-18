@@ -27,7 +27,13 @@ FROM people AS p;
 
 <!--mkdocs-intro-examples-end-->
 
-See more in the [`docs`](./docs/src/index.md)
+## Documentation
+
+More information about ChaiSQL is available in:
+
+- [`docs`](./docs/src/index.md)
+- on the [MkDocs](https://www.mkdocs.org/)-powered website:
+  ChaiSQL Documentation (*link coming soon*).
 
 <!-- :: User content -->
 
