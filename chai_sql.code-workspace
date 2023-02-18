@@ -11,6 +11,10 @@
     {
       "name": "ChaiSQL (Python)",
       "path": "./packages/chai_sql_py"
+    },
+    {
+      "name": "ChaiSQL (Haskell)",
+      "path": "./packages/chai_sql_hs/chai-sql"
     }
   ],
   "settings": {
