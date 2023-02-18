@@ -8,7 +8,7 @@ on:
       - "main"
   pull_request:
     paths:
-      - "**/chai_sql/**"
+      - "packages/chai_sql_py/**"
       - ".github/**"
 
 # TODO: add matrix runner support for different Python versions
@@ -25,8 +25,10 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
       - name: Dependencies
+        working-directory: ./packages/chai_sql_py
         run: poetry install --no-interaction --no-root
       - name: Unit tests
+        working-directory: ./packages/chai_sql_py
         run: make unit-test
   check-style:
     runs-on: ubuntu-latest
@@ -40,6 +42,8 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
       - name: Dependencies
+        working-directory: ./packages/chai_sql_py
         run: poetry install --no-interaction --no-root
       - name: Lint
+        working-directory: ./packages/chai_sql_py
         run: make style-check
