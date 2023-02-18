@@ -45,8 +45,6 @@ def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
 
     Examples:
         >>> parser = _get_arpeggio_parser()
-        >>> dir(parser.parse("@chai_sql:check"))
-        False
 
         >>> parser.parse("@chai_sql:check")
         [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [ [ [  'check' [10] ] ] ] ], EOF [15] ]
@@ -87,8 +85,7 @@ def _arpeggio_tree_2_type_tree(parse_tree: Any) -> TypeRoseTree:
 def _parse_arpegio_comment(comment: str, **kwargs) -> TypeCommandAst:
     """
     Examples:
-        >>> _parse_arpegio_comment("@chai_sql:check")
-        False
+        TODO: specify doctests
     """
     tree = _arpeggio_parse(comment, **kwargs)
     return TypeCommandAst(tree=_arpeggio_tree_2_type_tree(tree))
