@@ -2,15 +2,19 @@
 
 This is a documentation package for ChaiSQL, powered by `mkdocs`.
 
-## Using [`poetry`](https://python-poetry.org/) to manage `chai_sql_docs` project
+---
+
+## Using [`poetry`](https://python-poetry.org/)
 
 > To find out how to [install poetry, read here](https://python-poetry.org/docs/#installation).
 
 The project configuration can be found in [`pyproject.toml`](./pyproject.toml).
 
-### `poetry install` - to setup all requirements
+### `poetry install` - setup all requirements
 
-## For various development tasks: [`Makefile`](./Makefile)
+---
+
+## For other development tasks: [`Makefile`](./Makefile)
 
 The [`Makefile`](./Makefile) contains utility targets.
 
