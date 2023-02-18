@@ -4,7 +4,7 @@ from typing import Generic, Iterator, Sequence, TypeVar
 #   https://colab.research.google.com/drive/100hW8Qw5iSNafhi54Ucriw1SA0bdBgjX?usp=sharing
 import sqlparse
 
-from chai_sql.models import RoseTree, SqlAst, SqlAstNode, SqlCommand
+from chai_sql.models import RoseTree, SqlAst, SqlAstNode, SqlCommandKind
 
 T = TypeVar("T")
 
@@ -39,7 +39,7 @@ def _sqlparse_parse(t: str) -> Sequence[sqlparse.sql.Statement]:
 
 def _sqlparse_statement_2_command(
     s: sqlparse.sql.Statement,
-) -> SqlCommand:
+) -> SqlCommandKind:
     """
     Determines whether the passed SQL statement is a known option.
 
@@ -47,18 +47,18 @@ def _sqlparse_statement_2_command(
         >>> simple_sql = "select * from foo;"
         >>> statement_1 = _sqlparse_parse(simple_sql)[0]
         >>> _sqlparse_statement_2_command(statement_1)
-        <SqlCommand.SELECT: 1>
+        <SqlCommandKind.SELECT: 1>
 
         >>> complex_sql = "insert into foo values 'baz';"
         >>> statement_2 = _sqlparse_parse(complex_sql)[0]
         >>> _sqlparse_statement_2_command(statement_2)
-        <SqlCommand.NOT_SUPPORTED: 0>
+        <SqlCommandKind.NOT_SUPPORTED: 0>
     """
     try:
-        return SqlCommand[s.get_type().upper()]
+        return SqlCommandKind[s.get_type().upper()]
     except KeyError:
         # TODO(tech-debt): add logging
-        return SqlCommand.NOT_SUPPORTED
+        return SqlCommandKind.NOT_SUPPORTED
 
 
 SqlParseRoseTree = RoseTree[sqlparse.sql.Token, SqlAstNode]
@@ -96,11 +96,11 @@ def parse(raw_sql: str) -> Iterator[SqlAst]:
     Examples:
         >>> asts1 = list(parse("select * from foo;"))
         >>> (len(asts1), asts1)
-        (1, [SqlAst(command=<SqlCommand.SELECT: 1>, tree=RoseTree(...)])
+        (1, [SqlAst(kind=<SqlCommandKind.SELECT: 1>, tree=RoseTree(...)])
 
         >>> l2 = list(parse("select * from foo; select * from bar;"))
         >>> (len(l2), l2)
-        (2, [SqlAst(command=<SqlCommand.SELECT: 1>, tree=RoseTree(...), SqlAst(command=<SqlCommand.SELECT: 1>, tree=RoseTree(...)])
+        (2, [SqlAst(kind=<SqlCommandKind.SELECT: 1>, tree=RoseTree(...), SqlAst(kind=<SqlCommandKind.SELECT: 1>, tree=RoseTree(...)])
     """
     asts = _sqlparse_parse(raw_sql)
     return (_sqlparse_2_sql_ast(s) for s in asts)

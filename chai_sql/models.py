@@ -64,7 +64,7 @@ class RoseTree(Generic[S, N]):
 # -----------
 
 
-class SqlCommand(Enum):
+class SqlCommandKind(Enum):
     NOT_SUPPORTED = 0
     SELECT = 1
 
@@ -78,8 +78,7 @@ class SqlAstNode:
 
 @dataclass
 class SqlAst(Generic[S]):
-    # FIXME: rename to `kind`
-    command: SqlCommand
+    kind: SqlCommandKind
     tree: RoseTree[S, SqlAstNode]
 
 
@@ -88,14 +87,15 @@ class SqlAst(Generic[S]):
 
 
 @dataclass
-class ChaiSqlAstNode(SqlAstNode):
+class ChaiSqlAnnotatedAstNode:
+    sql_node: SqlAstNode
     type_tree: TypeCommandAst
 
 
 @dataclass
-class ChaiSqlAst(Generic[S]):
-    command: SqlCommand
-    tree: RoseTree[S, ChaiSqlAstNode]
+class ChaiSqlAnnotatedAst(Generic[S]):
+    kind: SqlCommandKind
+    tree: RoseTree[S, ChaiSqlAnnotatedAstNode]
 
 
 # Type Info
@@ -104,7 +104,7 @@ class ChaiSqlAst(Generic[S]):
 
 @dataclass
 class TypeCommandAstNode:
-    # TODO: restrict the node kinds
+    # TODO: restrict the kind type
     kind: str
     value: str
 

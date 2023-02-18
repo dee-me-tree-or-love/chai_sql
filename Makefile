@@ -1,5 +1,5 @@
 TMPD_DIR=.tmp
-TEST_DB=test.db
+TEST_DB=test.sqlite
 DATA_DIR=data
 POETRY_RUN=poetry run
 OK_MSG="✅ Done!"

@@ -2,14 +2,13 @@ from dataclasses import dataclass
 from typing import Any, Generic, Protocol, TypeVar
 
 from chai_sql.models import (
-    ChaiSqlAst,
-    ChaiSqlAstNode,
     GenericParserResult,
     GenericParserWrapper,
     RoseTree,
     SqlAst,
     SqlAstNode,
     TypeCommandAst,
+    TypeCommandAstNode,
 )
 from chai_sql.shared.arpeggio_parser_wrapper import (
     ArpeggioParserWrapper,
@@ -46,6 +45,9 @@ def _get_arpeggio_parser(debug=False) -> ArpeggioParserWrapper:
 
     Examples:
         >>> parser = _get_arpeggio_parser()
+        >>> dir(parser.parse("@chai_sql:check"))
+        False
+
         >>> parser.parse("@chai_sql:check")
         [ [ trigger '@' [0], [  'chai_sql' [1] ],  ':' [9], [ [ [  'check' [10] ] ] ] ], EOF [15] ]
 
@@ -60,18 +62,37 @@ def _arpeggio_parse(text, **kwargs):
     return parser.parse(text)
 
 
-def _arpeggio_tree_2_type_command(_) -> TypeCommandAst:
-    return TypeCommandAst(tree=RoseTree(None, None, 0, []))
+TypeRoseTree = RoseTree[Any, TypeCommandAstNode]
+
+
+def _arpeggio_tree_2_type_tree(parse_tree: Any) -> TypeRoseTree:
+    node = TypeCommandAstNode(kind=parse_tree.rule_name, value=rule_name.flat_str())
+    try:
+        subtree_base = [subtree for subtree in parse_tree]
+        return TypeRoseTree(
+            source=parse_tree,
+            node=node,
+            nr_children=len(subtree_base),
+            children=list(map(_arpeggio_tree_2_type_tree, subtree_base)),
+        )
+    except TypeError:
+        return TypeRoseTree(
+            source=parse_tree,
+            node=node,
+            nr_children=0,
+            children=[],
+        )
 
 
 def _parse_arpegio_comment(comment: str, **kwargs) -> TypeCommandAst:
+    """
+    Examples:
+        >>> _parse_arpegio_comment("@chai_sql:check")
+        False
+    """
     tree = _arpeggio_parse(comment, **kwargs)
-    return _arpeggio_tree_2_type_command(tree)
+    return TypeCommandAst(tree=_arpeggio_tree_2_type_tree(tree))
 
 
-def expand_chai_sql_comments(tree: SqlAst) -> ChaiSqlAst:
-    raise NotImplementedError()
-
-
-def propagate_types(sql: ChaiSqlAst) -> ChaiSqlAst:
-    raise NotImplementedError()
+def parse(comment: str) -> TypeCommandAst:
+    return _parse_arpegio_comment(comment)
