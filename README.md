@@ -5,23 +5,20 @@ Internship project adding an optional type system to SQL
 ## Examples
 
 <!--mkdocs-intro-examples-start-->
-```sql  title="ChaiSQL basic example"
+```sql  title="ChaiSQL example"
 -- @chaisql:check
 
 -- @chaisql:newtype Name = String
 -- @chaisql:newtype Age = Number
--- @chaisql:newtype Remark = String
 
--- @chaisql:newtype PersonView = DbView<bag>[Name, Age, Remark]
+-- @chaisql:newtype PersonView = DbView <bag> {name: Name, age: Age}
 
 -- @chaisql:returns PersonView
 SELECT
     -- @chaisql:returns Name
     p.name,
     -- @chaisql:returns Age
-    p.age,
-    -- @chaisql:returns Remark
-    "friend" as class
+    p.age
 FROM people AS p;
 ```
 
