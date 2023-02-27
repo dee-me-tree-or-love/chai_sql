@@ -1,5 +1,5 @@
 ---
-title: Simple DB schemas
+title: Specifying DB schemas
 ...
 
 # Simple DB schema for ChaiSQL
