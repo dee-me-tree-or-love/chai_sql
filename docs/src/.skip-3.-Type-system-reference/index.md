@@ -1,5 +1,6 @@
 # Type System for SQL
 
+<!-- FIXME: when this document is written, remove `.skip-` from directory name -->
 <!-- TODO: elaborate -->
 <!-- TODO: see inspiration from TypeScript PRO? -->
 

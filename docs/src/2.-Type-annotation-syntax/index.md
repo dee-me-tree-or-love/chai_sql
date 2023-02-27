@@ -5,7 +5,7 @@ This document describes the type annotation syntax used by ChaiSQL.
 > 💡 With ChaiSQL being under development, this document represents the
 > initial, but consolidated design decisions.
 
-## Examples
+## In a nutshell
 
 ```sql  title="Type annotation in SQL"
 -- @chaisql:check
@@ -51,6 +51,8 @@ FROM person;
 ```
 
 > Full syntactic sugar reference is available [below](#syntactic-sugar-reference).
+
+---
 
 ## Type Annotation syntax
 
