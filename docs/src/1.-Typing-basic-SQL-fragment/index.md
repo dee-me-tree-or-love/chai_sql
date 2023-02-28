@@ -93,47 +93,47 @@ QueryFrom = "FROM" TableAccess ";"
 -- Relations
 -- `````````
      -- TODO: will this deal with subqueries?
-(R0) G |- r : DbView<x>[YS] /\ includes? DbView<x>[YS] Schema 
-       |= r : DbView<x>[YS]
+(R0) G |- r : DbView <x> {YS} /\ includes? DbView <x> {YS} Schema 
+       |= r : DbView <x> {YS}
      -- TODO: define type-operation (`U`)nion: `XS U YS`
-(R1) G |- r_1 : DbView<x_1>[YS_1] /\ ... /\ r_n : DbView<x_n>[YS_n]
-       |= r_1, ..., r_n : DbView<bag>[YS_1 U ... U YS_n]
-(R2) G |- r_1, ..., r_n : DbView<x>[YS_1 U ... U YS_n]
-       |= r_1 as N_1, ...,  r_m as N_m : DbView<x>[YS_1 U ... U YS_n]
+(R1) G |- r_1 : DbView <x_1> {YS_1} /\ ... /\ r_n : DbView <x_n> {YS_n}
+       |= r_1, ..., r_n : DbView <bag> {YS_1 U ... U YS_n}
+(R2) G |- r_1, ..., r_n : DbView <x> {YS_1 U ... U YS_n}
+       |= r_1 as N_1, ...,  r_m as N_m : DbView <x> {YS_1 U ... U YS_n}
 -- Query sources
 -- `````````````
-(S0) G |- s : DbView<x>[YS]
-       |= FROM s : DbView<x>[YS]
+(S0) G |- s : DbView <x> {YS}
+       |= FROM s : DbView <x> {YS}
      -- NB: Trilean is the type of 3VL used in SQL
      --     see: https://en.wikipedia.org/wiki/Three-valued_logic
-(S1) G |- s : DbView<x>[YS] /\ c : Trilean
-       |= FROM s WHERE c : DbView<x>[YS]
+(S1) G |- s : DbView <x> {YS} /\ c : Trilean
+       |= FROM s WHERE c : DbView <x> {YS}
 -- Queries
 -- ```````
-(Q0) G |- t : BTS |= SELECT t ; : DbView<bag>[BTS]
-(Q1) G |- t : BTS |= SELECT DISTINCT t ; : DbView<set>[BTS]
-(Q2) G |- t : BTS /\ fw : DbView<x>[YS] /\ includes? BTS YS
-       |= SELECT t fw; : DbView<bag>[BTS]
-(Q3) G |- t : BTS /\ fw : DbView<x>[YS] /\ includes? BTS YS
-       |= SELECT DISTINCT t fw; : DbView<set>[BTS]
+(Q0) G |- t : BTS |= SELECT t ; : DbView <bag> {BTS}
+(Q1) G |- t : BTS |= SELECT DISTINCT t ; : DbView <set> {BTS}
+(Q2) G |- t : BTS /\ fw : DbView <x> {YS} /\ includes? BTS YS
+       |= SELECT t fw; : DbView <bag> {BTS}
+(Q3) G |- t : BTS /\ fw : DbView <x> {YS} /\ includes? BTS YS
+       |= SELECT DISTINCT t fw; : DbView <set> {BTS}
      -- NB: Here we deviate from Guagliardo & Libkin (2017) by not
      --     making a distinction between the scope of `SELECT * ...`
-(Q4) G |- fw : DbView<x>[YS] |= SELECT * fw; : DbView<bag>[YS]
-(Q5) G |- fw : DbView<x>[YS] |= SELECT DISTINCT * fw; : DbView<set>[YS]
+(Q4) G |- fw : DbView <x> {YS} |= SELECT * fw; : DbView <bag> {YS}
+(Q5) G |- fw : DbView <x> {YS} |= SELECT DISTINCT * fw; : DbView <set> {YS}
 -- Query operations
 -- ````````````````
-(O0) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
-       |= q_1 UNION ALL q_2 : DbView<bag>[YS]
-(O1) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
-       |= q_1 INTERSECT ALL q_2 : DbView<bag>[YS]
-(O2) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
-       |= q_1 EXCEPT ALL q_2 : DbView<bag>[YS]
-(O3) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
-       |= q_1 UNION q_2 : DbView<set>[YS]
-(O4) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
-       |= q_1 INTERSECT q_2 : DbView<set>[YS]
-(O5) G |- q_1 : DbView<x>[YS] /\ q_2 : DbView<x>[YS]
-       |= q_1 EXCEPT q_2 : DbView<set>[YS]
+(O0) G |- q_1 : DbView <x> {YS} /\ q_2 : DbView <x> {YS}
+       |= q_1 UNION ALL q_2 : DbView <bag> {YS}
+(O1) G |- q_1 : DbView <x> {YS} /\ q_2 : DbView <x> {YS}
+       |= q_1 INTERSECT ALL q_2 : DbView <bag> {YS}
+(O2) G |- q_1 : DbView <x> {YS} /\ q_2 : DbView <x> {YS}
+       |= q_1 EXCEPT ALL q_2 : DbView <bag> {YS}
+(O3) G |- q_1 : DbView <x> {YS} /\ q_2 : DbView <x> {YS}
+       |= q_1 UNION q_2 : DbView <set> {YS}
+(O4) G |- q_1 : DbView <x> {YS} /\ q_2 : DbView <x> {YS}
+       |= q_1 INTERSECT q_2 : DbView <set> {YS}
+(O5) G |- q_1 : DbView <x> {YS} /\ q_2 : DbView <x> {YS}
+       |= q_1 EXCEPT q_2 : DbView <set> {YS}
 ```
 
 ## Conditions
@@ -186,14 +186,14 @@ Condition     = "TRUE"
 -- Query predicates
 -- ``````````````
      -- TODO: define type operation `len? XS N`
-(P2) G |- q : DbView<x>[YS]  |= EXISTS q : Trilean
+(P2) G |- q : DbView <x> {YS}  |= EXISTS q : Trilean
 (P4) G |- t : BTS_a /\ ts : BTS_b /\ len? BTS_a 1 /\ includes? BTS_a BTS_b
        |= t IN ts : Trilean
 (P5) G |- t : BTS_a /\ ts : BTS_b /\ len? BTS_a 1 /\ includes? BTS_a BTS_b
        |= t NOT IN ts : Trilean
-(P4) G |- t : BTS /\ q : DbView<x>[YS] /\ len? BTS 1 /\ includes? BTS YS
+(P4) G |- t : BTS /\ q : DbView <x> {YS} /\ len? BTS 1 /\ includes? BTS YS
        |= t IN q : Trilean
-(P5) G |- t : BTS /\ q : DbView<x>[YS] /\ len? BTS 1 /\ includes? BTS YS
+(P5) G |- t : BTS /\ q : DbView <x> {YS} /\ len? BTS 1 /\ includes? BTS YS
        |= t NOT IN q : Trilean
 ```
 
