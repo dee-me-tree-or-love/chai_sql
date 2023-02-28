@@ -1,6 +1,8 @@
 # ChaiSQL
 
-Internship project adding an optional type system to SQL
+Internship project adding an optional type system to SQL.
+
+> 🧱 ChaiSQL is under heavy development.
 
 ## Examples
 
