@@ -25,14 +25,27 @@ source-repository head
 
 library
   exposed-modules:
+      Chai.Readme
       Lib
+      Simple.Ast
+      Simple.Lexer
+      Simple.Main
+      Simple.Parser
+      Simple.Readme
+      Simple.Tokens
+      Sql.Readme
   other-modules:
       Paths_chai_sql
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-tools:
+      alex
+    , happy
   build-depends:
-      base >=4.7 && <5
+      array
+    , base
+    , bytestring
   default-language: Haskell2010
 
 executable chai-sql-exe

@@ -1,0 +1,11 @@
+tasks:
+  todo:
+  doing:
+  done:
+
+# ~~~~
+notes:
+  - https://serokell.io/blog/lexing-with-alex
+  - https://github.com/glguy/config-value/tree/master/src
+  - https://www.reddit.com/r/haskell/comments/axnj8r/alex_happy/
+  - https://leanpub.com/alexandhappy/read

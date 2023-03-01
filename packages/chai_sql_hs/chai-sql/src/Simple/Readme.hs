@@ -1,0 +1,15 @@
+module Simple.Readme () where
+
+{- 
+    This module contains all the utilities required for
+    interpreting the Simple Polcal syntax.
+
+    Polcal is a strange calculator based on Polish notation.
+
+    Contents:
+        - [x] Main.hs   - the core of the Simple Polcal module
+        - [x] Lexer.x   - to tokenize the raw Polcal input
+        - [x] Tokens.hs - defining all the lexemes for Polcal
+        - [x] Ast.hs    - defining the syntax tree constructs for Polcal
+        - [x] Parser.y  - to parse the tokenized Polcal input into an AST
+ -}
