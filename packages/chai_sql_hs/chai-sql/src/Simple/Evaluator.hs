@@ -33,7 +33,7 @@ get (SAST.SExpressionContainer e) = compute e
 
 sApply :: SAST.Operator -> EvalOutput -> EvalOutput
 sApply (SAST.SOperator '+') v = v
-sApply (SAST.SOperator _) _ = Left "Unsupported operator"
+sApply (SAST.SOperator o) v = Left  $ "Unsupported operator: " ++ [o] ++ ", for input: " ++ show v
 
 bApply :: SAST.Operator -> EvalOutput -> EvalOutput -> EvalOutput
 -- Numbers
