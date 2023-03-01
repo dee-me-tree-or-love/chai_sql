@@ -19,6 +19,8 @@ failTypeHint = SAST.STypeHint "FAIL"
 -- Type inference
 -- ~~~~~~~~~~~~~~
 
+-- TODO: make use of Functors
+
 annotate :: SAST.TypedExpression -> SAST.TypedExpression
 annotate (SAST.SUntypedExpression x) = SAST.STypedExpression t x
     where t = infer x

@@ -28,6 +28,7 @@ library
       Chai.Readme
       Lib
       Simple.Ast
+      Simple.Evaluator
       Simple.Lexer
       Simple.Main
       Simple.Parser

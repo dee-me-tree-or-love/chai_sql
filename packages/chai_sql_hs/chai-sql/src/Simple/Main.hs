@@ -5,6 +5,7 @@ import qualified Simple.Tokens as ST ( Token )
 import qualified Simple.Parser as SP ( parse )
 import qualified Simple.Ast as SAST ( TypedExpression )
 import qualified Simple.TypeChecker as STC ( annotate, check )
+import qualified Simple.Evaluator as SE (eval, EvalOutput)
 
 
 -- | Tokenizes a string.
@@ -85,9 +86,33 @@ assignTypes = STC.annotate
 checkTypes :: SAST.TypedExpression -> Either String String
 checkTypes = STC.check
 
+-- | Evaluates the expression.
+--
+-- >>> evalExpression $ getAst $ getTokens "~~ Number (+ (+ 1 2))"
+-- Right (NumberResult 3)
+--
+-- >>> evalExpression $ getAst $ getTokens "~~ Number (+ (- 2 5))"
+-- Right (NumberResult (-3))
+
+-- >>> evalExpression $ getAst $ getTokens "(+ (+ 1 2))"
+-- Right (NumberResult 3)
+--
+-- >>> evalExpression $ getAst $ getTokens "(+ (+ cat mouse))"
+-- Right (TextResult "catmouse")
+--
+-- >>> evalExpression $ getAst $ getTokens "~~ String (+ (+ 1 2))"
+-- Right (NumberResult 3)
+--
+-- >>> evalExpression $ getAst $ getTokens "(+ (+ cat 2))"
+-- Left "Unsupported operator: +, for inputs: Right (TextResult \"cat\"), and Right (NumberResult 2)"
+--
+evalExpression :: SAST.TypedExpression -> SE.EvalOutput
+evalExpression = SE.eval
+
 main :: IO ()
 main = do
   s <- getContents
-  let ast = getAst $ getTokens s 
-  print $ assignTypes ast
-  print $ checkTypes ast
+  let ast = getAst $ getTokens s
+  print $ "\nInferred type:\t" ++ show (assignTypes ast)
+  print $ "\nType check:\t" ++ show (checkTypes ast)
+  print $ "\nEvaluation:\t" ++ show (evalExpression ast)
