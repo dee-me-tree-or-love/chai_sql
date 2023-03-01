@@ -1,8 +1,19 @@
 module Simple.Ast (
+      TypedExpression (..),
+      TypeHint (..),
       Expression (..),
       Operator (..),
       Term (..)
 ) where
+
+data TypedExpression
+      = STypedExpression TypeHint Expression
+      | SUntypedExpression Expression
+      deriving (Eq, Show)
+
+newtype TypeHint
+      = STypeHint String
+      deriving (Eq, Show)
 
 data Expression
       = SBinExpression Operator Expression Expression

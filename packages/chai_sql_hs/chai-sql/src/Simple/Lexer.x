@@ -12,6 +12,7 @@ tokens :-
 
   $white+                        ;
   "--".*                         ;
+  "~~"                           { \_ -> ST.TTypeHintIndicator }
   "("                            { \_ -> ST.TLeftBrace }
   ")"                            { \_ -> ST.TRightBrace }
   [\=\+\-\*\/\(\)]               { \s -> ST.TOperator (head s) }

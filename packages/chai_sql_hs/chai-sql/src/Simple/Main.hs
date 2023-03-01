@@ -3,7 +3,7 @@ module Simple.Main (main) where
 import qualified Simple.Lexer as SL ( scan )
 import qualified Simple.Tokens as ST ( Token )
 import qualified Simple.Parser as SP ( parse )
-import qualified Simple.Ast as SAST ( Expression )
+import qualified Simple.Ast as SAST ( TypedExpression )
 
 
 -- | Tokenizes a string.
@@ -28,15 +28,18 @@ getTokens = SL.scan
 -- | Parses the tokenized input into an AST
 --
 -- >>> getAst $ getTokens "(+ 1 2)"
--- STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2))))
+-- SUntypedExpression (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2)))))
 --
 -- >>> getAst $ getTokens "(+ 1)"
--- STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SNumber 1))))
+-- SUntypedExpression (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SNumber 1)))))
 --
 -- >>> getAst $ getTokens "(+ (+ 1 2))"
--- STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2)))))))
+-- SUntypedExpression (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2))))))))
 --
-getAst :: [ST.Token] -> SAST.Expression
+-- >>> getAst $ getTokens "~~ Number (+ (+ 1 2))"
+-- STypedExpression (STypeHint "Number") (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2))))))))
+--
+getAst :: [ST.Token] -> SAST.TypedExpression
 getAst = SP.parse
 
 main :: IO ()

@@ -17,9 +17,15 @@ import qualified Simple.Lexer as SL
     op      { ST.TOperator $$ }
     '('     { ST.TLeftBrace }
     ')'     { ST.TRightBrace }
+    thi     { ST.TTypeHintIndicator }
 
 -- Grammar rules
 %%
+
+TExp    : thi TH Exp    { SAST.STypedExpression $2 $3 }
+        | Exp           { SAST.SUntypedExpression $1 }
+
+TH      : text          { SAST.STypeHint $1 }
 
 Exp     : Op Exp Exp    { SAST.SBinExpression $1 $2 $3 }
         | Op Exp        { SAST.SUnExpression $1 $2 }

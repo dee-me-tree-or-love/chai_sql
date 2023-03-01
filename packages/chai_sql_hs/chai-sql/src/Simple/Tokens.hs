@@ -6,4 +6,6 @@ data Token
   | TOperator Char
   | TText String
   | TNumber Int
+  -- Type hint indicator
+  | TTypeHintIndicator
   deriving (Eq, Show)
