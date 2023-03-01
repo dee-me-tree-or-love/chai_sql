@@ -33,6 +33,7 @@ library
       Simple.Parser
       Simple.Readme
       Simple.Tokens
+      Simple.TypeChecker
       Sql.Readme
   other-modules:
       Paths_chai_sql

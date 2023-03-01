@@ -4,6 +4,7 @@ import qualified Simple.Lexer as SL ( scan )
 import qualified Simple.Tokens as ST ( Token )
 import qualified Simple.Parser as SP ( parse )
 import qualified Simple.Ast as SAST ( TypedExpression )
+import qualified Simple.TypeChecker as STC ( annotate )
 
 
 -- | Tokenizes a string.
@@ -18,6 +19,9 @@ import qualified Simple.Ast as SAST ( TypedExpression )
 --
 -- >>> getTokens "-- this is a comment"
 -- []
+--
+-- >>> getTokens "~~ TypeHint"
+-- [TTypeHintIndicator,TText "TypeHint"]
 --
 -- >>> getTokens "%%%%% this causes an error"
 -- lexical error
@@ -42,7 +46,26 @@ getTokens = SL.scan
 getAst :: [ST.Token] -> SAST.TypedExpression
 getAst = SP.parse
 
+
+-- | Assigns expression types.
+--
+-- >>> assignTypes $ getAst $ getTokens "~~ Number (+ (+ 1 2))"
+-- STypedExpression (STypeHint "Number") (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2))))))))
+--
+-- >>> assignTypes $ getAst $ getTokens "(+ (+ 1 2))"
+-- STypedExpression (STypeHint "Number") (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SNumber 1)) (STerm (SNumber 2))))))))
+--
+-- >>> assignTypes $ getAst $ getTokens "(+ (+ cat mouse))"
+-- STypedExpression (STypeHint "Text") (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SText "cat")) (STerm (SText "mouse"))))))))
+--
+-- >>> assignTypes $ getAst $ getTokens "(+ (+ cat 2))"
+-- STypedExpression (STypeHint "FAIL") (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SText "cat")) (STerm (SNumber 2))))))))
+--
+
+assignTypes :: SAST.TypedExpression -> SAST.TypedExpression
+assignTypes = STC.annotate
+
 main :: IO ()
 main = do
   s <- getContents
-  print $ getAst $ getTokens s 
+  print $ assignTypes $ getAst $ getTokens s 
