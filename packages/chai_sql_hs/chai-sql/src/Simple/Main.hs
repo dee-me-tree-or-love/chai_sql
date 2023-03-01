@@ -4,7 +4,7 @@ import qualified Simple.Lexer as SL ( scan )
 import qualified Simple.Tokens as ST ( Token )
 import qualified Simple.Parser as SP ( parse )
 import qualified Simple.Ast as SAST ( TypedExpression )
-import qualified Simple.TypeChecker as STC ( annotate )
+import qualified Simple.TypeChecker as STC ( annotate, check )
 
 
 -- | Tokenizes a string.
@@ -61,11 +61,33 @@ getAst = SP.parse
 -- >>> assignTypes $ getAst $ getTokens "(+ (+ cat 2))"
 -- STypedExpression (STypeHint "FAIL") (STerm (SExpressionContainer (SUnExpression (SOperator '+') (STerm (SExpressionContainer (SBinExpression (SOperator '+') (STerm (SText "cat")) (STerm (SNumber 2))))))))
 --
-
 assignTypes :: SAST.TypedExpression -> SAST.TypedExpression
 assignTypes = STC.annotate
+
+-- | Checks the correctness of the typed expression
+--
+-- >>> checkTypes $ getAst $ getTokens "~~ Number (+ (+ 1 2))"
+-- Right "Okay"
+--
+-- >>> checkTypes $ getAst $ getTokens "(+ (+ 1 2))"
+-- Right "Okay"
+--
+-- >>> checkTypes $ getAst $ getTokens "(+ (+ cat mouse))"
+-- Right "Okay"
+--
+-- >>> checkTypes $ getAst $ getTokens "(+ (+ cat 2))"
+-- Left "Inferred type: STypeHint \"FAIL\""
+--
+
+-- >>> checkTypes $ getAst $ getTokens "~~ String (+ (+ 1 2))"
+-- Left "Inferred type: STypeHint \"Number\" doesn't match specified: STypeHint \"String\""
+--
+checkTypes :: SAST.TypedExpression -> Either String String
+checkTypes = STC.check
 
 main :: IO ()
 main = do
   s <- getContents
-  print $ assignTypes $ getAst $ getTokens s 
+  let ast = getAst $ getTokens s 
+  print $ assignTypes ast
+  print $ checkTypes ast

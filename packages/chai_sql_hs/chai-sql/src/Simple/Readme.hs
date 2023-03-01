@@ -12,7 +12,7 @@ module Simple.Readme () where
         - [x] Tokens.hs         - defining all the lexemes for Polcal
         - [x] Ast.hs            - defining the syntax tree constructs for Polcal
         - [x] Parser.y          - to parse the tokenized Polcal input into an AST
-        - [ ] TypeChecker.hs    - to faciliate the type checking of simple Polcal expressions
+        - [x] TypeChecker.hs    - to faciliate the type checking of simple Polcal expressions
 
     Features:
         - [x] Basic lexing
@@ -20,5 +20,5 @@ module Simple.Readme () where
         - [x] Type hint lexing
         - [x] Type hint parsing
         - [x] Type inference
-        - [ ] Type checking
+        - [x] Type checking
  -}
