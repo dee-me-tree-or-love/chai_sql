@@ -64,3 +64,5 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - chai-sql
+      - hspec
+      - hspec-discover
