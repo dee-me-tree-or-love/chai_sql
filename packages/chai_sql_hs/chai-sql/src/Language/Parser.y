@@ -29,7 +29,11 @@ import qualified Language.Lexer as LL
     dqstring    { LT.TDoubleQuoted $$ }
 
 -- Grammar rules
+-- ~~~~~~~~~~~~~
 %%
+
+-- Top Level: SQL Statements
+-- +++++++++++++++++++++++++
 
 -- NB: Using left recursion for efficiency, but thus the parsed list is reverse
 -- See: https://haskell-happy.readthedocs.io/en/latest/using.html#parsing-sequences
@@ -41,8 +45,15 @@ StackSqlStatement   : SqlStatement                              { [$1] }
 SqlStatement    :: { LAST.SqlStatement }
 SqlStatement    : SelectStatement { LAST.SSelectStatement $1 }
 
+
+-- Mid Level: SELECT Statements
+-- ++++++++++++++++++++++++++++
+
 SelectStatement     :: { LAST.SelectStatement }
-SelectStatement     : select MaybeSelectOption StackSelectAccess     { LAST.SSelectStatementAtom $2 $3 }
+SelectStatement     : select MaybeSelectOption StackSelectAccess                        { LAST.SSelectStatementAtom $2 $3 }
+                    | select MaybeSelectOption StackSelectAccess SelectFrom             { LAST.SSelectStatementWithFrom $2 $3 $4 }
+                    -- TODO(feature): support from SELECT-FROM-WHERE
+                    -- | select MaybeSelectOption StackSelectAccess SelectFrom SelectWhere { LAST.SSelectStatementWithFromWhere $2 $3 $4 $5 }
 
 MaybeSelectOption   :: { LAST.MaybeSelectOption }
 MaybeSelectOption   : distinct    { Just LAST.SSelectDistinct }
@@ -50,14 +61,22 @@ MaybeSelectOption   : distinct    { Just LAST.SSelectDistinct }
                     | {- empty -} { Nothing }
 
 StackSelectAccess   :: { LAST.StackSelectAccess }
-StackSelectAccess   : SelectAccess                          { [$1] }
-                    | StackSelectAccess ',' SelectAccess { $3 : $1 }
+StackSelectAccess   : SelectAccess                              { [$1] }
+                    | StackSelectAccess ',' SelectAccess        { $3 : $1 }
 
 SelectAccess    :: { LAST.SelectAccess }
-SelectAccess    : Term                      { LAST.SSelectAccessColumn $1 }
-                | Term '.' Term             { LAST.SSelectAccessColumnQualified $1 $1 }
-                | Constant                  { LAST.SSelectAccessConstant $1 }
-                | star                      { LAST.SSelectAccessStar }
+SelectAccess    : Term              { LAST.SSelectAccessColumn $1 }
+                | Term '.' Term     { LAST.SSelectAccessColumnQualified $1 $1 }
+                | Constant          { LAST.SSelectAccessConstant $1 }
+                | star              { LAST.SSelectAccessStar }
+
+SelectFrom      :: {LAST.SelectFrom }
+SelectFrom      : from Term                  { LAST.SSelectFromTable $2 }
+                | from '(' StackSqlStatement ')'     { LAST.SSelectFromStatements $3 }
+
+
+-- Low Level: TERMS, CONSTANTS
+-- +++++++++++++++++++++++++++
 
 Term        :: { LAST.Term }
 Term        : term          { LAST.STerm $1 }

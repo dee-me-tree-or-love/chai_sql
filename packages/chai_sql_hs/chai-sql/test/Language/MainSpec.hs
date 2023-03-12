@@ -145,3 +145,28 @@ spec = do
                         LAST.SSelectAccessConstant $ LAST.SNumberConstant 3
                     ]
             ])
+
+        getAstTestCase
+            "can parse simple select-from: "
+            "select X from Y"
+            [
+                LAST.SSelectStatement $
+                    LAST.SSelectStatementWithFrom
+                        Nothing
+                        [LAST.SSelectAccessColumn $ LAST.STerm "X"]
+                        (LAST.SSelectFromTable $ LAST.STerm "Y")
+            ]
+
+        getAstTestCase
+            "can parse simple select-from (with many columns): "
+            "select A,B from C"
+            [
+                LAST.SSelectStatement $
+                    LAST.SSelectStatementWithFrom
+                        Nothing
+                        [
+                            LAST.SSelectAccessColumn $ LAST.STerm "B",
+                            LAST.SSelectAccessColumn $ LAST.STerm "A"
+                        ]
+                        (LAST.SSelectFromTable $ LAST.STerm "C")
+            ]
