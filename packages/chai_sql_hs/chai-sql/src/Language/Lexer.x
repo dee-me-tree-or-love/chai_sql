@@ -8,9 +8,12 @@ import Language.Tokens as LT
 @select   = select|SELECT
 @from     = from|FROM
 @as       = as|AS
+@distinct = distinct|DISTINCT
+@all      = all|ALL
+@star     = \*
 @chaisql  = \@chaisql
 
-$operator     = [\=\+\-\*\/]              -- various operators
+$operator     = [\=\+\-\/]              -- various operators
 $digit        = 0-9                       -- digits
 $alpha        = [a-zA-Z]                  -- alphabetic characters
 $punctiation  = [\,\;\(\)\[\]\{\}]        -- punctiation signs
@@ -29,13 +32,17 @@ tokens :-
   "--"(\ )+@spaceverbal             { \_ -> LT.TComment }
   ";"                               { \_ -> LT.TSemicolon }
   ":"                               { \_ -> LT.TColon }
+  ","                               { \_ -> LT.TComma }
+  "."                               { \_ -> LT.TDot }
   "("                               { \_ -> LT.TLeftBrace }
   ")"                               { \_ -> LT.TRightBrace }
 
   -- special keywords
-  -- @chaisql                          { \_ -> LT.TChaiSQLHead }
   @select                           { \_ -> LT.TSelect }
   @from                             { \_ -> LT.TFrom }
+  @distinct                         { \_ -> LT.TDistinct }
+  @all                              { \_ -> LT.TAll }
+  @star                             { \_ -> LT.TStar }
 
   -- expression blocks
   $operator+                        { \s -> LT.TOperator s }
@@ -44,7 +51,7 @@ tokens :-
   $digit+                           { \s -> LT.TNumber (read s) }
 
   -- textual inputs
-  @verbal                           { \s -> LT.TText s }
+  @verbal                           { \s -> LT.TTerm s }
   \' @spaceverbal \'                { \s -> LT.TSingleQuoted s }
   \" @spaceverbal \"                { \s -> LT.TDoubleQuoted s }
 

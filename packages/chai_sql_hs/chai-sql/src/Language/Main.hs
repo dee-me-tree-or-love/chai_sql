@@ -5,7 +5,7 @@ module Language.Main
   )
 where
 
-import qualified Language.Ast    as LAST (Term)
+import qualified Language.Ast    as LAST (StackSqlStatement)
 import qualified Language.Lexer  as LL (scan)
 import qualified Language.Parser as LP (parse)
 import qualified Language.Tokens as LT (Token)
@@ -27,7 +27,7 @@ getTokens = LL.scan
 --
 -- Examples:
 --
--- TODO: provide examples
+-- TODO: provide some examples
 --
-getAst :: [LT.Token] -> LAST.Term
+getAst :: [LT.Token] -> LAST.StackSqlStatement
 getAst = LP.parse

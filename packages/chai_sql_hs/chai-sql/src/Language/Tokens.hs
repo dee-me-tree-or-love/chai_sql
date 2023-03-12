@@ -7,10 +7,15 @@ data Token
   | TRightBrace
   | TSemicolon
   | TColon
+  | TComma
+  | TDot
   | TSelect
   | TFrom
+  | TDistinct
+  | TAll
+  | TStar
   | TOperator String
-  | TText String
+  | TTerm String
   | TSingleQuoted String
   | TDoubleQuoted String
   | TNumber Int

@@ -4,32 +4,37 @@ module Language.Ast
   )
   where
 
-data SqlStatement
-  = SSqlComment SqlComment
-  | SSqlExpression SqlExpression
+type StackSqlStatement = [SqlStatement]
 
-data SqlComment
-  = SBasicComment String
-  | SChaiComment  ChaiComment
+newtype SqlStatement
+  = SSelectStatement SelectStatement
+  deriving (Eq, Show)
 
-data ChaiComment
-  = SChaiCheck
-  | SChaiNewtype String ChaiTypeExpression
-  | SChaiReturns ChaiTypeExpression
+data SelectStatement
+  = SSelectStatementAtom MaybeSelectOption StackSelectAccess
+  deriving (Eq, Show)
 
--- TODO: fix
-data ChaiTypeExpression
-  = SChaiTypeNumber
-  | SChaiTypeString
-  | SChaiTypeBoolean
-  | SChaiTypeCompoundDbView String String
-  | SChaiTypeVariable String
+type MaybeSelectOption = Maybe SelectOption
 
--- TODO: fix
-data SqlExpression
-  = SNothing
+data SelectOption
+  = SSelectDistinct
+  | SSelectAll
+  deriving (Eq, Show)
 
-data Term
-  = SNumber Int
-  | SText String
+type StackSelectAccess = [SelectAccess]
+
+data SelectAccess
+  = SSelectAccessColumn Term
+  | SSelectAccessColumnQualified Term Term
+  | SSelectAccessConstant Constant
+  | SSelectAccessStar
+  deriving (Eq, Show)
+
+newtype Term = STerm String
+  deriving (Eq, Show)
+
+data Constant
+  = SSingleQuotedTextConstant String
+  | SDoubleQuotedTextConstant String
+  | SNumberConstant Int
   deriving (Eq, Show)
