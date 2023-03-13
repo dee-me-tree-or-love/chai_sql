@@ -39,6 +39,8 @@ library:
     - array
     - base
     - bytestring
+    - yaml
+    - aeson
   build-tools:
     - alex
     - happy
