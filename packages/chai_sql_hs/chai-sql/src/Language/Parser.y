@@ -71,8 +71,8 @@ SelectAccess    : Term              { LAST.SSelectAccessColumn $1 }
                 | star              { LAST.SSelectAccessStar }
 
 SelectFrom      :: {LAST.SelectFrom }
-SelectFrom      : from Term                  { LAST.SSelectFromTable $2 }
-                | from '(' StackSqlStatement ')'     { LAST.SSelectFromStatements $3 }
+SelectFrom      : from Term                         { LAST.SSelectFromTable $2 }
+                | from '(' StackSqlStatement ')'    { LAST.SSelectFromStatements $3 }
 
 
 -- Low Level: TERMS, CONSTANTS
