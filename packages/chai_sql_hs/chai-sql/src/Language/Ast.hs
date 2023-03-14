@@ -10,10 +10,32 @@ module Language.Ast
 
 type StackSqlStatement = [SqlStatement]
 
-newtype SqlStatement
+data SqlStatement
   = SSelectStatement SelectStatement
+  | SSqlComment SqlComment
   deriving (Eq, Show)
 
+
+-- Mid Level: SQL Comments
+-- +++++++++++++++++++++++
+
+data SqlComment
+  = SCommentPlain
+  | SCommentChai ChaiStatement
+  deriving (Eq, Show)
+
+data ChaiStatement
+  = SChaiTrigger Term
+  | SChaiExpression Term Term Operator Term
+  -- TODO(new-features): aggregate the SChaiCompound into a separate ChaiProposition construct
+  | SChaiCompound Term Term Term StackChaiAttributePair
+  deriving (Eq, Show)
+
+type StackChaiAttributePair = [ChaiAttributePair]
+
+data ChaiAttributePair
+  = SChaiAttributePair Term Term
+  deriving (Eq, Show)
 
 -- Mid Level: SELECT Statements
 -- ++++++++++++++++++++++++++++
@@ -23,7 +45,7 @@ data SelectStatement
   = SSelectStatementAtom MaybeSelectOption StackSelectAccess
   -- support for SELECT-FROM
   | SSelectStatementWithFrom MaybeSelectOption StackSelectAccess SelectFrom
-  -- TODO(feature): support from SELECT-FROM-WHERE
+  -- TODO(backlog): support from SELECT-FROM-WHERE
   -- | SSelectStatementWithFromWhere MaybeSelectOption StackSelectAccess SelectFrom SelectWhere
   deriving (Eq, Show)
 
@@ -41,17 +63,20 @@ data SelectAccess
   | SSelectAccessColumnQualified Term Term
   | SSelectAccessConstant Constant
   | SSelectAccessStar
-  -- TODO(feature): support SELECT X AS Y
+  -- TODO(backlog): support SELECT X AS Y
   deriving (Eq, Show)
 
 data SelectFrom
   = SSelectFromTable Term
   | SSelectFromStatements StackSqlStatement
-  -- TODO(feature): support FROM X AS Y
+  -- TODO(backlog): support FROM X AS Y
   deriving (Eq, Show)
 
--- Low Level: TERMS, CONSTANTS
+-- Low Level: TERMS, CONSTANTS, OPERATORS
 -- +++++++++++++++++++++++++++
+
+newtype Operator = SOperator String
+  deriving (Eq, Show)
 
 newtype Term = STerm String
   deriving (Eq, Show)

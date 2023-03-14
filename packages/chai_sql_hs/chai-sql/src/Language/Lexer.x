@@ -20,6 +20,7 @@ $punctiation  = [\,\;\(\)\[\]\{\}]        -- punctiation signs
 $special      = [\!\@\#\$\%\^\&\*\<\>\?]  -- special signs
 $binder       = [\_\-]                    -- hyphens and other links
 
+@textual      = $alpha [$alpha $digit $binder]*
 @verbal       = $alpha [$alpha $digit $binder $special]*
 @spaceverbal  = [$alpha $digit $binder $special $punctiation $white]*
 
@@ -36,6 +37,10 @@ tokens :-
   "."                               { \_ -> LT.TDot }
   "("                               { \_ -> LT.TLeftBrace }
   ")"                               { \_ -> LT.TRightBrace }
+  "<"                               { \_ -> LT.TLeftAngle }
+  ">"                               { \_ -> LT.TRightAngle }
+  "{"                               { \_ -> LT.TLeftCurl }
+  "}"                               { \_ -> LT.TRightCurl }
 
   -- special keywords
   @select                           { \_ -> LT.TSelect }
@@ -51,7 +56,7 @@ tokens :-
   $digit+                           { \s -> LT.TNumber (read s) }
 
   -- textual inputs
-  @verbal                           { \s -> LT.TTerm s }
+  @textual                           { \s -> LT.TTerm s }
   \' @spaceverbal \'                { \s -> LT.TSingleQuoted s }
   \" @spaceverbal \"                { \s -> LT.TDoubleQuoted s }
 

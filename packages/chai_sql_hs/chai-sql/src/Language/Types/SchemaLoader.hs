@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric     #-}
 
-{- | Provides functionality for DB schema loading.
+{-| Provides functionality for DB schema loading.
 
 
 == YAML support
@@ -77,15 +77,15 @@ instance Y.FromJSON ConfigAttributeDefinition
 type ParseException = Y.ParseException
 type ConfigReadOutput = Either ParseException ConfigSchema
 
--- | Safely reads the schema from a file.
+-- | Safely reads the schema from a YAML file.
 readConfigSchemaFile :: FilePath -> IO ConfigReadOutput
 readConfigSchemaFile = Y.decodeFileEither
 
--- | Safely reads the schema from a byte string.
+-- | Safely reads the schema from a YAML byte string.
 readConfigSchema :: B.ByteString -> ConfigReadOutput
 readConfigSchema = Y.decodeEither'
 
--- | Safely reads the schema from a string.
+-- | Safely reads the schema from a YAML string.
 readConfigSchemaString :: String -> ConfigReadOutput
 readConfigSchemaString = Y.decodeEither' . B.pack
 
