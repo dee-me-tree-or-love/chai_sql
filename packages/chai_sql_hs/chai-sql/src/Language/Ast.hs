@@ -4,6 +4,8 @@ module Language.Ast
   )
   where
 
+import qualified Language.Types.System as LTS
+
 -- Ast context information
 -- =======================
 
@@ -14,7 +16,7 @@ data AstContext t = AstContext
   }
   deriving (Eq, Show)
 
-type NaiveTypeInfo = Maybe String
+type NaiveTypeInfo = Maybe LTS.TypeVariable
 type NaiveMaybeTypedAstContext = AstContext NaiveTypeInfo
 
 placeholderContext :: NaiveMaybeTypedAstContext

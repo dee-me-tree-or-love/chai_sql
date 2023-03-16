@@ -1,7 +1,7 @@
 {-# Language TypeSynonymInstances #-}
-module Language.Types.SchemaLoaderSpec (spec) where
+module Schemas.LoaderSpec (spec) where
 
-import qualified Language.Types.SchemaLoader as SL
+import qualified Schemas.Loader as SL
 import qualified Test.Hspec      as TS
 
 
@@ -25,9 +25,9 @@ getTestCase mp s mf tf e = TS.it (mf mp s) $ do TS.shouldBe (tf s) e
 
 spec :: TS.Spec
 spec = do
-  TS.describe "SchemaLoaderSpec" $ do
+  TS.describe "LoaderSpec" $ do
 
-    TS.describe "SchemaLoaderSpec.readConfigSchemaString" $ do
+    TS.describe "LoaderSpec.readConfigSchemaString" $ do
 
         getTestCase
             "reads simple packed config"

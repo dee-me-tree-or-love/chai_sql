@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-| Provides functionality for DB schema loading.
 
@@ -24,15 +24,16 @@ tables:
           spec: Number
 ```
  -}
-module Language.Types.SchemaLoader
+module Schemas.Loader
     (
-        module Language.Types.SchemaLoader
-    ) 
+        module Schemas.Loader
+    )
     where
 
-import GHC.Generics
 import qualified Data.ByteString.Char8 as B (ByteString, pack)
-import qualified Data.Yaml as Y (ParseException, FromJSON, decodeFileEither, decodeEither')
+import qualified Data.Yaml             as Y (FromJSON, ParseException,
+                                             decodeEither', decodeFileEither)
+import           GHC.Generics          (Generic)
 
 
 -- Serializable configs
@@ -40,8 +41,8 @@ import qualified Data.Yaml as Y (ParseException, FromJSON, decodeFileEither, dec
 
 data ConfigSchema
     = ConfigSchema {
-        types   :: ConfigTypes,
-        tables  :: ConfigTables
+        types  :: ConfigTypes,
+        tables :: ConfigTables
     }
     deriving (Show, Eq, Generic)
 
@@ -51,8 +52,8 @@ type ConfigTables = [ConfigTableDefinition]
 
 data ConfigTableDefinition
     = ConfigTableDefinition {
-        title       :: String,
-        attributes  :: ConfigAttributes
+        title      :: String,
+        attributes :: ConfigAttributes
     }
     deriving (Show, Eq, Generic)
 
@@ -60,8 +61,8 @@ type ConfigAttributes = [ConfigAttributeDefinition]
 
 data ConfigAttributeDefinition
     = ConfigAttributeDefinition {
-        name    :: String,
-        spec    :: String
+        name :: String,
+        spec :: String
     }
     deriving  (Show, Eq, Generic)
 

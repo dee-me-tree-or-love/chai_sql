@@ -41,6 +41,7 @@ library:
     - bytestring
     - yaml
     - aeson
+    - containers
   build-tools:
     - alex
     - happy
@@ -66,5 +67,6 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - chai-sql
+      - containers
       - hspec
       - hspec-discover

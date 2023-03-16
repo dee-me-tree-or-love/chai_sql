@@ -31,9 +31,11 @@ library
       Language.Parser
       Language.Readme
       Language.Tokens
-      Language.Types.Context
-      Language.Types.SchemaLoader
+      Language.Types.System
       Lib
+      Schemas.Loader
+      TypeChecker.Context
+      TypeChecker.Inference
   other-modules:
       Paths_chai_sql
   hs-source-dirs:
@@ -47,6 +49,7 @@ library
     , array
     , base
     , bytestring
+    , containers
     , yaml
   default-language: Haskell2010
 
@@ -67,7 +70,8 @@ test-suite chai-sql-test
   main-is: Spec.hs
   other-modules:
       Language.MainSpec
-      Language.Types.SchemaLoaderSpec
+      Schemas.LoaderSpec
+      TypeChecker.ContextSpec
       Paths_chai_sql
   hs-source-dirs:
       test
@@ -75,6 +79,7 @@ test-suite chai-sql-test
   build-depends:
       base >=4.7 && <5
     , chai-sql
+    , containers
     , hspec
     , hspec-discover
   default-language: Haskell2010
