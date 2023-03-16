@@ -1,23 +1,23 @@
 module Language.MainSpec (spec) where
 
-import qualified Language.Ast    as LAST
-import qualified Language.Main   as LM
-import qualified Language.Tokens as LT
+import           Language.Ast
+import           Language.Main
+import           Language.Tokens
 import qualified Test.Hspec      as TS
 
-checkTokens :: String -> [LT.Token] -> TS.Expectation
-checkTokens s = TS.shouldBe $ LM.getTokens s
+checkTokens :: String -> [Token] -> TS.Expectation
+checkTokens s = TS.shouldBe $ getTokens s
 
-getTokenTestCase :: String -> String -> [LT.Token] -> TS.SpecWith ()
+getTokenTestCase :: String -> String -> [Token] -> TS.SpecWith ()
 getTokenTestCase mp s ts = TS.it (mp ++ s) $ do checkTokens s ts
 
-checkAst :: String -> LAST.StackSqlStatement LAST.NaiveMaybeTypedAstContext -> TS.Expectation
-checkAst s = TS.shouldBe $ LM.getAst . LM.getTokens $ s
+checkAst :: String -> StackSqlStatement NaiveMaybeTypedAstContext -> TS.Expectation
+checkAst s = TS.shouldBe $ getAst . getTokens $ s
 
-getAstTestCase :: String -> String -> LAST.StackSqlStatement LAST.NaiveMaybeTypedAstContext -> TS.SpecWith ()
+getAstTestCase :: String -> String -> StackSqlStatement NaiveMaybeTypedAstContext -> TS.SpecWith ()
 getAstTestCase mp s ts = TS.it (mp ++ s) $ do checkAst s ts
 
-getAstTestCase' :: String -> String -> LAST.StackSqlStatement LAST.NaiveMaybeTypedAstContext -> TS.SpecWith ()
+getAstTestCase' :: String -> String -> StackSqlStatement NaiveMaybeTypedAstContext -> TS.SpecWith ()
 getAstTestCase' mp s ts = TS.it mp $ do checkAst s ts
 
 spec :: TS.Spec
@@ -28,93 +28,93 @@ spec = do
         getTokenTestCase
             "can tokenize simple input: "
             "(2)"
-            [LT.TLeftBrace, LT.TNumber 2, LT.TRightBrace]
+            [TLeftBrace, TNumber 2, TRightBrace]
 
         getTokenTestCase
             "can tokenize string inputs: "
             "foo \"foo bar\" 'foo bar'"
-            [LT.TTerm "foo", LT.TDoubleQuoted "\"foo bar\"", LT.TSingleQuoted "'foo bar'"]
+            [TTerm "foo", TDoubleQuoted "\"foo bar\"", TSingleQuoted "'foo bar'"]
 
         getTokenTestCase
             "can tokenize simple SQL input (caps): "
             "SELECT foo FROM bar;"
-            [LT.TSelect, LT.TTerm "foo", LT.TFrom, LT.TTerm "bar", LT.TSemicolon]
+            [TSelect, TTerm "foo", TFrom, TTerm "bar", TSemicolon]
 
         getTokenTestCase
             "can tokenize simple SQL input (lower): "
             "select foo from bar;"
-            [LT.TSelect, LT.TTerm "foo", LT.TFrom, LT.TTerm "bar", LT.TSemicolon]
+            [TSelect, TTerm "foo", TFrom, TTerm "bar", TSemicolon]
 
         getTokenTestCase
             "can tokenize simple SQL input (lower): "
             "select 1;"
-            [LT.TSelect, LT.TNumber 1, LT.TSemicolon]
+            [TSelect, TNumber 1, TSemicolon]
 
         getTokenTestCase
             "can tokenize SQL special keywords (lower): "
             "all ; distinct ; select ; from ; *"
             [
-                LT.TAll,
-                LT.TSemicolon,
-                LT.TDistinct,
-                LT.TSemicolon,
-                LT.TSelect,
-                LT.TSemicolon,
-                LT.TFrom,
-                LT.TSemicolon,
-                LT.TStar
+                TAll,
+                TSemicolon,
+                TDistinct,
+                TSemicolon,
+                TSelect,
+                TSemicolon,
+                TFrom,
+                TSemicolon,
+                TStar
             ]
 
         getTokenTestCase
             "can tokenize simple SQL comment: "
             "-- comment"
-            [LT.TComment]
+            [TComment]
 
         getTokenTestCase
             "can tokenize ChaiSQL comment: "
             "-- @chaisql"
-            [LT.TChaiComment]
+            [TChaiComment]
 
         getTokenTestCase
             "can tokenize ChaiSQL comment with trigger: "
             "-- @chaisql:check"
-            [LT.TChaiComment, LT.TColon, LT.TTerm "check"]
+            [TChaiComment, TColon, TTerm "check"]
 
         getTokenTestCase
             "can tokenize ChaiSQL comment with epxression: "
             "-- @chaisql:newtype Foo = Bar"
-            [LT.TChaiComment, LT.TColon, LT.TTerm "newtype", LT.TTerm "Foo", LT.TOperator "=", LT.TTerm "Bar"]
+            [TChaiComment, TColon, TTerm "newtype", TTerm "Foo", TOperator "=", TTerm "Bar"]
 
         getTokenTestCase
             "can tokenize ChaiSQL comment with compound return: "
             "-- @chaisql:newtype DbView <set> {foo: Foo, bar: Bar}"
-            [LT.TChaiComment, LT.TColon, LT.TTerm "newtype", LT.TTerm "DbView", LT.TLeftAngle, LT.TTerm "set", LT.TRightAngle, LT.TLeftCurl, LT.TTerm "foo", LT.TColon, LT.TTerm "Foo", LT.TComma, LT.TTerm "bar", LT.TColon, LT.TTerm "Bar", LT.TRightCurl]
+            [TChaiComment, TColon, TTerm "newtype", TTerm "DbView", TLeftAngle, TTerm "set", TRightAngle, TLeftCurl, TTerm "foo", TColon, TTerm "Foo", TComma, TTerm "bar", TColon, TTerm "Bar", TRightCurl]
 
         getTokenTestCase
             "can tokenize punctuation: "
             "; , : ."
             [
-                LT.TSemicolon,
-                LT.TComma,
-                LT.TColon,
-                LT.TDot
+                TSemicolon,
+                TComma,
+                TColon,
+                TDot
             ]
 
         getTokenTestCase
             "can tokenize ChaiSQL operators (plus star): "
             "- + = / * ; ++ == // **"
             [
-                LT.TOperator "-",
-                LT.TOperator "+",
-                LT.TOperator "=",
-                LT.TOperator "/",
-                LT.TStar,
-                LT.TSemicolon,
-                LT.TOperator "++",
-                LT.TOperator "==",
-                LT.TOperator "//",
-                LT.TStar,
-                LT.TStar
+                TOperator "-",
+                TOperator "+",
+                TOperator "=",
+                TOperator "/",
+                TStar,
+                TSemicolon,
+                TOperator "++",
+                TOperator "==",
+                TOperator "//",
+                TStar,
+                TStar
             ]
 
     TS.describe "MainSpec.getAst" $ do
@@ -122,87 +122,91 @@ spec = do
             "can parse simple select: "
             "select 1"
             [
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementAtom Nothing [
-                --         LAST.SSelectAccessConstant $ LAST.SNumberConstant 1
-                --     ]
+                SSelectStatement
+                    (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 
+                    (SSelectStatementAtom 
+                        (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 
+                        Nothing 
+                        [SSelectAccessConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SNumberConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 1)]
+                    )
             ]
 
         getAstTestCase
             "can parse simple select (with semicolon): "
             "select 1;"
             [
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementAtom Nothing [
-                --         LAST.SSelectAccessConstant $ LAST.SNumberConstant 1
-                --     ]
+                SSelectStatement (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SSelectStatementAtom (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) Nothing [SSelectAccessConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SNumberConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 1)])
             ]
 
         getAstTestCase
             "can parse multiple simple selects: "
             "select 1; select 2; select 3"
             -- NB: since we are using left recursion, the parsed list is reverse
-            (reverse [
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementAtom Nothing [
-                --         LAST.SSelectAccessConstant $ LAST.SNumberConstant 1
-                --     ]
-                -- ,
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementAtom Nothing [
-                --         LAST.SSelectAccessConstant $ LAST.SNumberConstant 2
-                --     ]
-                -- ,
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementAtom Nothing [
-                --         LAST.SSelectAccessConstant $ LAST.SNumberConstant 3
-                --     ]
-            ])
+            (reverse
+                [ SSelectStatement (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SSelectStatementAtom (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) Nothing [SSelectAccessConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SNumberConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 1)])
+                , SSelectStatement (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SSelectStatementAtom (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) Nothing [SSelectAccessConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SNumberConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 2)])
+                , SSelectStatement (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SSelectStatementAtom (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) Nothing [SSelectAccessConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SNumberConstant (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) 3)])
+                ]
+            )
 
         getAstTestCase
             "can parse simple select-from: "
             "select X from Y"
             [
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementWithFrom
-                --         Nothing
-                --         [LAST.SSelectAccessColumn $ LAST.STerm "X"]
-                --         (LAST.SSelectFromTable $ LAST.STerm "Y")
+                SSelectStatement
+                    (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing})
+                    (SSelectStatementWithFrom
+                        (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing})
+                        Nothing
+                        [
+                            SSelectAccessColumn (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "X")
+                        ]
+                        (SSelectFromTable
+                            (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing})
+                            (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "Y")
+                        )
+                    )
             ]
 
         getAstTestCase
             "can parse simple select-from (with many columns): "
             "select A, B from C"
             [
-                -- LAST.SSelectStatement $
-                --     LAST.SSelectStatementWithFrom
-                --         Nothing
-                --         [
-                --             LAST.SSelectAccessColumn $ LAST.STerm "B",
-                --             LAST.SSelectAccessColumn $ LAST.STerm "A"
-                --         ]
-                --         (LAST.SSelectFromTable $ LAST.STerm "C")
+                SSelectStatement
+                    (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing})
+                    (SSelectStatementWithFrom
+                        (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing})
+                        Nothing
+                        [
+                            SSelectAccessColumn (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "B"),
+                            SSelectAccessColumn (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "A")
+                        ]
+                        (SSelectFromTable
+                            (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing})
+                            (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "C")
+                        )
+                    )
             ]
 
         getAstTestCase
             "can parse a ChaiSQL trigger: "
             "-- @chaisql:check"
             [
-                -- LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiTrigger (LAST.STerm "check")))
+                SSqlComment (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SCommentChai (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SChaiTrigger (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "check")))
             ]
 
         getAstTestCase
             "can parse a ChaiSQL expression: "
             "-- @chaisql:newtype Foo = Bar"
             [
-                -- LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiExpression (LAST.STerm "newtype") (LAST.STerm "Foo") (LAST.SOperator "=") (LAST.STerm "Bar")))
+                SSqlComment (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SCommentChai (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SChaiExpression (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "newtype") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "Foo") (SOperator (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "=") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "Bar")))
             ]
 
         getAstTestCase
             "can parse a ChaiSQL compound return: "
             "-- @chaisql:returns DbView <set> {foo: Foo, bar: Bar}"
             [
-                -- LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiCompound (LAST.STerm "returns") (LAST.STerm "DbView") (LAST.STerm "set") [LAST.SChaiAttributePair (LAST.STerm "bar") (LAST.STerm "Bar"), LAST.SChaiAttributePair (LAST.STerm "foo") (LAST.STerm "Foo")]))
+                SSqlComment (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SCommentChai (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SChaiCompound (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "returns") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "DbView") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "set") [SChaiAttributePair (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "bar") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "Bar"),SChaiAttributePair (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "foo") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "Foo")]))
             ]
 
         getAstTestCase'
@@ -215,6 +219,6 @@ spec = do
                 ]
             )
             [
-                -- LAST.SSelectStatement (LAST.SSelectStatementWithFrom (Just LAST.SSelectDistinct) [LAST.SSelectAccessColumn (LAST.STerm "age"),LAST.SSelectAccessColumn (LAST.STerm "name")] (LAST.SSelectFromTable (LAST.STerm "cat"))),
-                -- LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiCompound (LAST.STerm "returns") (LAST.STerm "DbView") (LAST.STerm "set") [LAST.SChaiAttributePair (LAST.STerm "age") (LAST.STerm "Number"), LAST.SChaiAttributePair (LAST.STerm "name") (LAST.STerm "String")]))
+                SSelectStatement (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SSelectStatementWithFrom (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (Just (SSelectDistinct (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}))) [SSelectAccessColumn (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "age"),
+                SSelectAccessColumn (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "name")] (SSelectFromTable (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "cat"))),SSqlComment (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SCommentChai (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (SChaiCompound (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "returns") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "DbView") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "set") [SChaiAttributePair (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "age") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "Number"),SChaiAttributePair (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "name") (STerm (AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}) "String")]))
             ]

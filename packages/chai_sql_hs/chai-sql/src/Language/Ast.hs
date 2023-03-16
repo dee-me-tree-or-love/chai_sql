@@ -4,7 +4,6 @@ module Language.Ast
   )
   where
 
-
 -- Ast context information
 -- =======================
 
