@@ -4,7 +4,6 @@ module Language.Types.System
     )
     where
 
-
 data TypeVariable
     = TVBasic TypeTerm
     | TVCompound
