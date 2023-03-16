@@ -199,17 +199,16 @@ spec = do
             "-- @chaisql:returns DbView <set> {foo: Foo, bar: Bar}"
             [LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiCompound (LAST.STerm "returns") (LAST.STerm "DbView") (LAST.STerm "set") [LAST.SChaiAttributePair (LAST.STerm "bar") (LAST.STerm "Bar"), LAST.SChaiAttributePair (LAST.STerm "foo") (LAST.STerm "Foo")]))]
 
-
         getAstTestCase'
             "can parse a SQL statement with ChaiSQL comment: (compound returns and select)"
             (
                 unlines [
                     "", -- empty line
-                    "-- @chaisql:returns DbView <set> {foo: Foo, bar: Bar}",
-                    "SELECT foo, bar FROM foobar;"
+                    "-- @chaisql:returns DbView <set> {name: String, age: Number}",
+                    "SELECT DISTINCT name, age FROM cat;"
                 ]
             )
             [
-                LAST.SSelectStatement (LAST.SSelectStatementWithFrom Nothing [LAST.SSelectAccessColumn (LAST.STerm "bar"),LAST.SSelectAccessColumn (LAST.STerm "foo")] (LAST.SSelectFromTable (LAST.STerm "foobar"))),
-                LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiCompound (LAST.STerm "returns") (LAST.STerm "DbView") (LAST.STerm "set") [LAST.SChaiAttributePair (LAST.STerm "bar") (LAST.STerm "Bar"), LAST.SChaiAttributePair (LAST.STerm "foo") (LAST.STerm "Foo")]))
+                LAST.SSelectStatement (LAST.SSelectStatementWithFrom (Just LAST.SSelectDistinct) [LAST.SSelectAccessColumn (LAST.STerm "age"),LAST.SSelectAccessColumn (LAST.STerm "name")] (LAST.SSelectFromTable (LAST.STerm "cat"))),
+                LAST.SSqlComment (LAST.SCommentChai (LAST.SChaiCompound (LAST.STerm "returns") (LAST.STerm "DbView") (LAST.STerm "set") [LAST.SChaiAttributePair (LAST.STerm "age") (LAST.STerm "Number"), LAST.SChaiAttributePair (LAST.STerm "name") (LAST.STerm "String")]))
             ]
