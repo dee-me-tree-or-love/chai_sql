@@ -46,80 +46,83 @@ import qualified Language.Lexer as LL
 
 -- NB: Using left recursion for efficiency, but thus the parsed list is reverse
 -- See: https://haskell-happy.readthedocs.io/en/latest/using.html#parsing-sequences
-StackSqlStatement   :: { LAST.StackSqlStatement }
+StackSqlStatement   :: { LAST.StackSqlStatement LAST.NaiveMaybeTypedAstContext }
 StackSqlStatement   : SqlStatement                          { [$1] }
                     | StackSqlStatement SqlStatement        { $2 : $1 }
 
-SqlStatement    :: { LAST.SqlStatement }
-SqlStatement    : SelectStatement ';'       { LAST.SSelectStatement $1 }
-                | SelectStatement           { LAST.SSelectStatement $1 }
-                | SqlComment                { LAST.SSqlComment $1 }
+SqlStatement    :: { LAST.SqlStatement LAST.NaiveMaybeTypedAstContext }
+SqlStatement    : SelectStatement ';'       { LAST.SSelectStatement emptyContext $1 }
+                | SelectStatement           { LAST.SSelectStatement emptyContext $1 }
+                | SqlComment                { LAST.SSqlComment emptyContext $1 }
 
 
 -- Mid Level: SQL Comments
 -- +++++++++++++++++++++++
 
-SqlComment      :: { LAST.SqlComment }
-SqlComment      : '--'                 { LAST.SCommentPlain }
-                | ChaiStatement        { LAST.SCommentChai $1 }
+SqlComment      :: { LAST.SqlComment LAST.NaiveMaybeTypedAstContext }
+SqlComment      : '--'                 { LAST.SCommentPlain emptyContext }
+                | ChaiStatement        { LAST.SCommentChai emptyContext $1 }
 
-ChaiStatement       :: { LAST.ChaiStatement }
-ChaiStatement       : '-- @cs' ':' Term                                                     { LAST.SChaiTrigger $3 }
-                    | '-- @cs' ':' Term Term Operator Term                                  { LAST.SChaiExpression $3 $4 $5 $6 }
-                    | '-- @cs' ':' Term Term '<' Term '>' '{' StackChaiAttributePair '}'    { LAST.SChaiCompound $3 $4 $6 $9 }
+ChaiStatement       :: { LAST.ChaiStatement LAST.NaiveMaybeTypedAstContext }
+ChaiStatement       : '-- @cs' ':' Term                                                     { LAST.SChaiTrigger emptyContext $3 }
+                    | '-- @cs' ':' Term Term Operator Term                                  { LAST.SChaiExpression emptyContext $3 $4 $5 $6 }
+                    | '-- @cs' ':' Term Term '<' Term '>' '{' StackChaiAttributePair '}'    { LAST.SChaiCompound emptyContext $3 $4 $6 $9 }
 
-StackChaiAttributePair      :: { LAST.StackChaiAttributePair }
+StackChaiAttributePair      :: { LAST.StackChaiAttributePair LAST.NaiveMaybeTypedAstContext }
 StackChaiAttributePair      : ChaiAttributePair                            { [$1] }
                             | StackChaiAttributePair ',' ChaiAttributePair      { $3 : $1 }
 
-ChaiAttributePair       :: { LAST.ChaiAttributePair }
-ChaiAttributePair       : Term ':' Term         { LAST.SChaiAttributePair $1 $3 }
+ChaiAttributePair       :: { LAST.ChaiAttributePair LAST.NaiveMaybeTypedAstContext }
+ChaiAttributePair       : Term ':' Term         { LAST.SChaiAttributePair emptyContext $1 $3 }
 
 -- Mid Level: SELECT Statements
 -- ++++++++++++++++++++++++++++
 
-SelectStatement     :: { LAST.SelectStatement }
-SelectStatement     : select MaybeSelectOption StackSelectAccess                        { LAST.SSelectStatementAtom $2 $3 }
-                    | select MaybeSelectOption StackSelectAccess SelectFrom             { LAST.SSelectStatementWithFrom $2 $3 $4 }
+SelectStatement     :: { LAST.SelectStatement LAST.NaiveMaybeTypedAstContext }
+SelectStatement     : select MaybeSelectOption StackSelectAccess                        { LAST.SSelectStatementAtom emptyContext $2 $3 }
+                    | select MaybeSelectOption StackSelectAccess SelectFrom             { LAST.SSelectStatementWithFrom emptyContext $2 $3 $4 }
                     -- TODO(feature): support from SELECT-FROM-WHERE
-                    -- | select MaybeSelectOption StackSelectAccess SelectFrom SelectWhere { LAST.SSelectStatementWithFromWhere $2 $3 $4 $5 }
+                    -- | select MaybeSelectOption StackSelectAccess SelectFrom SelectWhere { LAST.SSelectStatementWithFromWhere emptyContext $2 $3 $4 $5 }
 
-MaybeSelectOption   :: { LAST.MaybeSelectOption }
-MaybeSelectOption   : distinct    { Just LAST.SSelectDistinct }
-                    | all         { Just LAST.SSelectAll }
+MaybeSelectOption   :: { LAST.MaybeSelectOption LAST.NaiveMaybeTypedAstContext }
+MaybeSelectOption   : distinct    { Just \$ LAST.SSelectDistinct emptyContext }
+                    | all         { Just \$ LAST.SSelectAll emptyContext }
                     | {- empty -} { Nothing }
 
-StackSelectAccess   :: { LAST.StackSelectAccess }
+StackSelectAccess   :: { LAST.StackSelectAccess LAST.NaiveMaybeTypedAstContext }
 StackSelectAccess   : SelectAccess                              { [$1] }
                     | StackSelectAccess ',' SelectAccess        { $3 : $1 }
 
-SelectAccess    :: { LAST.SelectAccess }
-SelectAccess    : Term              { LAST.SSelectAccessColumn $1 }
-                | Term '.' Term     { LAST.SSelectAccessColumnQualified $1 $1 }
-                | Constant          { LAST.SSelectAccessConstant $1 }
-                | star              { LAST.SSelectAccessStar }
+SelectAccess    :: { LAST.SelectAccess LAST.NaiveMaybeTypedAstContext }
+SelectAccess    : Term              { LAST.SSelectAccessColumn emptyContext $1 }
+                | Term '.' Term     { LAST.SSelectAccessColumnQualified emptyContext $1 $1 }
+                | Constant          { LAST.SSelectAccessConstant emptyContext $1 }
+                | star              { LAST.SSelectAccessStar emptyContext }
 
-SelectFrom      :: {LAST.SelectFrom }
-SelectFrom      : from Term                         { LAST.SSelectFromTable $2 }
-                | from '(' StackSqlStatement ')'    { LAST.SSelectFromStatements $3 }
+SelectFrom      :: {LAST.SelectFrom LAST.NaiveMaybeTypedAstContext }
+SelectFrom      : from Term                         { LAST.SSelectFromTable emptyContext $2 }
+                | from '(' StackSqlStatement ')'    { LAST.SSelectFromStatements emptyContext $3 }
 
 
 -- Low Level: TERMS, CONSTANTS
 -- +++++++++++++++++++++++++++
 
-Operator    :: { LAST.Operator }
-Operator    : operator      { LAST.SOperator $1 }
+Operator    :: { LAST.Operator LAST.NaiveMaybeTypedAstContext }
+Operator    : operator      { LAST.SOperator emptyContext $1 }
 
-Term        :: { LAST.Term }
-Term        : term          { LAST.STerm $1 }
+Term        :: { LAST.Term LAST.NaiveMaybeTypedAstContext }
+Term        : term          { LAST.STerm emptyContext $1 }
 
-Constant    :: { LAST.Constant }
-Constant    : number        { LAST.SNumberConstant $1 }
-            | sqstring      { LAST.SSingleQuotedTextConstant $1 }
-            | dqstring      { LAST.SDoubleQuotedTextConstant $1 }
+Constant    :: { LAST.Constant LAST.NaiveMaybeTypedAstContext }
+Constant    : number        { LAST.SNumberConstant emptyContext $1 }
+            | sqstring      { LAST.SSingleQuotedTextConstant emptyContext $1 }
+            | dqstring      { LAST.SDoubleQuotedTextConstant emptyContext $1 }
 
 
 {
+emptyContext :: LAST.NaiveMaybeTypedAstContext
+emptyContext = LAST.AstContext {LAST.lineNumber = 0, LAST.columnNumber = 0, LAST.typeInfo = Nothing}
+
 parseError :: [LT.Token] -> a
 parseError ts = error $ "Parse error: " ++ (show ts)
 }

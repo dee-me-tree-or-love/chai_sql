@@ -5,84 +5,100 @@ module Language.Ast
   where
 
 
+-- Ast context information
+-- =======================
+
+data AstContext t = AstContext
+  { lineNumber   :: Int
+  , columnNumber :: Int
+  , typeInfo     :: t
+  }
+  deriving (Eq, Show)
+
+type NaiveTypeInfo = Maybe String
+type NaiveMaybeTypedAstContext = AstContext NaiveTypeInfo
+
+placeholderContext :: NaiveMaybeTypedAstContext
+placeholderContext = AstContext {lineNumber = 0, columnNumber = 0, typeInfo = Nothing}
+
 -- Top Level: SQL Statements
--- +++++++++++++++++++++++++
+-- =========================
 
-type StackSqlStatement = [SqlStatement]
+type StackSqlStatement ctx = [SqlStatement ctx]
 
-data SqlStatement
-  = SSelectStatement SelectStatement
-  | SSqlComment SqlComment
+data SqlStatement ctx
+  = SSelectStatement ctx (SelectStatement ctx)
+  | SSqlComment ctx (SqlComment ctx)
   deriving (Eq, Show)
 
 
 -- Mid Level: SQL Comments
 -- +++++++++++++++++++++++
 
-data SqlComment
-  = SCommentPlain
-  | SCommentChai ChaiStatement
+data SqlComment ctx
+  = SCommentPlain ctx
+  | SCommentChai ctx (ChaiStatement ctx)
   deriving (Eq, Show)
 
-data ChaiStatement
-  = SChaiTrigger Term
-  | SChaiExpression Term Term Operator Term
+data ChaiStatement ctx
+  = SChaiTrigger ctx (Term ctx)
+  | SChaiExpression ctx (Term ctx) (Term ctx) (Operator ctx) (Term ctx)
   -- TODO(new-features): aggregate the SChaiCompound into a separate ChaiProposition construct
-  | SChaiCompound Term Term Term StackChaiAttributePair
+  | SChaiCompound ctx (Term ctx) (Term ctx) (Term ctx) (StackChaiAttributePair ctx)
   deriving (Eq, Show)
 
-type StackChaiAttributePair = [ChaiAttributePair]
+type StackChaiAttributePair ctx = [ChaiAttributePair ctx]
 
-data ChaiAttributePair
-  = SChaiAttributePair Term Term
+data ChaiAttributePair ctx
+  = SChaiAttributePair ctx (Term ctx) (Term ctx)
   deriving (Eq, Show)
 
 -- Mid Level: SELECT Statements
 -- ++++++++++++++++++++++++++++
 
-data SelectStatement
+data SelectStatement ctx
   -- support for SELECT
-  = SSelectStatementAtom MaybeSelectOption StackSelectAccess
+  = SSelectStatementAtom ctx (MaybeSelectOption ctx) (StackSelectAccess ctx)
   -- support for SELECT-FROM
-  | SSelectStatementWithFrom MaybeSelectOption StackSelectAccess SelectFrom
+  | SSelectStatementWithFrom ctx (MaybeSelectOption ctx) (StackSelectAccess ctx) (SelectFrom ctx)
   -- TODO(backlog): support from SELECT-FROM-WHERE
   -- | SSelectStatementWithFromWhere MaybeSelectOption StackSelectAccess SelectFrom SelectWhere
   deriving (Eq, Show)
 
-type MaybeSelectOption = Maybe SelectOption
+type MaybeSelectOption ctx = Maybe (SelectOption ctx)
 
-data SelectOption
-  = SSelectDistinct
-  | SSelectAll
+data SelectOption ctx
+  = SSelectDistinct ctx
+  | SSelectAll ctx
   deriving (Eq, Show)
 
-type StackSelectAccess = [SelectAccess]
+type StackSelectAccess ctx = [SelectAccess ctx]
 
-data SelectAccess
-  = SSelectAccessColumn Term
-  | SSelectAccessColumnQualified Term Term
-  | SSelectAccessConstant Constant
-  | SSelectAccessStar
+data SelectAccess ctx
+  = SSelectAccessColumn ctx (Term ctx)
+  | SSelectAccessColumnQualified ctx (Term ctx) (Term ctx)
+  | SSelectAccessConstant ctx (Constant ctx)
+  | SSelectAccessStar ctx
   -- TODO(backlog): support SELECT X AS Y
   deriving (Eq, Show)
 
-data SelectFrom
-  = SSelectFromTable Term
-  | SSelectFromStatements StackSqlStatement
+data SelectFrom ctx
+  = SSelectFromTable ctx (Term ctx)
+  | SSelectFromStatements ctx (StackSqlStatement ctx)
   -- TODO(backlog): support FROM X AS Y
   deriving (Eq, Show)
 
 -- Low Level: TERMS, CONSTANTS, OPERATORS
 -- +++++++++++++++++++++++++++
 
-newtype Operator = SOperator String
+data Operator ctx = SOperator ctx String
   deriving (Eq, Show)
 
-newtype Term = STerm String
+data Term ctx = STerm ctx String
   deriving (Eq, Show)
 
-data Constant
-  = SSingleQuotedTextConstant String
-  | SDoubleQuotedTextConstant String
-  | SNumberConstant Int
+data Constant ctx
+  = SSingleQuotedTextConstant ctx String
+  | SDoubleQuotedTextConstant ctx String
+  | SNumberConstant ctx Int
   deriving (Eq, Show)

@@ -5,7 +5,7 @@ module Language.Main
   )
 where
 
-import qualified Language.Ast    as LAST (StackSqlStatement)
+import qualified Language.Ast    as LAST (StackSqlStatement, NaiveMaybeTypedAstContext)
 import qualified Language.Lexer  as LL (scan)
 import qualified Language.Parser as LP (parse)
 import qualified Language.Tokens as LT (Token)
@@ -29,5 +29,5 @@ getTokens = LL.scan
 --
 -- TODO: provide some examples
 --
-getAst :: [LT.Token] -> LAST.StackSqlStatement
+getAst :: [LT.Token] -> LAST.StackSqlStatement LAST.NaiveMaybeTypedAstContext
 getAst = LP.parse
