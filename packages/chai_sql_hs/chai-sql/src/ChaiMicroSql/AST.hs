@@ -47,21 +47,21 @@ data ASTSelectAttributeReference
     deriving (Show, Eq)
 
 -- | A list of all source table access.
--- TODO: @Typed@
+-- @Typed@
 type ASTFromList = [ASTFromTable]
 
 -- | A single table access.
--- TODO: @Typed@
+-- @Typed@
 data ASTFromTable
     = ASTFromTableReference ASTFromTableReference                       -- ^ e.g. @FROM X@
     | ASTFromTableReferenceAlias ASTFromTableReference ASTSimpleAlias   -- ^ e.g. @FROM X AS Y@
     deriving (Show, Eq)
 
 -- | A single table reference.
--- TODO: @Typed@
+-- @Typed@
 data ASTFromTableReference
-    = ASTFromTableReferenceUnqualified ASTVariable                -- ^ e.g. @X@
-    | ASTFromTableReferenceNestedQuery ASTSelectQuery             -- ^ e.g. @([QUERY])@
+    = ASTFromTableReferenceTableName ASTVariable            -- ^ e.g. @X@
+    | ASTFromTableReferenceNestedQuery ASTSelectQuery       -- ^ e.g. @([QUERY])@
     deriving (Show, Eq)
 
 -- Common utilities

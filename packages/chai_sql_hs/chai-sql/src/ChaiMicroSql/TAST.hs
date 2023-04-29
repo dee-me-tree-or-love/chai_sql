@@ -36,6 +36,9 @@ data TASTSimpleTypeBasicIndex = TASTSimpleTypeBasicIndexKeyValue TASTSimpleTypeB
 -- | A type key-value type record map.
 type TASTSimpleTypeRecord = (M.Map TASTSimpleTypeBasicIndexKey TASTSimpleType)
 
+emptyTypeRecord :: TASTSimpleTypeRecord
+emptyTypeRecord = M.empty
+
 -- Common utilities
 -- ^^^^^^^^^^^^^^^^
 

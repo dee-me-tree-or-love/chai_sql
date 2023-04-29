@@ -17,6 +17,7 @@
 module ChaiMicroSql.TypeChecker (
         emptyError,
         joinErrors,
+        combineErrors,
         inferVar,
         __varNotKnownError,
         inferTotalRecord,
@@ -25,7 +26,10 @@ module ChaiMicroSql.TypeChecker (
         __baseTotalRecordError,
         __recordUnknownAttributeError,
         inferAttribute,
-        inferSelectList
+        inferSelectList,
+        inferFromTableReference,
+        inferFromTable,
+        inferFromList
     ) where
 
 import qualified ChaiMicroSql.AST         as AST
@@ -35,6 +39,9 @@ import           Data.Either              (isLeft, lefts, rights)
 
 -- Type Inference Procedures
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- Base utilities
+-- ^^^^^^^^^^^^^^
 
 -- TODO(tech-debt): make it contain a list of error messages.
 newtype TCInferenceError = TCInferenceError String deriving (Show, Eq)
@@ -57,6 +64,11 @@ emptyError = TCInferenceError ""
 joinErrors :: TCInferenceError -> TCInferenceError -> TCInferenceError
 joinErrors (TCInferenceError "") (TCInferenceError b) = TCInferenceError $ "- " ++ b
 joinErrors (TCInferenceError a) (TCInferenceError b) = TCInferenceError $ a ++ " \n - " ++ b
+
+-- | A utility to combine multiple errors into one.
+--
+combineErrors :: [TCInferenceError] -> TCInferenceError
+combineErrors = foldl joinErrors emptyError
 
 -- Axioms
 -- ^^^^^^
@@ -85,7 +97,6 @@ inferVar c (AST.ASTVariable v) = do
 __varNotKnownError :: String -> TCInferenceError
 __varNotKnownError v = TCInferenceError $ "Could not infer variable type. Variable `" ++ v ++ "` is not in context."
 
-
 -- | Total record type inference.(*)
 --
 -- - Note: Corresponds to the @Axiom A2@.
@@ -93,9 +104,11 @@ __varNotKnownError v = TCInferenceError $ "Could not infer variable type. Variab
 inferTotalRecord :: TCX.TCSimpleTypeContext -> AST.ASTSelectAttributeStarTotalRecord -> Either TCInferenceError TAST.TASTSimpleType
 inferTotalRecord _ _ = Right TAST.TASTSimpleTypeRecordTotal
 
-
 -- Rules
 -- ^^^^^
+
+-- Attribute access
+-- ................
 
 -- | Attribute reference inference.
 --
@@ -152,5 +165,42 @@ inferSelectList :: TCX.TCSimpleTypeContext -> AST.ASTSelectList -> Either TCInfe
 inferSelectList c as = do
     let ets = map (inferAttribute c) as
     case any isLeft ets of
-        True  -> Left $ foldl joinErrors emptyError $ lefts ets
+        True  -> Left $ combineErrors $ lefts ets
         False -> Right $ TAST.TASTSimpleTypeList $ rights ets
+
+-- Table access
+-- ............
+
+-- | Table reference inference.
+--
+-- - Note: Corresponds to the @Axiom A1@ and @Rule R4@
+--
+inferFromTableReference :: TCX.TCSimpleTypeContext -> AST.ASTFromTableReference -> Either TCInferenceError TAST.TASTSimpleType
+inferFromTableReference c (AST.ASTFromTableReferenceTableName v)   = inferVar c v
+inferFromTableReference c (AST.ASTFromTableReferenceNestedQuery q) = error "Sub-query is not yet supported!"  -- TODO(backlog!high): fix
+
+-- | Table access inference.
+--
+-- - Note: Corresponds to the @Axiom A1@ and @Rule R2@
+--
+inferFromTable :: TCX.TCSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleType
+inferFromTable c (AST.ASTFromTableReference v) = inferFromTableReference c v
+inferFromTable c (AST.ASTFromTableReferenceAlias v (AST.ASTSimpleAlias b)) = do
+    vt <- inferFromTableReference c v
+    Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue (TAST.TASTSimpleTypeBasicIndexKey b) vt
+
+-- | Table list access inference.
+--
+-- Note: Corresponds to @Rule R3@
+--
+inferFromList :: TCX.TCSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError TAST.TASTSimpleType
+inferFromList c as = do
+    let ets = map (inferFromTable c) as
+    case any isLeft ets of
+        True  -> Left $ combineErrors $ lefts ets
+        False -> Right $ TAST.TASTSimpleTypeList $ rights ets
+
+-- Full SELECT query
+-- .................
+
+-- TODO(backlog!high): implement
