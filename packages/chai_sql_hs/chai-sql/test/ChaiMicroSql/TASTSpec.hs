@@ -14,7 +14,6 @@ spec = do
                 THS.shouldBe (p a) a
                 where
                     a = CMST.TASTSimpleTypeRecord
-                        $ CMST.TASTSimpleTypeRecordMap
-                            $ M.fromList
-                                [(CMST.TASTSimpleTypeBasicIndexKey "foo", CMST.TASTSimpleTypeBasic CMST.TASTSimpleTypeBasicBool)]
+                        $ M.fromList
+                            [(CMST.TASTSimpleTypeBasicIndexKey "foo", CMST.TASTSimpleTypeBasic CMST.TASTSimpleTypeBasicBool)]
                     p = id -- TODO(backlog): define a parse function

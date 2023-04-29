@@ -8,9 +8,12 @@ import qualified Data.Map as M
 -- Supported features are:
 -- - 3 base types: @Bool, Number, Text@
 -- - A recursive record type: e.g. @[key<String>: value<TASTSimpleType>]@
+-- - A special total record: e.g. @TOT@
+--
 data TASTSimpleType
     = TASTSimpleTypeBasic TASTSimpleTypeBasic   -- ^ 3 base types: @Bool, Number, Text@
     | TASTSimpleTypeRecord TASTSimpleTypeRecord -- ^ A recursive record type: e.g. @[key<String>: value<TASTSimpleType>]@
+    | TASTSimpleTypeRecordTotal                 -- ^ A special total record.
     deriving (Show, Eq)
 
 -- | All supported basic types.
@@ -25,17 +28,22 @@ data TASTSimpleTypeBasic
 data TASTSimpleTypeBasicIndex = TASTSimpleTypeBasicIndexKeyValue TASTSimpleTypeBasicIndexKey TASTSimpleType
     deriving (Show, Eq)
 
--- | A type record.
-data TASTSimpleTypeRecord
-    = TASTSimpleTypeRecordTotal                         -- ^ A total record.
-    | TASTSimpleTypeRecordMap TASTSimpleTypeRecordMap   -- ^ A key-value type map record.
-    deriving (Show, Eq)
-
--- | A key-value type map.
-type TASTSimpleTypeRecordMap = (M.Map TASTSimpleTypeBasicIndexKey TASTSimpleType)
+-- | A type key-value type record map.
+type TASTSimpleTypeRecord = (M.Map TASTSimpleTypeBasicIndexKey TASTSimpleType)
 
 -- Common utilities
 
 -- | Simple wrapper for Record type indexing.
 newtype TASTSimpleTypeBasicIndexKey = TASTSimpleTypeBasicIndexKey String deriving (Show, Eq, Ord)
 
+-- | Creates a new record
+make :: [TASTSimpleTypeBasicIndex] -> TASTSimpleTypeRecord
+make is = M.fromList $ map __tup is
+
+-- | Tuplify the TASTSimpleTypeBasicIndex.
+__tup :: TASTSimpleTypeBasicIndex -> (TASTSimpleTypeBasicIndexKey, TASTSimpleType)
+__tup (TASTSimpleTypeBasicIndexKeyValue k v) = (k,v)
+
+-- | Type record retrieval
+get :: TASTSimpleTypeBasicIndexKey -> TASTSimpleTypeRecord -> Maybe TASTSimpleType
+get = M.lookup
