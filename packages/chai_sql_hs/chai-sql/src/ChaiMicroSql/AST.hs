@@ -24,7 +24,7 @@ data ASTSelectQuery = ASTSelectQuery ASTSelectList ASTFromList
     deriving (Show, Eq)
 
 -- | A list of all attribute access.
--- TODO: @Typed@
+-- @Typed@
 type ASTSelectList = [ASTSelectAttribute]
 
 -- | A single attribute access.
@@ -46,6 +46,8 @@ data ASTSelectAttributeReference
     | ASTSelectAttributeReferenceQualified ASTVariable ASTVariable      -- ^ e.g. `X.Y`
     deriving (Show, Eq)
 
+-- | A list of all source table access.
+-- TODO: @Typed@
 type ASTFromList = [ASTFromTable]
 
 -- | A single table access.
@@ -63,10 +65,12 @@ data ASTFromTableReference
     deriving (Show, Eq)
 
 -- Common utilities
+-- ^^^^^^^^^^^^^^^^
 
+-- | A simple variable name wrapper.
 -- @Typed@
 newtype ASTVariable = ASTVariable String deriving (Show, Eq)
--- TODO: @Typed@
+-- | A simple alias name wrapper.
 newtype ASTSimpleAlias = ASTSimpleAlias String deriving (Show, Eq)
 
 class ASTToString a where

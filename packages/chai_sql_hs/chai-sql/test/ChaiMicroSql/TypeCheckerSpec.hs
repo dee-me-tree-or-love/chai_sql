@@ -63,7 +63,22 @@ spec = do
                         THS.shouldBe (f av) r
 
             THS.describe "with a qualified access" $ do
-                THS.describe "with a non-record base" $ do
+                THS.describe "with a list of types base" $ do
+                    THS.it "returns Left <error text>" $ do
+                        let __v = "foo"
+                        let __av = AST.ASTVariable __v
+                        let __k = TCX.TCSimpleTypeContextKey __v
+                        let __vt = [TAST.TASTSimpleTypeBasic TAST.TASTSimpleTypeBasicBool]
+                        let __vt' = TAST.TASTSimpleTypeList __vt
+                        let __c = TCX.extend __k __vt' TCX.freshContext
+                        let __v' = "bar"
+                        let __av' = AST.ASTVariable __v'
+                        let av = AST.ASTSelectAttributeReferenceQualified __av __av'
+                        let f = TC.inferAttributeReference __c
+                        let e = Left $ TC.__baseNotRecordError __av __av' __vt
+                        THS.shouldBe (f av) e
+
+                THS.describe "with a basic type base" $ do
                     THS.it "returns Left <error text>" $ do
                         let __v = "foo"
                         let __av = AST.ASTVariable __v
@@ -194,3 +209,19 @@ spec = do
                     let f = TC.inferSelectList TCX.freshContext
                     let e = Left $ foldl TC.joinErrors TC.emptyError [TC.__varNotKnownError __v]
                     THS.shouldBe (f [av]) e
+
+            THS.describe "with no errors" $ do
+                THS.it "returns Right <all types combined>" $ do
+                    -- foo is an attribute of type Bool
+                    let __v = "foo"
+                    let __k = TCX.TCSimpleTypeContextKey __v
+                    let __vt = TAST.TASTSimpleTypeBasic TAST.TASTSimpleTypeBasicBool
+                    -- it is known to the context
+                    let __c = TCX.extend __k __vt TCX.freshContext
+                    -- we are retrieving the types
+                    let av = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                    let f = TC.inferSelectList __c
+                    let __rk = TAST.TASTSimpleTypeBasicIndexKey __v
+                    let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
+                    let r = Right $ TAST.TASTSimpleTypeList [TAST.TASTSimpleTypeBasic __rki]
+                    THS.shouldBe (f [av]) r

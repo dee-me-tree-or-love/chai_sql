@@ -31,7 +31,7 @@ module ChaiMicroSql.TypeChecker (
 import qualified ChaiMicroSql.AST         as AST
 import qualified ChaiMicroSql.TAST        as TAST
 import qualified ChaiMicroSql.TypeContext as TCX
-import           Data.Either              (fromLeft, isLeft)
+import           Data.Either              (isLeft, lefts, rights)
 
 -- Type Inference Procedures
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,6 +109,7 @@ inferAttributeReference c (AST.ASTSelectAttributeReferenceUnqualified v) = do
 inferAttributeReference c (AST.ASTSelectAttributeReferenceQualified b v) = do
     bt <- inferVar c b
     case bt of
+        TAST.TASTSimpleTypeList ts      -> Left $ __baseNotRecordError b v ts
         TAST.TASTSimpleTypeBasic t     -> Left $ __baseNotRecordError b v t
         TAST.TASTSimpleTypeRecordTotal -> Left $ __baseTotalRecordError b v
         TAST.TASTSimpleTypeRecord r    -> do
@@ -118,7 +119,7 @@ inferAttributeReference c (AST.ASTSelectAttributeReferenceQualified b v) = do
                 Just t' -> Right $ TAST.TASTSimpleTypeBasicIndexKeyValue k t'
                 Nothing -> Left $ __recordUnknownAttributeError b v
 
-__baseNotRecordError :: AST.ASTVariable -> AST.ASTVariable -> TAST.TASTSimpleTypeBasic -> TCInferenceError
+__baseNotRecordError :: Show t => AST.ASTVariable -> AST.ASTVariable -> t -> TCInferenceError
 __baseNotRecordError b v t = TCInferenceError $ "Could not infer the type of access `" ++ AST.toString b ++ "." ++ AST.toString v ++ "`. Variable `" ++ AST.toString b ++ "` is a `" ++ show t ++ "` type and is not a Record."
 
 __baseTotalRecordError :: AST.ASTVariable -> AST.ASTVariable -> TCInferenceError
@@ -150,12 +151,6 @@ inferAttribute c (AST.ASTSelectAttributeReferenceAlias a (AST.ASTSimpleAlias b))
 inferSelectList :: TCX.TCSimpleTypeContext -> AST.ASTSelectList -> Either TCInferenceError TAST.TASTSimpleType
 inferSelectList c as = do
     let ets = map (inferAttribute c) as
-    let hasErrors = any isLeft ets
-    case hasErrors of
-        True -> do
-            let de = TCInferenceError ""                    -- default error
-            let es = map (fromLeft de) $ filter isLeft ets  -- list of errors
-            let se = foldl joinErrors de es                 -- all errors combined
-            Left se
-        False -> do
-            undefined
+    case any isLeft ets of
+        True  -> Left $ foldl joinErrors emptyError $ lefts ets
+        False -> Right $ TAST.TASTSimpleTypeList $ rights ets
