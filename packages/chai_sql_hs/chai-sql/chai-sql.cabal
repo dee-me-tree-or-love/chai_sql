@@ -25,7 +25,10 @@ source-repository head
 
 library
   exposed-modules:
-      ChaiMicroSql.ChaiMicroSql
+      ChaiMicroSql.AST
+      ChaiMicroSql.TAST
+      ChaiMicroSql.TypeChecker
+      ChaiMicroSql.TypeContext
       Lib
       Schemas.Loader
   other-modules:
@@ -61,7 +64,10 @@ test-suite chai-sql-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Schemas.LoaderSpec
+      ChaiMicroSql.ASTSpec
+      ChaiMicroSql.TASTSpec
+      ChaiMicroSql.TypeCheckerSpec
+      ChaiMicroSql.TypeContextSpec
       Paths_chai_sql
   hs-source-dirs:
       test
