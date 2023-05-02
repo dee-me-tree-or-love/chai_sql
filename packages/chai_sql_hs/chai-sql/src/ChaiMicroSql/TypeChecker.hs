@@ -161,12 +161,12 @@ inferAttribute c (AST.ASTSelectAttributeReferenceAlias a (AST.ASTSimpleAlias b))
 --
 -- Note: Corresponds to @Rule R3@
 --
-inferSelectList :: TCX.TCSimpleTypeContext -> AST.ASTSelectList -> Either TCInferenceError TAST.TASTSimpleType
+inferSelectList :: TCX.TCSimpleTypeContext -> AST.ASTSelectList -> Either TCInferenceError TAST.TASTSimpleTypeList
 inferSelectList c as = do
     let ets = map (inferAttribute c) as
     case any isLeft ets of
         True  -> Left $ combineErrors $ lefts ets
-        False -> Right $ TAST.TASTSimpleTypeList $ rights ets
+        False -> Right $ rights ets
 
 -- Table access
 -- ............
@@ -193,12 +193,12 @@ inferFromTable c (AST.ASTFromTableReferenceAlias v (AST.ASTSimpleAlias b)) = do
 --
 -- Note: Corresponds to @Rule R3@
 --
-inferFromList :: TCX.TCSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError TAST.TASTSimpleType
+inferFromList :: TCX.TCSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError TAST.TASTSimpleTypeList
 inferFromList c as = do
     let ets = map (inferFromTable c) as
     case any isLeft ets of
         True  -> Left $ combineErrors $ lefts ets
-        False -> Right $ TAST.TASTSimpleTypeList $ rights ets
+        False -> Right $ rights ets
 
 -- Full SELECT query
 -- .................

@@ -223,7 +223,7 @@ spec = do
                     let f = TC.inferSelectList __c
                     let __rk = TAST.TASTSimpleTypeBasicIndexKey __v
                     let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
-                    let r = Right $ TAST.TASTSimpleTypeList [TAST.TASTSimpleTypeBasic __rki]
+                    let r = Right [TAST.TASTSimpleTypeBasic __rki]
                     THS.shouldBe (f [av]) r
 
         THS.describe "with inferFromTableReference" $ do
@@ -307,7 +307,7 @@ spec = do
                         let __c = TCX.extend __k __vt TCX.freshContext
                         let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
                         let f = TC.inferFromList __c
-                        let r = Right $ TAST.TASTSimpleTypeList [__vt]
+                        let r = Right [__vt]
                         THS.shouldBe (f [av]) r
 
                 THS.describe "with an aliases" $ do
@@ -321,5 +321,5 @@ spec = do
                         let f = TC.inferFromList __c
                         let __rk = TAST.TASTSimpleTypeBasicIndexKey __u
                         let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
-                        let r = Right $ TAST.TASTSimpleTypeList [TAST.TASTSimpleTypeBasic __rki]
+                        let r = Right [TAST.TASTSimpleTypeBasic __rki]
                         THS.shouldBe (f [av]) r
