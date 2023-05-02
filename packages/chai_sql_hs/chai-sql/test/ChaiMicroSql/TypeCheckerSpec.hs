@@ -236,7 +236,7 @@ spec = do
                         let __c = TCX.extend __k __vt TCX.freshContext
                         let av = AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
                         let f = TC.inferFromTableReference __c
-                        let r = Right __vt
+                        let r = Right $ TAST.TASTSimpleTypeBasicIndexKeyValue (TAST.TASTSimpleTypeBasicIndexKey __v) __vt
                         THS.shouldBe (f av) r
 
                 THS.describe "with unknown table name" $ do
@@ -260,7 +260,8 @@ spec = do
                         let __c = TCX.extend __k __vt TCX.freshContext
                         let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
                         let f = TC.inferFromTable __c
-                        let r = Right __vt
+                        let __rki = TAST.TASTSimpleTypeBasicIndexKeyValue (TAST.TASTSimpleTypeBasicIndexKey __v) __vt 
+                        let r = Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex __rki
                         THS.shouldBe (f av) r
 
                 THS.describe "with unknown table name" $ do
@@ -307,7 +308,9 @@ spec = do
                         let __c = TCX.extend __k __vt TCX.freshContext
                         let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
                         let f = TC.inferFromList __c
-                        let r = Right [__vt]
+                        let __rk = TAST.TASTSimpleTypeBasicIndexKey __v
+                        let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
+                        let r = Right [TAST.TASTSimpleTypeBasic __rki]
                         THS.shouldBe (f [av]) r
 
                 THS.describe "with an aliases" $ do

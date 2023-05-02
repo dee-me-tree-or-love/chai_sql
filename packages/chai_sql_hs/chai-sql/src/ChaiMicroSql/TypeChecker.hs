@@ -175,8 +175,11 @@ inferSelectList c as = do
 --
 -- - Note: Corresponds to the @Axiom A1@ and @Rule R4@
 --
-inferFromTableReference :: TCX.TCSimpleTypeContext -> AST.ASTFromTableReference -> Either TCInferenceError TAST.TASTSimpleType
-inferFromTableReference c (AST.ASTFromTableReferenceTableName v)   = inferVar c v
+inferFromTableReference :: TCX.TCSimpleTypeContext -> AST.ASTFromTableReference -> Either TCInferenceError TAST.TASTSimpleTypeBasicIndex
+inferFromTableReference c (AST.ASTFromTableReferenceTableName v)   = do
+    vt <- inferVar c v
+    let k = TAST.TASTSimpleTypeBasicIndexKey $ AST.toString v
+    Right $ TAST.TASTSimpleTypeBasicIndexKeyValue k vt
 inferFromTableReference c (AST.ASTFromTableReferenceNestedQuery q) = error "Sub-query is not yet supported!"  -- TODO(backlog!high): fix
 
 -- | Table access inference.
@@ -184,10 +187,13 @@ inferFromTableReference c (AST.ASTFromTableReferenceNestedQuery q) = error "Sub-
 -- - Note: Corresponds to the @Axiom A1@ and @Rule R2@
 --
 inferFromTable :: TCX.TCSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleType
-inferFromTable c (AST.ASTFromTableReference v) = inferFromTableReference c v
-inferFromTable c (AST.ASTFromTableReferenceAlias v (AST.ASTSimpleAlias b)) = do
+inferFromTable c (AST.ASTFromTableReference v) = do
     vt <- inferFromTableReference c v
-    Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue (TAST.TASTSimpleTypeBasicIndexKey b) vt
+    Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex vt
+inferFromTable c (AST.ASTFromTableReferenceAlias v a) = do
+    let k = TAST.TASTSimpleTypeBasicIndexKey $ AST.toString a
+    (TAST.TASTSimpleTypeBasicIndexKeyValue _ vt) <- inferFromTableReference c v
+    Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue k vt
 
 -- | Table list access inference.
 --
@@ -204,3 +210,8 @@ inferFromList c as = do
 -- .................
 
 -- TODO(backlog!high): implement
+inferSelectQuery :: TCX.TCSimpleTypeContext -> AST.ASTSelectQuery -> Either TCInferenceError TAST.TASTSimpleTypeRecord
+inferSelectQuery c (AST.ASTSelectQuery as fs) = do
+    fts <- inferFromList c fs
+    ats <- inferSelectList undefined as
+    error "not implemented yet"
