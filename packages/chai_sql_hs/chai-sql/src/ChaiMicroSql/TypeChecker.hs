@@ -27,7 +27,6 @@ module ChaiMicroSql.TypeChecker (
         __recordUnknownAttributeError,
         inferAttribute,
         inferSelectList,
-        inferFromTableReference,
         inferFromTable,
         inferFromList
     ) where
@@ -171,35 +170,30 @@ inferSelectList c as = do
 -- Table access
 -- ............
 
--- | Table reference inference.
---
--- - Note: Corresponds to the @Axiom A1@ and @Rule R4@
---
-inferFromTableReference :: TCX.TCSimpleTypeContext -> AST.ASTFromTableReference -> Either TCInferenceError TAST.TASTSimpleTypeBasicIndex
-inferFromTableReference c (AST.ASTFromTableReferenceTableName v)   = do
-    vt <- inferVar c v
-    let k = TAST.TASTSimpleTypeBasicIndexKey $ AST.toString v
-    Right $ TAST.TASTSimpleTypeBasicIndexKeyValue k vt
-inferFromTableReference c (AST.ASTFromTableReferenceNestedQuery q) = error "Sub-query is not yet supported!"  -- TODO(backlog!high): fix
-
 -- | Table access inference.
 --
 -- - Note: Corresponds to the @Axiom A1@ and @Rule R2@
 --
-inferFromTable :: TCX.TCSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleType
+inferFromTable :: TCX.TCSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleTypeBasicIndex
 inferFromTable c (AST.ASTFromTableReference v) = do
-    vt <- inferFromTableReference c v
-    Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex vt
+    vt <- inferVar c v
+    let k = TAST.TASTSimpleTypeBasicIndexKey $ AST.toString v
+    Right $ TAST.TASTSimpleTypeBasicIndexKeyValue k vt
 inferFromTable c (AST.ASTFromTableReferenceAlias v a) = do
+    vt <- inferVar c v
     let k = TAST.TASTSimpleTypeBasicIndexKey $ AST.toString a
-    (TAST.TASTSimpleTypeBasicIndexKeyValue _ vt) <- inferFromTableReference c v
-    Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue k vt
+    Right $ TAST.TASTSimpleTypeBasicIndexKeyValue k vt
+inferFromTable _ (AST.ASTFromNestedQueryReferenceAlias _ _) = error "sub-queries are not supported yet"
+
+__fromNotRecordError :: AST.ASTVariable -> TCInferenceError
+__fromNotRecordError v = TCInferenceError $ "From target is not a Record. In expression `" ++ AST.toString v ++ "`, reconsider the from clause access."
+
 
 -- | Table list access inference.
 --
 -- Note: Corresponds to @Rule R3@
 --
-inferFromList :: TCX.TCSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError TAST.TASTSimpleTypeList
+inferFromList :: TCX.TCSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError [TAST.TASTSimpleTypeBasicIndex]
 inferFromList c as = do
     let ets = map (inferFromTable c) as
     case any isLeft ets of
@@ -215,3 +209,4 @@ inferSelectQuery c (AST.ASTSelectQuery as fs) = do
     fts <- inferFromList c fs
     ats <- inferSelectList undefined as
     error "not implemented yet"
+

@@ -47,11 +47,11 @@ newtype TASTSimpleTypeBasicIndexKey = TASTSimpleTypeBasicIndexKey String derivin
 
 -- | Creates a new record
 make :: [TASTSimpleTypeBasicIndex] -> TASTSimpleTypeRecord
-make is = M.fromList $ map __tup is
+make is = M.fromList $ map tuplify is
 
 -- | Tuplify the TASTSimpleTypeBasicIndex.
-__tup :: TASTSimpleTypeBasicIndex -> (TASTSimpleTypeBasicIndexKey, TASTSimpleType)
-__tup (TASTSimpleTypeBasicIndexKeyValue k v) = (k,v)
+tuplify :: TASTSimpleTypeBasicIndex -> (TASTSimpleTypeBasicIndexKey, TASTSimpleType)
+tuplify (TASTSimpleTypeBasicIndexKeyValue k v) = (k,v)
 
 -- | Type record retrieval
 get :: TASTSimpleTypeBasicIndexKey -> TASTSimpleTypeRecord -> Maybe TASTSimpleType

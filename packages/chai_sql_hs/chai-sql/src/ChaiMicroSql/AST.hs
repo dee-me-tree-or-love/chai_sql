@@ -53,15 +53,9 @@ type ASTFromList = [ASTFromTable]
 -- | A single table access.
 -- @Typed@
 data ASTFromTable
-    = ASTFromTableReference ASTFromTableReference                       -- ^ e.g. @FROM X@
-    | ASTFromTableReferenceAlias ASTFromTableReference ASTSimpleAlias   -- ^ e.g. @FROM X AS Y@
-    deriving (Show, Eq)
-
--- | A single table reference.
--- @Typed@
-data ASTFromTableReference
-    = ASTFromTableReferenceTableName ASTVariable            -- ^ e.g. @X@
-    | ASTFromTableReferenceNestedQuery ASTSelectQuery       -- ^ e.g. @([QUERY])@
+    = ASTFromTableReference ASTVariable                                 -- ^ e.g. @FROM X@
+    | ASTFromTableReferenceAlias ASTVariable ASTSimpleAlias             -- ^ e.g. @FROM X AS Y@
+    | ASTFromNestedQueryReferenceAlias ASTSelectQuery ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
 -- Common utilities

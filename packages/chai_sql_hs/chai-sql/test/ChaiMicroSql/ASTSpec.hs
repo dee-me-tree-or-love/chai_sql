@@ -15,7 +15,5 @@ spec = do
                 where
                     a = AST.ASTSelectQuery
                         [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                        [AST.ASTFromTableReference
-                            $ AST.ASTFromTableReferenceTableName
-                                $ AST.ASTVariable "Foo"]
+                        [AST.ASTFromTableReference $ AST.ASTVariable "Foo"]
                     p = id -- TODO(backlog): define a parse function

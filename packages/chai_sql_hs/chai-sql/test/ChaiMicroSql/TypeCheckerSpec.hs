@@ -226,30 +226,6 @@ spec = do
                     let r = Right [TAST.TASTSimpleTypeBasic __rki]
                     THS.shouldBe (f [av]) r
 
-        THS.describe "with inferFromTableReference" $ do
-            THS.describe "with a named table access" $ do
-                THS.describe "with known table name" $ do
-                    THS.it "returns Right <inference result>" $ do
-                        let __v = "foo"
-                        let __k = TCX.TCSimpleTypeContextKey __v
-                        let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-                        let __c = TCX.extend __k __vt TCX.freshContext
-                        let av = AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
-                        let f = TC.inferFromTableReference __c
-                        let r = Right $ TAST.TASTSimpleTypeBasicIndexKeyValue (TAST.TASTSimpleTypeBasicIndexKey __v) __vt
-                        THS.shouldBe (f av) r
-
-                THS.describe "with unknown table name" $ do
-                    THS.it "returns Left <error result>" $ do
-                        let __v = "foo"
-                        let __k = TCX.TCSimpleTypeContextKey __v
-                        let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-                        let __c = TCX.freshContext
-                        let av = AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
-                        let f = TC.inferFromTableReference __c
-                        let r = Left $ TC.__varNotKnownError __v
-                        THS.shouldBe (f av) r
-
         THS.describe "with inferFromTable" $ do
             THS.describe "with a simple table access" $ do
                 THS.describe "with known table name" $ do
@@ -258,10 +234,10 @@ spec = do
                         let __k = TCX.TCSimpleTypeContextKey __v
                         let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
                         let __c = TCX.extend __k __vt TCX.freshContext
-                        let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
+                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
                         let f = TC.inferFromTable __c
                         let __rki = TAST.TASTSimpleTypeBasicIndexKeyValue (TAST.TASTSimpleTypeBasicIndexKey __v) __vt 
-                        let r = Right $ TAST.TASTSimpleTypeBasic $ TAST.TASTSimpleTypeBasicIndex __rki
+                        let r = Right __rki
                         THS.shouldBe (f av) r
 
                 THS.describe "with unknown table name" $ do
@@ -270,7 +246,7 @@ spec = do
                         let __k = TCX.TCSimpleTypeContextKey __v
                         let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
                         let __c = TCX.freshContext
-                        let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
+                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
                         let f = TC.inferFromTable __c
                         let r = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f av) r
@@ -283,18 +259,18 @@ spec = do
                         let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
                         let __c = TCX.extend __k __vt TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromTableReferenceAlias (AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)) (AST.ASTSimpleAlias __u)
+                        let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromTable __c
                         let __rk = TAST.TASTSimpleTypeBasicIndexKey __u
-                        let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
-                        let r = Right $ TAST.TASTSimpleTypeBasic __rki
+                        let __rki = TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
+                        let r = Right __rki
                         THS.shouldBe (f av) r
 
         THS.describe "with inferFromList" $ do
             THS.describe "with at least one error" $ do
                 THS.it "returns Left <all error messages combined>" $ do
                     let __v = "foo"
-                    let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
+                    let av = AST.ASTFromTableReference $ AST.ASTVariable __v
                     let f = TC.inferFromList TCX.freshContext
                     let e = Left $ TC.combineErrors [TC.__varNotKnownError __v]
                     THS.shouldBe (f [av]) e
@@ -306,11 +282,11 @@ spec = do
                         let __k = TCX.TCSimpleTypeContextKey __v
                         let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
                         let __c = TCX.extend __k __vt TCX.freshContext
-                        let av = AST.ASTFromTableReference $ AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)
+                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
                         let f = TC.inferFromList __c
                         let __rk = TAST.TASTSimpleTypeBasicIndexKey __v
-                        let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
-                        let r = Right [TAST.TASTSimpleTypeBasic __rki]
+                        let __rki = TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
+                        let r = Right [__rki]
                         THS.shouldBe (f [av]) r
 
                 THS.describe "with an aliases" $ do
@@ -320,9 +296,9 @@ spec = do
                         let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
                         let __c = TCX.extend __k __vt TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromTableReferenceAlias (AST.ASTFromTableReferenceTableName (AST.ASTVariable __v)) (AST.ASTSimpleAlias __u)
+                        let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromList __c
                         let __rk = TAST.TASTSimpleTypeBasicIndexKey __u
-                        let __rki = TAST.TASTSimpleTypeBasicIndex $ TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
-                        let r = Right [TAST.TASTSimpleTypeBasic __rki]
+                        let __rki = TAST.TASTSimpleTypeBasicIndexKeyValue __rk __vt
+                        let r = Right [__rki]
                         THS.shouldBe (f [av]) r
