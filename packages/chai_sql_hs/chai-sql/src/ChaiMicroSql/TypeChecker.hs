@@ -13,6 +13,7 @@
 - @R2@: -- TODO(backlog): describe the rule...
 - @R3@: -- TODO(backlog): describe the rule...
 - @R4@: -- TODO(backlog): describe the rule...
+
 -}
 module ChaiMicroSql.TypeChecker (
         TCInferenceError,
@@ -207,7 +208,7 @@ __extendFromRecordPairAttributes c (TAST.TASTSimpleRecordIndexKeyValue _ r) = do
 __extendFromAttributes :: TCX.TCXSimpleTypeContext -> (TAST.TASTSimpleIndexKey, TAST.TASTAtomicType) -> TCX.TCXSimpleTypeContext
 __extendFromAttributes c (k, a) = __extend' c k a
 
-__extend' :: (CU.ToStringable p1, TCX.Contextable p2) => TCX.TCXSimpleTypeContext -> p1 -> p2 -> TCX.TCXSimpleTypeContext
+__extend' :: (CU.ToStringable a, TCX.Contextable b) => TCX.TCXSimpleTypeContext -> a -> b -> TCX.TCXSimpleTypeContext
 __extend' c k r = do
     let k' = TCX.makeKey $ CU.toString k
     let r' = TCX.contextualize r
