@@ -24,6 +24,10 @@ db-clean-test-sqlite: db-delete-test-sqlite db-init-test-sqlite
 db-exec-test-sqlite-queries: ${TMP_DIR}/${TEST_DB}
 	sqlite3 ${TMP_DIR}/${TEST_DB} < ${DATA_DIR}/queries.sql
 
+.PHONY: db-exec-test-sqlite-queries-interactive
+db-exec-test-sqlite-queries-interactive: ${TMP_DIR}/${TEST_DB}
+	sqlite3 ${TMP_DIR}/${TEST_DB} -interactive
+
 # Utility targets
 # ~~~~~~~~~~~~~~~
 
