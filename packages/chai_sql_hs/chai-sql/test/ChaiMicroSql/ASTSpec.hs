@@ -11,9 +11,23 @@ spec = do
     THS.describe "AST of" $ do
         THS.describe "`SELECT * FROM Foo;`" $ do
             THS.it "parses" $ do
-                THS.shouldBe (p a) a
-                where
-                    a = AST.ASTSelectQuery
+                let a = AST.ASTSelectQuery
                         [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
                         [AST.ASTFromTableReference $ AST.ASTVariable "Foo"]
-                    p = id -- TODO(backlog): define a parse function
+                let p = id -- TODO(backlog): define a parse function
+                THS.shouldBe (p a) a
+
+    THS.describe "toString" $ do
+        THS.describe "of Variable" $ do
+            THS.it "returns variable name" $ do
+                let n = "foo"
+                let v = AST.ASTVariable n
+                let f = AST.toString
+                THS.shouldBe (f v) n
+
+        THS.describe "of Alias" $ do
+            THS.it "returns alias name" $ do
+                let n = "foo"
+                let v = AST.ASTSimpleAlias n
+                let f = AST.toString
+                THS.shouldBe (f v) n

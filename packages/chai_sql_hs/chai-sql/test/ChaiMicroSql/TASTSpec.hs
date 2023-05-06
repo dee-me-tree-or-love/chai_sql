@@ -1,6 +1,6 @@
 module ChaiMicroSql.TASTSpec (spec) where
 
-import qualified ChaiMicroSql.TAST as CMST
+import qualified ChaiMicroSql.TAST as TAST
 import qualified Data.Map          as M
 import qualified Test.Hspec        as THS
 
@@ -13,7 +13,7 @@ spec = do
             THS.it "parses" $ do
                 THS.shouldBe (p a) a
                 where
-                    a = CMST.TASTSimpleTypeRecord
+                    a = TAST.TASTSimpleTypeRecord
                         $ M.fromList
-                            [(CMST.TASTSimpleTypeBasicIndexKey "foo", CMST.TASTSimpleTypeBasic CMST.TASTSimpleTypeBasicBool)]
+                            [(TAST.TASTSimpleTypeBasicIndexKey "foo", TAST.TASTAtomicTypeBool)]
                     p = id -- TODO(backlog): define a parse function

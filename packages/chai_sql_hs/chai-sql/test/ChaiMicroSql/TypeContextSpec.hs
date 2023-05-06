@@ -10,6 +10,55 @@ import qualified Test.Hspec               as THS
 spec :: THS.Spec
 spec = do
     THS.describe "Type context" $ do
+        THS.describe "with contextualize" $ do
+            THS.describe "with atomic" $ do
+                THS.it "is returns contextualized atom" $ do
+                    let a = TAST.TASTAtomicTypeBool
+                    let f = TCX.contextualize
+                    let e = TCX.TCXSimpleTypeContextValueAtomic a
+                    THS.shouldBe (f a) e
+
+            THS.describe "with record" $ do
+                THS.it "is returns contextualized record" $ do
+                    let a = TAST.emptyTypeRecord
+                    let f = TCX.contextualize
+                    let e = TCX.TCXSimpleTypeContextValueRecord a
+                    THS.shouldBe (f a) e
+
+        THS.describe "with decontextualize" $ do
+            THS.describe "with contextualized atomic" $ do
+                THS.it "is returns an atom" $ do
+                    let __a = TAST.TASTAtomicTypeBool
+                    let a = TCX.TCXSimpleTypeContextValueAtomic __a
+                    let f = TCX.decontextualize
+                    let e = Right __a
+                    THS.shouldBe (f a) e
+
+                THS.describe "but expected record" $ do
+                    THS.it "is returns an error" $ do
+                        let __a = TAST.TASTAtomicTypeBool
+                        let a = TCX.TCXSimpleTypeContextValueAtomic __a
+                        let f = TCX.decontextualize :: (TCX.TCXSimpleTypeContextValue -> Either TCX.TCXContextError TAST.TASTSimpleTypeRecord)
+                        let e = Left TCX.__atomNotRecordError
+                        THS.shouldBe (f a) e
+
+            THS.describe "with contextualized record" $ do
+                THS.it "is returns a record" $ do
+                    let __a = TAST.emptyTypeRecord
+                    let a = TCX.TCXSimpleTypeContextValueRecord __a
+                    let f = TCX.decontextualize
+                    let e = Right __a
+                    THS.shouldBe (f a) e
+
+
+                THS.describe "but expected atom" $ do
+                    THS.it "is returns an error" $ do
+                        let __a = TAST.emptyTypeRecord
+                        let a = TCX.TCXSimpleTypeContextValueRecord __a
+                        let f = TCX.decontextualize :: (TCX.TCXSimpleTypeContextValue -> Either TCX.TCXContextError TAST.TASTAtomicType)
+                        let e = Left TCX.__recordNotAtomError
+                        THS.shouldBe (f a) e
+
         THS.describe "with freshContext" $ do
             THS.it "is empty" $ do
                 let a = TCX.freshContext
@@ -18,8 +67,8 @@ spec = do
 
         THS.describe "with extend" $ do
             THS.it "receives new items" $ do
-                let k = TCX.TCSimpleTypeContextKey "foo"
-                let v = TAST.TASTSimpleTypeBasic TAST.TASTSimpleTypeBasicBool
+                let k = TCX.TCXSimpleTypeContextKey "foo"
+                let v = TCX.contextualize TAST.TASTAtomicTypeBool
                 let a = TCX.freshContext
                 let f = TCX.extend k v
                 let p = M.toList
@@ -28,12 +77,12 @@ spec = do
         THS.describe "with lookup" $ do
             THS.describe "when not found" $ do
                 THS.it "returns Nothing" $ do
-                    let k = TCX.TCSimpleTypeContextKey "foo"
+                    let k = TCX.TCXSimpleTypeContextKey "foo"
                     THS.shouldBe (TCX.get k TCX.freshContext) Nothing
 
             THS.describe "when found" $ do
                 THS.it "returns Just <item>" $ do
-                    let k = TCX.TCSimpleTypeContextKey "foo"
-                    let v = TAST.TASTSimpleTypeBasic TAST.TASTSimpleTypeBasicBool
+                    let k = TCX.TCXSimpleTypeContextKey "foo"
+                    let v = TCX.contextualize TAST.TASTAtomicTypeBool
                     let a = TCX.extend k v TCX.freshContext
                     THS.shouldBe (TCX.get k a) (Just v)
