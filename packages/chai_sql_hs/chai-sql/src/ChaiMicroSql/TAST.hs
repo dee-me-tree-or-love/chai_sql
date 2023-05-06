@@ -7,21 +7,6 @@ import qualified Data.Map                 as M
 -- Basic Type language AST
 -- ~~~~~~~~~~~~~~~~~~~~~~~
 
--- TODO: deprecate?
--- -- | A basic simple type representation.
--- --
--- -- Supported features are:
--- --
--- -- - 3 atomic types: @TASTAtomicType@ -> @Bool, Number, Text@
--- -- - A record type without duplicate keys: e.g. @{key<String>: value<TASTAtomicType>}@
--- -- - A special total record: e.g. @TOT@
--- -- - A list of all above mentioned types
--- data TASTSimpleType
---     = TASTSimpleTypeBasic TASTSimpleTypeBasic   -- ^ 3 base types: @Bool, Number, Text@
---     | TASTSimpleTypeRecord TASTSimpleTypeRecord -- ^ A recursive record type: e.g. @[key<String>: value<TASTSimpleType>]@
---     | TASTSimpleTypeList  TASTSimpleTypeList    -- ^ A list of all possible simple types.
---     deriving (Show, Eq)
-
 -- -- | A collection of various types
 -- type TASTSimpleTypeList = [TASTSimpleType]
 
