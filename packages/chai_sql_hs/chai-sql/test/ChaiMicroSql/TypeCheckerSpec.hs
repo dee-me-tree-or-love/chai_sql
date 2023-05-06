@@ -12,11 +12,6 @@ spec :: THS.Spec
 spec = do
     THS.describe "Type checker" $ do
 
-        -- FIXME: disable the test once it is covered
-        THS.describe "implementation" $ do
-            THS.it "should be tested" $ do
-                THS.shouldBe "not ready" "ready"
-
         THS.describe "with inferVar" $ do
             THS.describe "with unknown variable" $ do
                 THS.it "returns Left <error text>" $ do
@@ -238,6 +233,59 @@ spec = do
                         let r = Right __rki
                         THS.shouldBe (f av) r
 
+            THS.describe "with an aliased sub-query" $ do
+                THS.describe "with working query" $ do
+                    THS.it "returns Right <inference result>" $ do
+                        -- construct the context
+                        let __f = "foos"
+                        let __a = "id"
+                        let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                        let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                        let __fas = [__fIdT, __fNameT]
+                        let __ft = TAST.makeRecord __fas
+                        -- construct a query from SELECT * FROM foos;
+                        let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
+                        let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                        let q = AST.ASTSelectQuery qsl qfl
+                        -- populate starting context
+                        let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                        let __u = "bar"
+                        let av = AST.ASTFromNestedQueryReferenceAlias q (AST.ASTSimpleAlias __u)
+                        let f = TC.inferFromTable c
+                        let __rk = TAST.TASTSimpleIndexKey __u
+                        let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk $ TAST.makeRecord [__fIdT, __fNameT]
+                        let r = Right __rki
+                        THS.shouldBe (f av) r
+
+                THS.describe "with working query with duplicate columns" $ do
+                    THS.it "returns deduplicated record" $ do
+                        -- construct the context
+                        let __f = "foos"
+                        let __a = "id"
+                        let __n = "name"
+                        let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                        let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __n) TAST.TASTAtomicTypeBool
+                        let __fas = [__fIdT, __fNameT]
+                        let __ft = TAST.makeRecord __fas
+                        -- construct a query from SELECT id, id, name FROM foos;
+                        let __qslId = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __a
+                        let __qslName = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __n
+                        let qsl = [__qslId, __qslId, __qslName]
+                        let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                        let q = AST.ASTSelectQuery qsl qfl
+                        -- populate starting context
+                        let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                        let __u = "bar"
+                        let av = AST.ASTFromNestedQueryReferenceAlias q (AST.ASTSimpleAlias __u)
+                        let f = TC.inferFromTable c
+                        let __rk = TAST.TASTSimpleIndexKey __u
+                        -- prepare a de-duplicated result
+                        let __fIdT1 = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey $ __a ++ ":1") TAST.TASTAtomicTypeBool
+                        let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk $ TAST.makeRecord [__fIdT, __fIdT1, __fNameT]
+                        let r = Right __rki
+                        THS.shouldBe (f av) r
+
+
         THS.describe "with inferFromList" $ do
             THS.describe "with at least one error" $ do
                 THS.it "returns Left <all error messages combined>" $ do
@@ -280,17 +328,61 @@ spec = do
                 THS.it "returns all attributes from the from list" $ do
                     -- construct the context
                     let __f = "foos"
-                    let __fIDt = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
-                    let __fas = [__fIDt]
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
                     let __ft = TAST.makeRecord __fas
                     -- construct a query from SELECT * FROM foos;
                     let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
                     let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
                     let q = AST.ASTSelectQuery qsl qfl
-                    -- TODO: populate starting context
+                    -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
-                    -- TODO: infer query
+                    -- infer query
                     let f = TC.inferSelectQuery c
-                    -- TODO: check
-                    let e = Right [__fIDt]
+                    -- check
+                    let e = Right [__fIdT, __fNameT]
+                    THS.shouldBe (f q) e
+
+            THS.describe "with attribute selection" $ do
+                THS.it "returns specific attributes" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __a = "id"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT id FROM foos;
+                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __a]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferSelectQuery c
+                    -- check
+                    let e = Right [__fIdT]
+                    THS.shouldBe (f q) e
+
+            THS.describe "with invalid attribute selection" $ do
+                THS.it "fails" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __a = "id"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT thisIsNotAnId FROM foos;
+                    let __na = "thisIsNotAnId"
+                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferSelectQuery c
+                    -- check that it reports all the failures
+                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
                     THS.shouldBe (f q) e

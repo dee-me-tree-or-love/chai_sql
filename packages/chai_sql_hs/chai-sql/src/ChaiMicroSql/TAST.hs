@@ -36,17 +36,17 @@ data TASTAtomicType
     = TASTAtomicTypeBool    -- ^ @Bool@
     | TASTAtomicTypeNumber  -- ^ @Number@
     | TASTAtomicTypeText    -- ^ @Text@
-    deriving (Show, Eq)
+    deriving (Show, Eq, Ord)
 
 -- | A type used to index type collections.
 data TASTSimpleAtomicIndex
     = TASTSimpleTypeRecordTotal                                   -- ^ A special total record.
     | TASTSimpleAtomicIndexPair TASTSimpleAtomicIndexPair   -- ^ A key-value pari for an atomic type.
-    deriving (Show, Eq)
+    deriving (Show, Eq, Ord)
 
 -- | A type used to construct key-value index pairs for atomic type collections.
 data TASTSimpleAtomicIndexPair = TASTSimpleAtomicIndexKeyValue TASTSimpleIndexKey TASTAtomicType   -- ^ A key-value pari for an atomic type.
-    deriving (Show, Eq)
+    deriving (Show, Eq, Ord)
 
 -- | A type key-value type record map.
 type TASTSimpleTypeRecord = (M.Map TASTSimpleIndexKey TASTAtomicType)
@@ -57,7 +57,7 @@ emptyTypeRecord = M.empty
 
 -- | A type used to construct key-value index pairs for atomic type collections.
 data TASTSimpleRecordIndexPair = TASTSimpleRecordIndexKeyValue TASTSimpleIndexKey TASTSimpleTypeRecord   -- ^ A key-value pari for a record type.
-    deriving (Show, Eq)
+        deriving (Show, Eq, Ord)
 
 -- | A specialized type construct representing DB query results.
 --
@@ -69,6 +69,10 @@ type TASTDbView = [TASTSimpleAtomicIndexPair]
 
 -- | Simple wrapper for Record type indexing.
 newtype TASTSimpleIndexKey = TASTSimpleIndexKey String deriving (Show, Eq, Ord)
+
+-- | Simpler key maker
+makeKey :: String -> TASTSimpleIndexKey
+makeKey = TASTSimpleIndexKey
 
 instance CU.ToStringable TASTSimpleIndexKey where
     toString :: TASTSimpleIndexKey -> String

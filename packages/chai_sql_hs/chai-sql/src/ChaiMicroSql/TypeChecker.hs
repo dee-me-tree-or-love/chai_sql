@@ -82,11 +82,11 @@ inferTotalRecord _ _ = Right TAST.TASTSimpleTypeRecordTotal
 inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttributeReference -> Either TCInferenceError TAST.TASTSimpleAtomicIndexPair
 inferAttributeReference c (AST.ASTSelectAttributeReferenceUnqualified v) = do
     at <- inferVar c v
-    let k = TAST.TASTSimpleIndexKey $ CU.toString v
+    let k = TAST.makeKey $ CU.toString v
     Right $ TAST.TASTSimpleAtomicIndexKeyValue k at
 inferAttributeReference c (AST.ASTSelectAttributeReferenceQualified b v) = do
     bt <- inferVar c b
-    let k = TAST.TASTSimpleIndexKey $ CU.toString v
+    let k = TAST.makeKey $ CU.toString v
     let t = TAST.get k bt
     case t of
         Just t' -> Right $ TAST.TASTSimpleAtomicIndexKeyValue k t'
@@ -109,7 +109,7 @@ inferAttribute c (AST.ASTSelectAttributeReference a)        = do
     Right $ TAST.TASTSimpleAtomicIndexPair at
 inferAttribute c (AST.ASTSelectAttributeReferenceAlias a (AST.ASTSimpleAlias b)) = do
     (TAST.TASTSimpleAtomicIndexKeyValue _ v) <- inferAttributeReference c a
-    Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey b) v
+    Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.makeKey b) v
 
 -- | Attribute list access inference
 --
@@ -132,17 +132,32 @@ inferSelectList c as = do
 inferFromTable :: TCX.TCXSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleRecordIndexPair
 inferFromTable c (AST.ASTFromTableReference v) = do
     vt <- inferVar c v
-    let k = TAST.TASTSimpleIndexKey $ CU.toString v
+    let k = TAST.makeKey $ CU.toString v
     Right $ TAST.TASTSimpleRecordIndexKeyValue k vt
 inferFromTable c (AST.ASTFromTableReferenceAlias v a) = do
     vt <- inferVar c v
-    let k = TAST.TASTSimpleIndexKey $ CU.toString a
+    let k = TAST.makeKey $ CU.toString a
     Right $ TAST.TASTSimpleRecordIndexKeyValue k vt
-inferFromTable _ (AST.ASTFromNestedQueryReferenceAlias _ _) = error "sub-queries are not supported yet"
+inferFromTable c (AST.ASTFromNestedQueryReferenceAlias q a) = do
+    -- infer the query result
+    qt <- inferSelectQuery c q
+    -- if query contains duplicate columns, resolve colisions
+    let cqt = foldl __getCountLabels [] qt
+    -- create a record form the resolved colisions
+    let r = TAST.makeRecord $ map __dedup cqt
+    -- return the record indexed by key
+    let k = TAST.makeKey $ CU.toString a
+    Right $ TAST.TASTSimpleRecordIndexKeyValue k r
 
-__fromNotRecordError :: AST.ASTVariable -> TCInferenceError
-__fromNotRecordError v = TE.makeError $ "From target is not a Record. In expression `" ++ CU.toString v ++ "`, reconsider the from clause access."
+__getCountLabels :: Eq a => [(a, Int)] -> a -> [(a, Int)]
+__getCountLabels xs p = xs ++ [(p, c)]
+    where c = length . filter ((== p) . fst) $ xs
 
+__extendKey :: (CU.ToStringable a, Show b) => a -> b -> TAST.TASTSimpleIndexKey
+__extendKey k n = TAST.makeKey $ CU.toString k ++ ":" ++ show n
+
+__dedup :: (Eq b, Num b, Show b) => (TAST.TASTSimpleAtomicIndexPair, b) -> TAST.TASTSimpleAtomicIndexPair
+__dedup (p@(TAST.TASTSimpleAtomicIndexKeyValue k v), n) = if n == 0 then p else TAST.TASTSimpleAtomicIndexKeyValue (__extendKey k n) v
 
 -- | Table list access inference.
 --
