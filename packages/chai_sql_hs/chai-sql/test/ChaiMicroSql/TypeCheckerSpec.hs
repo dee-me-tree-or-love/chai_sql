@@ -66,7 +66,7 @@ spec = do
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let av = AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
                         let f = TC.inferAttributeReference __c
-                        let e = Right $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleAtomicIndexKey __v) __vt
+                        let e = Right $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
                         THS.shouldBe (f av) e
 
                 THS.describe "with unknown attribute" $ do
@@ -110,7 +110,7 @@ spec = do
                             -- base type
                             let __b = "foo"
                             let __ab = AST.ASTVariable __b
-                            let __bvk = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleAtomicIndexKey __v) __vt
+                            let __bvk = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
                             let __bt = TAST.makeRecord [__bvk]
                             -- context stuff
                             let __k = TCX.TCXSimpleTypeContextKey __b
@@ -141,7 +141,7 @@ spec = do
                         -- we are directly accessing foo
                         let a = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
                         let f = TC.inferAttribute __c
-                        let r = Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleAtomicIndexKey __v) __vt
+                        let r = Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
                         THS.shouldBe (f a) r
 
                 THS.describe "with an unknown variable" $ do
@@ -171,7 +171,7 @@ spec = do
                         -- we are directly accessing foo
                         let a = AST.ASTSelectAttributeReferenceAlias (AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)) (AST.ASTSimpleAlias __u)
                         let f = TC.inferAttribute __c
-                        let r = Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleAtomicIndexKey __u) __vt
+                        let r = Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __u) __vt
                         THS.shouldBe (f a) r
 
         THS.describe "with inferSelectList" $ do
@@ -194,84 +194,83 @@ spec = do
                     -- we are retrieving the types
                     let av = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
                     let f = TC.inferSelectList __c
-                    let __rk = TAST.TASTSimpleAtomicIndexKey __v
+                    let __rk = TAST.TASTSimpleIndexKey __v
                     let __rki = TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue __rk __vt
                     let r = Right [__rki]
                     THS.shouldBe (f [av]) r
 
-    --     THS.describe "with inferFromTable" $ do
-    --         THS.describe "with a simple table access" $ do
-    --             THS.describe "with known table name" $ do
-    --                 THS.it "returns Right <inference result>" $ do
-    --                     let __v = "foo"
-    --                     let __k = TCX.TCSimpleTypeContextKey __v
-    --                     let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-    --                     let __c = TCX.extend __k __vt TCX.freshContext
-    --                     let av = AST.ASTFromTableReference $ AST.ASTVariable __v
-    --                     let f = TC.inferFromTable __c
-    --                     let __rki = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleAtomicIndexKey __v) __vt
-    --                     let r = Right __rki
-    --                     THS.shouldBe (f av) r
+        THS.describe "with inferFromTable" $ do
+            THS.describe "with a simple table access" $ do
+                THS.describe "with known table name" $ do
+                    THS.it "returns Right <inference result>" $ do
+                        let __v = "foo"
+                        let __k = TCX.TCXSimpleTypeContextKey __v
+                        let __vt = TAST.emptyTypeRecord
+                        let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
+                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                        let f = TC.inferFromTable __c
+                        let __rki = TAST.TASTSimpleRecordIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
+                        let r = Right __rki
+                        THS.shouldBe (f av) r
 
-    --             THS.describe "with unknown table name" $ do
-    --                 THS.it "returns Left <error result>" $ do
-    --                     let __v = "foo"
-    --                     let __k = TCX.TCSimpleTypeContextKey __v
-    --                     let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-    --                     let __c = TCX.freshContext
-    --                     let av = AST.ASTFromTableReference $ AST.ASTVariable __v
-    --                     let f = TC.inferFromTable __c
-    --                     let r = Left $ TC.__varNotKnownError __v
-    --                     THS.shouldBe (f av) r
+                THS.describe "with unknown table name" $ do
+                    THS.it "returns Left <error result>" $ do
+                        let __v = "foo"
+                        let __k = TCX.TCXSimpleTypeContextKey __v
+                        let __c = TCX.freshContext
+                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                        let f = TC.inferFromTable __c
+                        let r = Left $ TC.__varNotKnownError __v
+                        THS.shouldBe (f av) r
 
-    --         THS.describe "with a aliased table access" $ do
-    --             THS.describe "with known table name" $ do
-    --                 THS.it "returns Right <inference result>" $ do
-    --                     let __v = "foo"
-    --                     let __k = TCX.TCSimpleTypeContextKey __v
-    --                     let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-    --                     let __c = TCX.extend __k __vt TCX.freshContext
-    --                     let __u = "bar"
-    --                     let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
-    --                     let f = TC.inferFromTable __c
-    --                     let __rk = TAST.TASTSimpleAtomicIndexKey __u
-    --                     let __rki = TAST.TASTSimpleAtomicIndexKeyValue __rk __vt
-    --                     let r = Right __rki
-    --                     THS.shouldBe (f av) r
+            THS.describe "with a aliased table access" $ do
+                THS.describe "with known table name" $ do
+                    THS.it "returns Right <inference result>" $ do
+                        let __v = "foo"
+                        let __k = TCX.TCXSimpleTypeContextKey __v
+                        let __vt = TAST.emptyTypeRecord
+                        let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
+                        let __u = "bar"
+                        let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
+                        let f = TC.inferFromTable __c
+                        let __rk = TAST.TASTSimpleIndexKey __u
+                        let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
+                        let r = Right __rki
+                        THS.shouldBe (f av) r
 
-    --     THS.describe "with inferFromList" $ do
-    --         THS.describe "with at least one error" $ do
-    --             THS.it "returns Left <all error messages combined>" $ do
-    --                 let __v = "foo"
-    --                 let av = AST.ASTFromTableReference $ AST.ASTVariable __v
-    --                 let f = TC.inferFromList TCX.freshContext
-    --                 let e = Left $ TC.combineErrors [TC.__varNotKnownError __v]
-    --                 THS.shouldBe (f [av]) e
+        THS.describe "with inferFromList" $ do
+            THS.describe "with at least one error" $ do
+                THS.it "returns Left <all error messages combined>" $ do
+                    let __v = "foo"
+                    let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                    let f = TC.inferFromList TCX.freshContext
+                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __v]
+                    THS.shouldBe (f [av]) e
 
-    --         THS.describe "with no errors" $ do
-    --             THS.describe "without any aliases" $ do
-    --                 THS.it "returns Right <all types combined>" $ do
-    --                     let __v = "foo"
-    --                     let __k = TCX.TCSimpleTypeContextKey __v
-    --                     let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-    --                     let __c = TCX.extend __k __vt TCX.freshContext
-    --                     let av = AST.ASTFromTableReference $ AST.ASTVariable __v
-    --                     let f = TC.inferFromList __c
-    --                     let __rk = TAST.TASTSimpleAtomicIndexKey __v
-    --                     let __rki = TAST.TASTSimpleAtomicIndexKeyValue __rk __vt
-    --                     let r = Right [__rki]
-    --                     THS.shouldBe (f [av]) r
+            THS.describe "with no errors" $ do
+                THS.describe "without any aliases" $ do
+                    THS.it "returns Right <all types combined>" $ do
+                        let __v = "foo"
+                        let __k = TCX.TCXSimpleTypeContextKey __v
+                        let __vt = TAST.emptyTypeRecord
+                        let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
+                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                        let f = TC.inferFromList __c
+                        let __rk = TAST.TASTSimpleIndexKey __v
+                        let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
+                        let r = Right [__rki]
+                        THS.shouldBe (f [av]) r
 
-    --             THS.describe "with an aliases" $ do
-    --                 THS.it "returns Right <all types combined>" $ do
-    --                     let __v = "foo"
-    --                     let __k = TCX.TCSimpleTypeContextKey __v
-    --                     let __vt = TAST.TASTSimpleTypeRecord TAST.emptyTypeRecord
-    --                     let __c = TCX.extend __k __vt TCX.freshContext
-    --                     let __u = "bar"
-    --                     let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
-    --                     let f = TC.inferFromList __c
-    --                     let __rk = TAST.TASTSimpleAtomicIndexKey __u
-    --                     let __rki = TAST.TASTSimpleAtomicIndexKeyValue __rk __vt
-    --                     let r = Right [__rki]
-    --                     THS.shouldBe (f [av]) r
+                THS.describe "with an aliases" $ do
+                    THS.it "returns Right <all types combined>" $ do
+                        let __v = "foo"
+                        let __k = TCX.TCXSimpleTypeContextKey __v
+                        let __vt = TAST.emptyTypeRecord
+                        let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
+                        let __u = "bar"
+                        let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
+                        let f = TC.inferFromList __c
+                        let __rk = TAST.TASTSimpleIndexKey __u
+                        let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
+                        let r = Right [__rki]
+                        THS.shouldBe (f [av]) r

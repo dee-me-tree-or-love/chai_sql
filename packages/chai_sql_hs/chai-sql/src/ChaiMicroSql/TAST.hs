@@ -42,15 +42,20 @@ data TASTSimpleAtomicIndex
     | TASTSimpleAtomicIndexPair TASTSimpleAtomicIndexPair   -- ^ A key-value pari for an atomic type.
     deriving (Show, Eq)
 
--- | A type used to construct key-value index pairs for type collections.
-data TASTSimpleAtomicIndexPair = TASTSimpleAtomicIndexKeyValue TASTSimpleAtomicIndexKey TASTAtomicType   -- ^ A key-value pari for an atomic type.
+-- | A type used to construct key-value index pairs for atomic type collections.
+data TASTSimpleAtomicIndexPair = TASTSimpleAtomicIndexKeyValue TASTSimpleIndexKey TASTAtomicType   -- ^ A key-value pari for an atomic type.
     deriving (Show, Eq)
 
 -- | A type key-value type record map.
-type TASTSimpleTypeRecord = (M.Map TASTSimpleAtomicIndexKey TASTAtomicType)
+type TASTSimpleTypeRecord = (M.Map TASTSimpleIndexKey TASTAtomicType)
 
+-- | A default empty record.
 emptyTypeRecord :: TASTSimpleTypeRecord
 emptyTypeRecord = M.empty
+
+-- | A type used to construct key-value index pairs for atomic type collections.
+data TASTSimpleRecordIndexPair = TASTSimpleRecordIndexKeyValue TASTSimpleIndexKey TASTSimpleTypeRecord   -- ^ A key-value pari for a record type.
+    deriving (Show, Eq)
 
 -- | A specialized type construct representing DB query results.
 --
@@ -61,16 +66,16 @@ type TASTDbView = [TASTSimpleAtomicIndex]
 -- ^^^^^^^^^^^^^^^^
 
 -- | Simple wrapper for Record type indexing.
-newtype TASTSimpleAtomicIndexKey = TASTSimpleAtomicIndexKey String deriving (Show, Eq, Ord)
+newtype TASTSimpleIndexKey = TASTSimpleIndexKey String deriving (Show, Eq, Ord)
 
 -- | Creates a new record
 makeRecord :: [TASTSimpleAtomicIndexPair] -> TASTSimpleTypeRecord
 makeRecord is = M.fromList $ map tuplify is
 
 -- | Tuplify the TASTSimpleAtomicIndex.
-tuplify :: TASTSimpleAtomicIndexPair -> (TASTSimpleAtomicIndexKey, TASTAtomicType)
+tuplify :: TASTSimpleAtomicIndexPair -> (TASTSimpleIndexKey, TASTAtomicType)
 tuplify (TASTSimpleAtomicIndexKeyValue k v) = (k,v)
 
 -- | Type record retrieval
-get :: TASTSimpleAtomicIndexKey -> TASTSimpleTypeRecord -> Maybe TASTAtomicType
+get :: TASTSimpleIndexKey -> TASTSimpleTypeRecord -> Maybe TASTAtomicType
 get = M.lookup

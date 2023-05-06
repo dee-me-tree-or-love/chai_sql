@@ -22,7 +22,9 @@ module ChaiMicroSql.TypeChecker (
         inferAttributeReference,
         __recordUnknownAttributeError,
         inferAttribute,
-        inferSelectList
+        inferSelectList,
+        inferFromTable,
+        inferFromList
     ) where
 
 import qualified ChaiMicroSql.AST         as AST
@@ -78,11 +80,11 @@ inferTotalRecord _ _ = Right TAST.TASTSimpleTypeRecordTotal
 inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttributeReference -> Either TCInferenceError TAST.TASTSimpleAtomicIndexPair
 inferAttributeReference c (AST.ASTSelectAttributeReferenceUnqualified v) = do
     at <- inferVar c v
-    let k = TAST.TASTSimpleAtomicIndexKey $ AST.toString v
+    let k = TAST.TASTSimpleIndexKey $ AST.toString v
     Right $ TAST.TASTSimpleAtomicIndexKeyValue k at
 inferAttributeReference c (AST.ASTSelectAttributeReferenceQualified b v) = do
     bt <- inferVar c b
-    let k = TAST.TASTSimpleAtomicIndexKey $ AST.toString v
+    let k = TAST.TASTSimpleIndexKey $ AST.toString v
     let t = TAST.get k bt
     case t of
         Just t' -> Right $ TAST.TASTSimpleAtomicIndexKeyValue k t'
@@ -105,7 +107,7 @@ inferAttribute c (AST.ASTSelectAttributeReference a)        = do
     Right $ TAST.TASTSimpleAtomicIndexPair at
 inferAttribute c (AST.ASTSelectAttributeReferenceAlias a (AST.ASTSimpleAlias b)) = do
     (TAST.TASTSimpleAtomicIndexKeyValue _ v) <- inferAttributeReference c a
-    Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleAtomicIndexKey b) v
+    Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey b) v
 
 -- | Attribute list access inference
 --
@@ -121,35 +123,35 @@ inferSelectList c as = do
 -- -- Table access
 -- -- ............
 
--- -- | Table access inference.
--- --
--- -- - Note: Corresponds to the @Axiom A1@ and @Rule R2@
--- --
--- inferFromTable :: TCX.TCSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleAtomicIndex
--- inferFromTable c (AST.ASTFromTableReference v) = do
---     vt <- inferVar c v
---     let k = TAST.TASTSimpleAtomicIndexKey $ AST.toString v
---     Right $ TAST.TASTSimpleAtomicIndexKeyValue k vt
--- inferFromTable c (AST.ASTFromTableReferenceAlias v a) = do
---     vt <- inferVar c v
---     let k = TAST.TASTSimpleAtomicIndexKey $ AST.toString a
---     Right $ TAST.TASTSimpleAtomicIndexKeyValue k vt
--- inferFromTable _ (AST.ASTFromNestedQueryReferenceAlias _ _) = error "sub-queries are not supported yet"
+-- | Table access inference.
+--
+-- - Note: Corresponds to the @Axiom A1@ and @Rule R2@
+--
+inferFromTable :: TCX.TCXSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleRecordIndexPair
+inferFromTable c (AST.ASTFromTableReference v) = do
+    vt <- inferVar c v
+    let k = TAST.TASTSimpleIndexKey $ AST.toString v
+    Right $ TAST.TASTSimpleRecordIndexKeyValue k vt
+inferFromTable c (AST.ASTFromTableReferenceAlias v a) = do
+    vt <- inferVar c v
+    let k = TAST.TASTSimpleIndexKey $ AST.toString a
+    Right $ TAST.TASTSimpleRecordIndexKeyValue k vt
+inferFromTable _ (AST.ASTFromNestedQueryReferenceAlias _ _) = error "sub-queries are not supported yet"
 
--- __fromNotRecordError :: AST.ASTVariable -> TCInferenceError
--- __fromNotRecordError v = TCInferenceError $ "From target is not a Record. In expression `" ++ AST.toString v ++ "`, reconsider the from clause access."
+__fromNotRecordError :: AST.ASTVariable -> TCInferenceError
+__fromNotRecordError v = TE.makeError $ "From target is not a Record. In expression `" ++ AST.toString v ++ "`, reconsider the from clause access."
 
 
--- -- | Table list access inference.
--- --
--- -- Note: Corresponds to @Rule R3@
--- --
--- inferFromList :: TCX.TCSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError [TAST.TASTSimpleAtomicIndex]
--- inferFromList c as = do
---     let ets = map (inferFromTable c) as
---     case any isLeft ets of
---         True  -> Left $ combineErrors $ lefts ets
---         False -> Right $ rights ets
+-- | Table list access inference.
+--
+-- Note: Corresponds to @Rule R3@
+--
+inferFromList :: TCX.TCXSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError [TAST.TASTSimpleRecordIndexPair]
+inferFromList c as = do
+    let ets = map (inferFromTable c) as
+    case any isLeft ets of
+        True  -> Left $ TE.combineErrors $ lefts ets
+        False -> Right $ rights ets
 
 -- -- Full SELECT query
 -- -- .................
