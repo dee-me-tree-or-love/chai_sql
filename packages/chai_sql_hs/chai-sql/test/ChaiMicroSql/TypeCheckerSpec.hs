@@ -274,3 +274,23 @@ spec = do
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
                         let r = Right [__rki]
                         THS.shouldBe (f [av]) r
+
+        THS.describe "with inferSelectQuery" $ do
+            THS.describe "with star selection" $ do
+                THS.it "returns all attributes from the from list" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __fIDt = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIDt]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT * FROM foos;
+                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    -- TODO: populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- TODO: infer query
+                    let f = TC.inferSelectQuery c
+                    -- TODO: check
+                    let e = Right [__fIDt]
+                    THS.shouldBe (f q) e

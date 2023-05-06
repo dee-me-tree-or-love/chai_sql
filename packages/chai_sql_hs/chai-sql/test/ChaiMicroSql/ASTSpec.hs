@@ -2,8 +2,9 @@ module ChaiMicroSql.ASTSpec (
     spec
     ) where
 
-import qualified ChaiMicroSql.AST as AST
-import qualified Test.Hspec       as THS
+import qualified ChaiMicroSql.AST         as AST
+import qualified ChaiMicroSql.CommonUtils as CU
+import qualified Test.Hspec               as THS
 
 
 spec :: THS.Spec
@@ -22,12 +23,12 @@ spec = do
             THS.it "returns variable name" $ do
                 let n = "foo"
                 let v = AST.ASTVariable n
-                let f = AST.toString
+                let f = CU.toString
                 THS.shouldBe (f v) n
 
         THS.describe "of Alias" $ do
             THS.it "returns alias name" $ do
                 let n = "foo"
                 let v = AST.ASTSimpleAlias n
-                let f = AST.toString
+                let f = CU.toString
                 THS.shouldBe (f v) n

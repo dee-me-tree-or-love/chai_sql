@@ -15,6 +15,8 @@ Basic SQL Fragment feature support:
 -}
 module ChaiMicroSql.AST ( module ChaiMicroSql.AST ) where
 
+import qualified ChaiMicroSql.CommonUtils as CU
+
 -- Basic AST
 -- ~~~~~~~~~
 
@@ -67,13 +69,10 @@ newtype ASTVariable = ASTVariable String deriving (Show, Eq)
 -- | A simple alias name wrapper.
 newtype ASTSimpleAlias = ASTSimpleAlias String deriving (Show, Eq)
 
-class ASTToString a where
-    toString :: a -> String
-
-instance ASTToString ASTVariable where
+instance CU.ToStringable ASTVariable where
     toString :: ASTVariable -> String
     toString (ASTVariable v) = v
 
-instance ASTToString ASTSimpleAlias where
+instance CU.ToStringable ASTSimpleAlias where
     toString :: ASTSimpleAlias -> String
     toString (ASTSimpleAlias a) = a

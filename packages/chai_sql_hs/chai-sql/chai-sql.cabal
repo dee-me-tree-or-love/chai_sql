@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ChaiMicroSql.AST
+      ChaiMicroSql.CommonUtils
       ChaiMicroSql.TAST
       ChaiMicroSql.TypeChecker
       ChaiMicroSql.TypeContext

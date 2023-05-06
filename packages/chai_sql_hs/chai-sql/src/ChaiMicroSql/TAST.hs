@@ -1,6 +1,8 @@
+{-# LANGUAGE InstanceSigs #-}
 module ChaiMicroSql.TAST ( module ChaiMicroSql.TAST ) where
 
-import qualified Data.Map as M
+import qualified ChaiMicroSql.CommonUtils as CU
+import qualified Data.Map                 as M
 
 -- Basic Type language AST
 -- ~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,13 +62,17 @@ data TASTSimpleRecordIndexPair = TASTSimpleRecordIndexKeyValue TASTSimpleIndexKe
 -- | A specialized type construct representing DB query results.
 --
 -- - A view type with possible duplicate keys: e.g. @[key<String>: value<TASTAtomicType>]@
-type TASTDbView = [TASTSimpleAtomicIndex]
+type TASTDbView = [TASTSimpleAtomicIndexPair]
 
 -- Common utilities
 -- ^^^^^^^^^^^^^^^^
 
 -- | Simple wrapper for Record type indexing.
 newtype TASTSimpleIndexKey = TASTSimpleIndexKey String deriving (Show, Eq, Ord)
+
+instance CU.ToStringable TASTSimpleIndexKey where
+    toString :: TASTSimpleIndexKey -> String
+    toString (TASTSimpleIndexKey s) = s
 
 -- | Creates a new record
 makeRecord :: [TASTSimpleAtomicIndexPair] -> TASTSimpleTypeRecord
@@ -79,3 +85,11 @@ tuplify (TASTSimpleAtomicIndexKeyValue k v) = (k,v)
 -- | Type record retrieval
 get :: TASTSimpleIndexKey -> TASTSimpleTypeRecord -> Maybe TASTAtomicType
 get = M.lookup
+
+-- | Indexes from the record elements
+indexes :: TASTSimpleTypeRecord -> [TASTSimpleAtomicIndexPair]
+indexes = map (uncurry TASTSimpleAtomicIndexKeyValue) . pairs
+
+-- | Type record elements retrieval
+pairs :: TASTSimpleTypeRecord -> [(TASTSimpleIndexKey, TASTAtomicType)]
+pairs = M.assocs
