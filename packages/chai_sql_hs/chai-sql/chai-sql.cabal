@@ -4,17 +4,17 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           chai-sql
-version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/chai-sql#readme>
-homepage:       https://github.com/githubuser/chai-sql#readme
-bug-reports:    https://github.com/githubuser/chai-sql/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2023 Author name here
-license:        BSD3
-license-file:   LICENSE
-build-type:     Simple
+name:               chai-sql
+version:            0.1.0.0
+description:        Please see the README on GitHub at <https://github.com/githubuser/chai-sql#readme>
+homepage:           https://github.com/githubuser/chai-sql#readme
+bug-reports:        https://github.com/githubuser/chai-sql/issues
+author:             Author name here
+maintainer:         example@example.com
+copyright:          2023 Author name here
+license:            BSD3
+license-file:       LICENSE
+build-type:         Simple
 extra-source-files:
     README.md
     CHANGELOG.md
@@ -29,6 +29,7 @@ library
       ChaiMicroSql.TAST
       ChaiMicroSql.TypeChecker
       ChaiMicroSql.TypeContext
+      ChaiMicroSql.TypeErrors
       Lib
       Schemas.Loader
   other-modules:
@@ -68,6 +69,7 @@ test-suite chai-sql-test
       ChaiMicroSql.TASTSpec
       ChaiMicroSql.TypeCheckerSpec
       ChaiMicroSql.TypeContextSpec
+      ChaiMicroSql.TypeErrorsSpec
       Paths_chai_sql
   hs-source-dirs:
       test

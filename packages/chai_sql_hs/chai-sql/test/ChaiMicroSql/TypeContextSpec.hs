@@ -86,3 +86,10 @@ spec = do
                     let v = TCX.contextualize TAST.TASTAtomicTypeBool
                     let a = TCX.extend k v TCX.freshContext
                     THS.shouldBe (TCX.get k a) (Just v)
+
+        THS.describe "with makeKey" $ do
+            THS.it "constructs a new key" $ do
+                let a = "foo"
+                let f = TCX.makeKey
+                let e = TCX.TCXSimpleTypeContextKey "foo"
+                THS.shouldBe (f a) e

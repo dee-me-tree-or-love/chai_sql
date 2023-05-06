@@ -14,10 +14,12 @@ module ChaiMicroSql.TypeContext (
         TCXContextError,
         Contextable(..),
         __atomNotRecordError,
-        __recordNotAtomError
+        __recordNotAtomError,
+        makeKey
     ) where
 
 import qualified ChaiMicroSql.TAST as TAST
+import qualified ChaiMicroSql.TypeErrors as TE
 import qualified Data.Map          as M
 
 
@@ -39,6 +41,10 @@ data TCXSimpleTypeContextValue
 
 -- Context operations
 -- ~~~~~~~~~~~~~~~~~~
+
+-- | Creates a context key.
+makeKey :: String -> TCXSimpleTypeContextKey
+makeKey = TCXSimpleTypeContextKey
 
 -- | Creates a fresh context
 freshContext :: TCXSimpleTypeContext
@@ -64,7 +70,7 @@ get :: TCXSimpleTypeContextKey -> TCXSimpleTypeContext -> Maybe TCXSimpleTypeCon
 get = M.lookup
 
 -- | A wrapper for context errors
-newtype TCXContextError = TCXContextError String deriving (Show, Eq)
+type TCXContextError = TE.TEBaseError
 
 -- | For shared context operations
 class Contextable a where
@@ -79,7 +85,7 @@ instance Contextable TAST.TASTAtomicType where
     decontextualize (TCXSimpleTypeContextValueRecord _) = Left __recordNotAtomError
 
 __recordNotAtomError :: TCXContextError
-__recordNotAtomError = TCXContextError "Can not retrieve atomic type from stored record."
+__recordNotAtomError = TE.makeError "Can not retrieve atomic type from stored record."
 
 instance Contextable TAST.TASTSimpleTypeRecord where
     contextualize ::  TAST.TASTSimpleTypeRecord -> TCXSimpleTypeContextValue
@@ -89,4 +95,4 @@ instance Contextable TAST.TASTSimpleTypeRecord where
     decontextualize (TCXSimpleTypeContextValueAtomic _) = Left __atomNotRecordError
 
 __atomNotRecordError :: TCXContextError
-__atomNotRecordError = TCXContextError "Can not retrieve record type from stored atomic."
+__atomNotRecordError = TE.makeError "Can not retrieve record type from stored atomic."
