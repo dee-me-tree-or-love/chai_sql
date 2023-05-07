@@ -2,17 +2,30 @@
 {-# HLINT ignore "Use if" #-}
 {- | The Type Checker (Inference) for a Micro SQL fragment.
 
+* Type expressions
+
+- @x@ - some variable @x@
+- @x : T@ - variable @x@ has a type @T@
+- @{R}@ - a record type with @R@ elements
+- @x ! {R}@ - @x@ is an element of @{R}@
+- @{R}(x)@ - retrieve the value of @x@ in @{R}@
+- @$x : T$@ - a detached indexed type @T@ associated with key @x@
+- @[L]@ - a list type with @L@ elements
+- @[L] ++ [L']@ - a concatentation of two list types @L@ and @L'@
+- @[L] <\ [L']@ - a resolution of types from @[L]@ out of @[L']@
+- @|[L]|@ - flatten the nested from @[L]@ to a single level
+
 * Axioms
 
-- @A1@: -- TODO(backlog): describe the axiom...
-- @A2@: -- TODO(backlog): describe the axiom...
+- @A1@: ~ Variable access ~     @G |- G(x) == T |= G |- x : T@
+- @A2@: ~ Total column index ~  @G |- |= G |- "*" : TOT@
 
 * Rules
 
-- @R1@: -- TODO(backlog): describe the rule...
-- @R2@: -- TODO(backlog): describe the rule...
-- @R3@: -- TODO(backlog): describe the rule...
-- @R4@: -- TODO(backlog): describe the rule...
+- @R1@: ~ Qualifed attribute access ~   @G |- x : {R} /\ v ! {R} |= G |- x.v : $v : {R}(v) $@
+- @R2@: ~ Alias index swap ~            @G |- x : $a : T$ |= G |- x as v : $v : T$@
+- @R3@: ~ List of variables ~           @(G |- u : $a : T$ ) /\ (G |- us : [p]) |= G |- u, us : [p] ++ [$a : T$]@
+- @R4@: ~ Resolve the attributes ~      @(G U ([ts] ++ |[ts]|) |- xs : [cs]) /\ (G |- ys : [ts]) |= 'SELECT' xs 'FROM' ys : [cs] <\ [ts]@
 
 -}
 module ChaiMicroSql.TypeChecker (
