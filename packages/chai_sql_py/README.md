@@ -2,6 +2,14 @@
 
 This is the Python implementation (WIP) of ChaiSQL
 
+## Requirements
+
+<!-- TODO: describe requirements -->
+
+### Why Python?
+
+<!-- TODO: describe the motivation -->
+
 ---
 
 ## [`poetry`](https://python-poetry.org/) to manage `chai_sql` project

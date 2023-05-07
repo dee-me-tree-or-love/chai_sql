@@ -2,7 +2,7 @@
 
 Internship project adding an optional type system to SQL.
 
-> 🧱 ChaiSQL is under heavy development.
+> :building_construction: ChaiSQL is under heavy development.
 
 ## Examples
 
@@ -28,11 +28,11 @@ FROM people AS p;
 
 ## Documentation
 
-More information about ChaiSQL is available in:
+Information about ChaiSQL is available in:
 
 - [`./docs`](./docs/) directory
 - on the [MkDocs](https://www.mkdocs.org/)-powered website:
-  ChaiSQL Documentation (*link coming soon*).
+  [ChaiSQL Documentation](https://dee-me-tree-or-love.github.io/chai_sql/).
 
 <!-- :: User content -->
 
@@ -54,6 +54,20 @@ More information about ChaiSQL is available in:
 ## Development
 
 The implementation of ChaiSQL is currently in progress and is at an early stage.  
+
 The solutions may change and different experimental implementations (all WIP) are mentioned below.
 
+> :bulb: These packages are aimed to provide same functionality and are
+> used to validate the implementation options.
+
 ### Python implementation: [`./packages/chai_sql_py/`](./packages/chai_sql_py/)
+
+> :snake:
+> Python implementation aims to benefit all Python features and make the
+> ChaiSQL tool easily extensible.
+
+### Haskell implementation: [`./packages/chai_sql_hs/`](./packages/chai_sql_hs/)
+
+> :beetle:
+> Haskell implementation focuses on the Haskell's type system and powerful
+> functional features.
