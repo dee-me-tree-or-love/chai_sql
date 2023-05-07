@@ -70,3 +70,5 @@ tests:
       - containers
       - hspec
       - hspec-discover
+      - doctest
+      - doctest-discover

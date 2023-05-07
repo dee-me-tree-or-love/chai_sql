@@ -24,7 +24,7 @@ emptyError = makeError ""
 -- Examples:
 --
 -- >>> joinErrors (TEBaseError "Ay, caramba") (TEBaseError "d'oh")
--- TEBaseError "Ay, caramba\n - d'oh"
+-- TEBaseError "Ay, caramba\n- d'oh"
 --
 -- >>> foldl joinErrors (TEBaseError "") [(TEBaseError "Ay, caramba"), (TEBaseError "d'oh"), (TEBaseError "Hrmmm....")]
 -- TEBaseError "- Ay, caramba\n- d'oh\n- Hrmmm...."

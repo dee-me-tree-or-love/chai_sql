@@ -7,7 +7,8 @@
 
 Example YAML schema config:
 
-```yaml
+@
+-- TODO: drop the requirement for type specification
 types:
     - Number
     - String
@@ -15,14 +16,14 @@ types:
 
 tables:
     - title: Pastry
-      attributes:
+    attributes:
         - name: ID
-          spec: String
+        spec: String
         - name: name
-          spec: String
+        spec: String
         - name: rarity
-          spec: Number
-```
+        spec: Number
+@
  -}
 module Schemas.Loader
     (

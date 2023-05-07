@@ -1,16 +1,35 @@
 {-# LANGUAGE InstanceSigs #-}
 {- | The ASTT for a Micro SQL fragment.
 
-Basic SQL Fragment feature support:
+= /Micro/ SQL Fragment
+
+Supports SQL queries only of the following shape: @SELECT \_\_ FROM \_\_;@
+
+Some supported examples:
 
 - [x] Asterix selection, e.g. `select * from foos;`
-- [ ] Qualified asterix selection, e.g. `select foos.* from foos;`
 - [x] Fully qualified selections, e.g. `select foos.foo from foos;`
 - [x] Non-qualified selections, e.g. `select foo from foos;`
 - [x] Selection-clause alias, e.g. `select foos.foo as bar from foos;`
 - [x] From-clause alias, e.g. `select f.foo as bar from foos as f;`
-- [x] Nested queries, e.g. `select f.foo as bar from (select * from bars as b) as f;`
-- [ ] Where-clauses, e.g. `select * from foos where foos.foo > 42;`
+- [x] Nested queries, e.g. `select f.foo as bar from (select * from bars) as f;`
+
+== (Some) supported features
+
+    - Supports aliases @x AS y@ in @SELECT@ and @FROM@
+    - Supports nested queries (sub-queries) in @FROM@
+    - Supports multiple column selection with @SELECT x, y, ...@
+    - Supports cross-product in @FROM@ with @FROM x, y, ...@
+    - Supports wildcard (asterisk/star) selection with @SELECT *@
+    - Supports fully-qualified selections with @SELECT x.y@
+
+== Not-supported features
+
+    - No support for qualified wildcard select with @SELECT x.*@
+    - No support for @WHERE@ clauses
+    - No support for @GROUP BY@ clauses
+    - No support for @ORDER BY@ clauses
+    - No support for @LIMIT@ clauses
 
 -}
 module ChaiMicroSql.AST ( module ChaiMicroSql.AST ) where
@@ -21,7 +40,7 @@ import qualified ChaiMicroSql.CommonUtils as CU
 -- ~~~~~~~~~
 
 -- | A single SQL select query.
--- TODO: @Typed@
+-- @Typed@
 data ASTSelectQuery = ASTSelectQuery ASTSelectList ASTFromList
     deriving (Show, Eq)
 
@@ -61,7 +80,7 @@ data ASTFromTable
     deriving (Show, Eq)
 
 -- Common utilities
--- ^^^^^^^^^^^^^^^^
+-- ----------------
 
 -- | A simple variable name wrapper.
 -- @Typed@

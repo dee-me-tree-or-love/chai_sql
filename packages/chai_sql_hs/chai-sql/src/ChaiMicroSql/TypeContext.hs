@@ -2,7 +2,7 @@
 {-# LANGUAGE InstanceSigs      #-}
 {- | The simple type context used for the type inference.
 
-Also known as /`Gamma`/ in common literature.
+Also known as /@Gamma@/ in common literature.
  -}
 module ChaiMicroSql.TypeContext (
         TCXSimpleTypeContext,
@@ -18,16 +18,15 @@ module ChaiMicroSql.TypeContext (
         makeKey
     ) where
 
-import qualified ChaiMicroSql.TAST as TAST
+import qualified ChaiMicroSql.TAST       as TAST
 import qualified ChaiMicroSql.TypeErrors as TE
-import qualified Data.Map          as M
+import qualified Data.Map                as M
 
 
--- Typing context (aka. /Gamma/)
+-- Typing context (aka. /@Gamma@/)
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--- | A key-value type context. (aka. /`Gamma`/)
--- TODO: handle context collisions
+-- | A key-value type context. (aka. /@Gamma@/)
 type TCXSimpleTypeContext = (M.Map TCXSimpleTypeContextKey TCXSimpleTypeContextValue)
 
 -- | Simple wrapper for Context indexing.
@@ -47,6 +46,11 @@ makeKey :: String -> TCXSimpleTypeContextKey
 makeKey = TCXSimpleTypeContextKey
 
 -- | Creates a fresh context
+--
+-- Examples:
+--
+-- >>> show freshContext
+-- "fromList []"
 freshContext :: TCXSimpleTypeContext
 freshContext = M.empty
 
@@ -54,14 +58,8 @@ freshContext = M.empty
 --
 -- Examples:
 --
--- >>> let context' = freshContext
--- >>> "Original context: " ++ (show $ M.toList context')
--- "Original context: []"
--- >>> let key' = TCXSimpleTypeContextKey "foo"
--- >>> let value' = (TAST.TASTSimpleTypeBasic TAST.TASTSimpleTypeBasicBool)
--- >>> let context'' = extend key' value' freshContext
--- >>> "Extended context: " ++ (show $ M.toList context'')
--- "Extended context: [(TCXSimpleTypeContextKey \"foo\",TASTSimpleTypeBasic TASTSimpleTypeBasicBool)]"
+-- >>> show $ extend (makeKey "foo") (contextualize TAST.TASTAtomicTypeBool) freshContext
+-- "fromList [(TCXSimpleTypeContextKey \"foo\",TCXSimpleTypeContextValueAtomic TASTAtomicTypeBool)]"
 extend :: TCXSimpleTypeContextKey -> TCXSimpleTypeContextValue -> TCXSimpleTypeContext -> TCXSimpleTypeContext
 extend = M.insert
 

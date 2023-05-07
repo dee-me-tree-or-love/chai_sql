@@ -13,7 +13,7 @@ import qualified Data.Map                 as M
 -- | All supported basic types.
 data TASTSimpleTypeBasic
     = TASTSimpleTypeBasicAtomic TASTAtomicType              -- ^ An atomic type @Bool | Number | Text@
-    | TASTSimpleAtomicIndex TASTSimpleAtomicIndex     -- ^ An index tuple @key<String>: value<TASTSimpleType>@
+    | TASTSimpleAtomicIndex TASTSimpleAtomicIndex     -- ^ An index tuple @key: type-value@
     deriving (Show, Eq)
 
 -- | Basic atomic types: @Bool | Number | Text@
@@ -46,11 +46,11 @@ data TASTSimpleRecordIndexPair = TASTSimpleRecordIndexKeyValue TASTSimpleIndexKe
 
 -- | A specialized type construct representing DB query results.
 --
--- - A view type with possible duplicate keys: e.g. @[key<String>: value<TASTAtomicType>]@
+-- Corresponds to a view type with possible duplicate keys.
 type TASTDbView = [TASTSimpleAtomicIndexPair]
 
 -- Common utilities
--- ^^^^^^^^^^^^^^^^
+-- ----------------
 
 -- | Simple wrapper for Record type indexing.
 newtype TASTSimpleIndexKey = TASTSimpleIndexKey String deriving (Show, Eq, Ord)

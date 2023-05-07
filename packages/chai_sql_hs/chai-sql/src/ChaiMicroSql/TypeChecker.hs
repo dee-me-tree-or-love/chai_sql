@@ -1,31 +1,37 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use if" #-}
-{- | The Type Checker (Inference) for a Micro SQL fragment.
+{- | The Type Checker (Inference-based) for a Micro SQL fragment for ChaiSQL.
 
-* Type expressions
+= ChaiSQL type checker
 
-- @x@ - some variable @x@
-- @x : T@ - variable @x@ has a type @T@
-- @{R}@ - a record type with @R@ elements
-- @x ! {R}@ - @x@ is an element of @{R}@
-- @{R}(x)@ - retrieve the value of @x@ in @{R}@
-- @$x : T$@ - a detached indexed type @T@ associated with key @x@
-- @[L]@ - a list type with @L@ elements
-- @[L] ++ [L']@ - a concatentation of two list types @L@ and @L'@
-- @[L] <\ [L']@ - a resolution of types from @[L]@ out of @[L']@
-- @|[L]|@ - flatten the nested from @[L]@ to a single level
+This is a naive inference-based type checker.
 
-* Axioms
+= Type expressions
 
-- @A1@: ~ Variable access ~     @G |- G(x) == T |= G |- x : T@
-- @A2@: ~ Total column index ~  @G |- |= G |- "*" : TOT@
+    - @x@           - /some variable/ @x@
+    - @x : T@       - /variable/ @x@ /has a type/ @T@
+    - @{R}@         - /a record type with/ @R@ /elements/
+    - @x ! {R}@     - /test if/ @x@ /is an element of/ @{R}@
+    - @{R}(x)@      - /retrieve the value of/ @x@ /in/ @{R}@
+    - @$x : T$@     - /a detached indexed type/ @T@ /associated with key/ @x@
+    - @[L]@         - /a list type with/ @L@ /elements/
+    - @[L] ++ [L']@ - /a concatentation of two list types/ @L@ /and/ @L'@
+    - @[L] <\ [L']@ - /a resolution of types from/ @[L]@ /out of/ @[L']@
+    - @|[L]|@       - /flatten the nested from/ @[L]@ /to a single level/
 
-* Rules
+= Type inference
 
-- @R1@: ~ Qualifed attribute access ~   @G |- x : {R} /\ v ! {R} |= G |- x.v : $v : {R}(v) $@
-- @R2@: ~ Alias index swap ~            @G |- x : $a : T$ |= G |- x as v : $v : T$@
-- @R3@: ~ List of variables ~           @(G |- u : $a : T$ ) /\ (G |- us : [p]) |= G |- u, us : [p] ++ [$a : T$]@
-- @R4@: ~ Resolve the attributes ~      @(G U ([ts] ++ |[ts]|) |- xs : [cs]) /\ (G |- ys : [ts]) |= 'SELECT' xs 'FROM' ys : [cs] <\ [ts]@
+== Axioms
+
+    - @A1@: ~ /Variable access/ ~     @G |- G(x) == T |= G |- x : T@
+    - @A2@: ~ /Total column index/ ~  @G |- |= G |- "*" : TOT@
+
+== Rules
+
+    - @R1@: ~ /Qualifed attribute access/ ~   @G |- x : {R} /\ v ! {R} |= G |- x.v : $v : {R}(v) $@
+    - @R2@: ~ /Alias index swap/ ~            @G |- x : $a : T$ |= G |- x as v : $v : T$@
+    - @R3@: ~ /List of variables/ ~           @(G |- u : $a : T$ ) /\ (G |- us : [p]) |= G |- u, us : [p] ++ [$a : T$]@
+    - @R4@: ~ /Resolve the attributes/ ~      @(G U ([ts] ++ |[ts]|) |- xs : [cs]) /\ (G |- ys : [ts]) |= 'SELECT' xs 'FROM' ys : [cs] <\ [ts]@
 
 -}
 module ChaiMicroSql.TypeChecker (
@@ -50,20 +56,20 @@ import qualified ChaiMicroSql.TypeErrors  as TE
 import           Data.Either              (isLeft, lefts, rights)
 
 -- Type Inference Procedures
--- ~~~~~~~~~~~~~~~~~~~~~~~~~
+-- -------------------------
 
 -- Base utilities
--- ^^^^^^^^^^^^^^
+-- --------------
 
 -- | Simple alias for containing a type checker error.
 type TCInferenceError = TE.TEBaseError
 
 -- Axioms
--- ^^^^^^
+-- ------
 
--- | Variable type inference.(*)
+-- | Variable type inference.
 --
--- - Note: Corresponds to the @Axiom A1@.
+--      [Note]: Corresponds to the Axiom @A1@.
 --
 inferVar :: TCX.Contextable a => TCX.TCXSimpleTypeContext -> AST.ASTVariable -> Either TCInferenceError a
 inferVar c (AST.ASTVariable v) = do
@@ -76,22 +82,22 @@ inferVar c (AST.ASTVariable v) = do
 __varNotKnownError :: String -> TCInferenceError
 __varNotKnownError v = TE.makeError $ "Could not infer variable type. Variable `" ++ v ++ "` is not in context."
 
--- | Total record type inference.(*)
+-- | Total record type inference.
 --
--- - Note: Corresponds to the @Axiom A2@.
+--      [Note]: Corresponds to the Axiom @A2@.
 --
 inferTotalRecord :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttributeStarTotalRecord -> Either TCInferenceError TAST.TASTSimpleAtomicIndex
 inferTotalRecord _ _ = Right TAST.TASTSimpleTypeRecordTotal
 
 -- Rules
--- ^^^^^
+-- -----
 
 -- Attribute access
 -- ................
 
 -- | Attribute reference inference.
 --
--- - Note: Corresponds to the @Rule R1@
+--      [Note]: Corresponds to the Rule @R1@
 --
 inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttributeReference -> Either TCInferenceError TAST.TASTSimpleAtomicIndexPair
 inferAttributeReference c (AST.ASTSelectAttributeReferenceUnqualified v) = do
@@ -114,7 +120,7 @@ __recordUnknownAttributeError b v = TE.makeError $ "Record `" ++ bs ++ "` does n
 
 -- | Single attribute access inference
 --
--- Note: Corresponds to @Rule R2@
+--      [Note]: Corresponds to Rule @R2@
 --
 inferAttribute :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttribute -> Either TCInferenceError TAST.TASTSimpleAtomicIndex
 inferAttribute c (AST.ASTSelectAttributeStar s)             = inferTotalRecord c s
@@ -127,7 +133,7 @@ inferAttribute c (AST.ASTSelectAttributeReferenceAlias a (AST.ASTSimpleAlias b))
 
 -- | Attribute list access inference
 --
--- Note: Corresponds to @Rule R3@
+--      [Note]: Corresponds to Rule @R3@
 --
 inferSelectList :: TCX.TCXSimpleTypeContext -> AST.ASTSelectList -> Either TCInferenceError [TAST.TASTSimpleAtomicIndex]
 inferSelectList c as = do
@@ -141,7 +147,7 @@ inferSelectList c as = do
 
 -- | Table access inference.
 --
--- - Note: Corresponds to the @Axiom A1@ and @Rule R2@
+--      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
 --
 inferFromTable :: TCX.TCXSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleRecordIndexPair
 inferFromTable c (AST.ASTFromTableReference v) = do
@@ -175,7 +181,7 @@ __dedup (p@(TAST.TASTSimpleAtomicIndexKeyValue k v), n) = if n == 0 then p else 
 
 -- | Table list access inference.
 --
--- Note: Corresponds to @Rule R3@
+--      [Note]: Corresponds to @Rule R3@
 --
 inferFromList :: TCX.TCXSimpleTypeContext -> AST.ASTFromList -> Either TCInferenceError [TAST.TASTSimpleRecordIndexPair]
 inferFromList c as = do
@@ -189,7 +195,7 @@ inferFromList c as = do
 
 -- | Select query result type inference.
 --
--- Note: corresponds to @Rule R4@
+--      [Note]: Corresponds to Rule @R4@
 --
 inferSelectQuery :: TCX.TCXSimpleTypeContext -> AST.ASTSelectQuery -> Either TCInferenceError TAST.TASTDbView
 inferSelectQuery c (AST.ASTSelectQuery as fs) = do
