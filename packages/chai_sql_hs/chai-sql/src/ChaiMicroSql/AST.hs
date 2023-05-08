@@ -44,74 +44,42 @@ import qualified ChaiMicroSql.TypeErrors  as TE
 type TypeHintAnnotation a b = (a, Either TE.TEBaseError b)
 
 -- | A single SQL select query with possible type hint and required annotation.
-type ASTSelectQueryHintedAnnotated = GASTSelectQueryTyped ASTSelectAttribute ASTFromTable (TypeHintAnnotation (Maybe TAST.TASTDbView) TAST.TASTDbView)
-
--- | A single sub query access with required annotation.
---
---      [Note]: is used to untie the type-level recursion.
---
-newtype ASTSelectSubQueryHintedAnnotated = ASTSelectSubQueryHintedAnnotated ASTSelectQueryHintedAnnotated
-
--- | A single attribute access with required annotation.
-type ASTSelectAttributeAnnotated = GASTSelectAttributeTyped ASTSelectAttributeReference (TypeHintAnnotation () TAST.TASTSimpleAtomicIndex)
-
--- | A single reference access with required annotation.
-type ASTSelectAttributeReferenceAnnotated = GASTSelectAttributeReferenceTyped (TypeHintAnnotation () TAST.TASTSimpleAtomicIndexPair)
-
--- | A single from source access with possible type hint and required annotation.
-type ASTFromTableHintedAnnotated = GASTFromTableTyped ASTSelectSubQueryHintedAnnotated (TypeHintAnnotation () TAST.TASTSimpleRecordIndexPair)
+type ASTSelectQueryHintedAnnotated = GASTSelectQueryTyped
+    (TypeHintAnnotation () TAST.TASTSimpleAtomicIndexPair)
+    (TypeHintAnnotation () TAST.TASTSimpleAtomicIndex)
+    (TypeHintAnnotation () TAST.TASTSimpleRecordIndexPair)
+    (Maybe TAST.TASTDbView)
 
 
 -- AST with type hints
 -- -------------------
 
 -- | A single SQL select query with an optional type hint.
-type ASTSelectQueryHinted = GASTSelectQueryTyped ASTSelectAttribute ASTFromTableHinted (Maybe TAST.TASTDbView)
-
--- | A single sub query access with a type hint.
---
---      [Note]: is used to untie the type-level recursion.
---
-newtype ASTSelectSubQueryHinted = ASTSelectSubQueryHinted ASTSelectQueryHinted
-
--- | A single from source access with a sub-query with possible type hint.
-type ASTFromTableHinted = GASTFromTableTyped ASTSelectSubQueryHinted ()
-
+type ASTSelectQueryHinted = GASTSelectQueryTyped () () () (Maybe TAST.TASTDbView)
 
 -- AST without type information
 -- ----------------------------
 
 -- | A single SQL select query.
-type ASTSelectQuery = GASTSelectQueryTyped ASTSelectAttribute ASTFromTable ()
-
--- | A single sub query access.
---
---      [Note]: is used to untie the type-level recursion.
---
-newtype ASTSelectSubQuery = ASTSelectSubQuery ASTSelectQuery
-
--- | A single attribute access.
-type ASTSelectAttribute = GASTSelectAttributeTyped ASTSelectAttributeReference ()
-
--- | A single reference access.
-type ASTSelectAttributeReference = GASTSelectAttributeReferenceTyped ()
-
--- | A single from source access.
-type ASTFromTable = GASTFromTableTyped ASTSelectSubQuery ()
+type ASTSelectQuery = GASTSelectQueryTyped () () () ()
 
 
 -- Typed AST building blocks
 -- -------------------------
 
 -- | A single SQL select query.
-data GASTSelectQueryTyped s f t = GASTSelectQueryTyped [s] [f] t
+data GASTSelectQueryTyped srt sat ft qt
+    = GASTSelectQueryTyped
+        [GASTSelectAttributeTyped srt sat]
+        [GASTFromTableTyped srt sat ft qt]
+        qt
     deriving (Show, Eq)
 
 -- | A single attribute access.
-data GASTSelectAttributeTyped r t
+data GASTSelectAttributeTyped rt t
     = GASTSelectAttributeTypedStar ASTSelectAttributeStarTotalRecord t  -- ^ e.g. @SELECT *@
-    | GASTSelectAttributeTypedReference r t                             -- ^ e.g. @SELECT X@
-    | GASTSelectAttributeTypedReferenceAlias r ASTSimpleAlias t         -- ^ e.g. @SELECT X AS Y@
+    | GASTSelectAttributeTypedReference (GASTSelectAttributeReferenceTyped rt) t                             -- ^ e.g. @SELECT X@
+    | GASTSelectAttributeTypedReferenceAlias (GASTSelectAttributeReferenceTyped rt) ASTSimpleAlias t         -- ^ e.g. @SELECT X AS Y@
     deriving (Show, Eq)
 
 -- | A single attribute reference.
@@ -120,16 +88,24 @@ data GASTSelectAttributeReferenceTyped t
     | GASTSelectAttributeReferenceTypedQualified ASTVariable ASTVariable t     -- ^ e.g. `X.Y`
     deriving (Show, Eq)
 
+-- | A single sub query access.
+--
+--      [Note]: is used to untie the type-level recursion.
+--
+newtype GASTSelectSubQueryTyped srt sat ft qt = GASTSelectSubQueryTyped (GASTSelectQueryTyped srt sat ft qt)
+    deriving (Show, Eq)
+
 -- | A single table access.
-data GASTFromTableTyped q t
-    = GASTFromTableTypedReference ASTVariable t                                                 -- ^ e.g. @FROM X@
-    | GASTFromTableTypedReferenceAlias ASTVariable ASTSimpleAlias t                             -- ^ e.g. @FROM X AS Y@
-    | GASTFromNestedQueryTypedReferenceAlias q ASTSimpleAlias t   -- ^ e.g. @FROM (...) AS Y@
+data GASTFromTableTyped srt sat ft qt
+    = GASTFromTableTypedReference ASTVariable ft                                                        -- ^ e.g. @FROM X@
+    | GASTFromTableTypedReferenceAlias ASTVariable ASTSimpleAlias ft                                    -- ^ e.g. @FROM X AS Y@
+    | GASTFromNestedQueryTypedReferenceAlias (GASTSelectSubQueryTyped srt sat ft qt) ASTSimpleAlias ft  -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
 
 -- Common utilities
 -- ----------------
+
 
 -- | A constant total record representation.
 data ASTSelectAttributeStarTotalRecord = ASTSelectAttributeStarTotalRecord deriving (Show, Eq)

@@ -100,7 +100,7 @@ inferTotalRecord _ _ = Right TAST.TASTSimpleTypeRecordTotal
 --
 --      [Note]: Corresponds to the Rule @R1@
 --
-inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttributeReference -> Either TCInferenceError TAST.TASTSimpleAtomicIndexPair
+inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.GASTSelectAttributeReferenceTyped a -> Either TCInferenceError TAST.TASTSimpleAtomicIndexPair
 inferAttributeReference c (AST.GASTSelectAttributeReferenceTypedUnqualified v _) = do
     at <- inferVar c v
     let k = TAST.makeKey $ CU.toString v
@@ -123,7 +123,7 @@ __recordUnknownAttributeError b v = TE.makeError $ "Record `" ++ bs ++ "` does n
 --
 --      [Note]: Corresponds to Rule @R2@
 --
-inferAttribute :: TCX.TCXSimpleTypeContext -> AST.ASTSelectAttribute -> Either TCInferenceError TAST.TASTSimpleAtomicIndex
+inferAttribute :: TCX.TCXSimpleTypeContext -> AST.GASTSelectAttributeTyped a b -> Either TCInferenceError TAST.TASTSimpleAtomicIndex
 inferAttribute c (AST.GASTSelectAttributeTypedStar s _)             = inferTotalRecord c s
 inferAttribute c (AST.GASTSelectAttributeTypedReference a _)        = do
     at <- inferAttributeReference c a
@@ -136,7 +136,7 @@ inferAttribute c (AST.GASTSelectAttributeTypedReferenceAlias a (AST.ASTSimpleAli
 --
 --      [Note]: Corresponds to Rule @R3@
 --
-inferSelectList :: TCX.TCXSimpleTypeContext -> [AST.ASTSelectAttribute] -> Either TCInferenceError [TAST.TASTSimpleAtomicIndex]
+inferSelectList :: TCX.TCXSimpleTypeContext -> [AST.GASTSelectAttributeTyped a b] -> Either TCInferenceError [TAST.TASTSimpleAtomicIndex]
 inferSelectList c as = do
     let ets = map (inferAttribute c) as
     case any isLeft ets of
@@ -150,7 +150,7 @@ inferSelectList c as = do
 --
 --      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
 --
-inferFromTable :: TCX.TCXSimpleTypeContext -> AST.ASTFromTable -> Either TCInferenceError TAST.TASTSimpleRecordIndexPair
+inferFromTable :: TCX.TCXSimpleTypeContext -> AST.GASTFromTableTyped a b c d -> Either TCInferenceError TAST.TASTSimpleRecordIndexPair
 inferFromTable c (AST.GASTFromTableTypedReference v _) = do
     vt <- inferVar c v
     let k = TAST.makeKey $ CU.toString v
@@ -159,7 +159,7 @@ inferFromTable c (AST.GASTFromTableTypedReferenceAlias v a _) = do
     vt <- inferVar c v
     let k = TAST.makeKey $ CU.toString a
     Right $ TAST.TASTSimpleRecordIndexKeyValue k vt
-inferFromTable c (AST.GASTFromNestedQueryTypedReferenceAlias (AST.ASTSelectSubQuery q) a _) = do
+inferFromTable c (AST.GASTFromNestedQueryTypedReferenceAlias (AST.GASTSelectSubQueryTyped q) a _) = do
     -- infer the query result
     qt <- inferSelectQuery c q
     -- if query contains duplicate columns, resolve colisions
@@ -184,7 +184,7 @@ __dedup (p@(TAST.TASTSimpleAtomicIndexKeyValue k v), n) = if n == 0 then p else 
 --
 --      [Note]: Corresponds to @Rule R3@
 --
-inferFromList :: TCX.TCXSimpleTypeContext -> [AST.ASTFromTable] -> Either TCInferenceError [TAST.TASTSimpleRecordIndexPair]
+inferFromList :: TCX.TCXSimpleTypeContext -> [AST.GASTFromTableTyped a b c d] -> Either TCInferenceError [TAST.TASTSimpleRecordIndexPair]
 inferFromList c as = do
     let ets = map (inferFromTable c) as
     case any isLeft ets of
@@ -198,7 +198,7 @@ inferFromList c as = do
 --
 --      [Note]: Corresponds to Rule @R4@
 --
-inferSelectQuery :: TCX.TCXSimpleTypeContext -> AST.ASTSelectQuery -> Either TCInferenceError TAST.TASTDbView
+inferSelectQuery :: TCX.TCXSimpleTypeContext -> AST.GASTSelectQueryTyped a b c d -> Either TCInferenceError TAST.TASTDbView
 inferSelectQuery c (AST.GASTSelectQueryTyped as fs _) = do
     fts <- inferFromList c fs
     let fats = foldl __collectAttributes [] fts
