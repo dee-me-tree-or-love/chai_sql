@@ -162,7 +162,7 @@ inferFromTable c (AST.ASTFromTableReferenceAlias v a) = do
     Right $ TAST.TASTSimpleRecordIndexKeyValue k vt
 inferFromTable c (AST.ASTFromNestedQueryReferenceAlias q a) = do
     -- infer the query result
-    qt <- inferSelectQuery c q
+    qt <- inferTypeHintedSelectQuery c q
     -- if query contains duplicate columns, resolve colisions
     let cqt = foldl __getCountLabels [] qt
     -- create a record form the resolved colisions

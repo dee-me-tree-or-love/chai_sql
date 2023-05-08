@@ -42,6 +42,7 @@ import qualified ChaiMicroSql.TAST        as TAST
 
 -- | An optional type hint wrapper
 data ASTTypeHinted a b = ASTTypeHinted a (Maybe b)
+    deriving (Show, Eq)
 
 -- | A regular select query with an optional type hint.
 type ASTTypeHintedSelectQuery = ASTTypeHinted ASTSelectQuery TAST.TASTDbView
@@ -83,7 +84,7 @@ type ASTFromList = [ASTFromTable]
 data ASTFromTable
     = ASTFromTableReference ASTVariable                                 -- ^ e.g. @FROM X@
     | ASTFromTableReferenceAlias ASTVariable ASTSimpleAlias             -- ^ e.g. @FROM X AS Y@
-    | ASTFromNestedQueryReferenceAlias ASTSelectQuery ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
+    | ASTFromNestedQueryReferenceAlias ASTTypeHintedSelectQuery ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
 -- Common utilities

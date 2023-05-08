@@ -247,10 +247,11 @@ spec = do
                         let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
                         let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
                         let q = AST.ASTSelectQuery qsl qfl
+                        let tq = AST.ASTTypeHinted q Nothing
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromNestedQueryReferenceAlias q (AST.ASTSimpleAlias __u)
+                        let av = AST.ASTFromNestedQueryReferenceAlias tq (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromTable c
                         let __rk = TAST.TASTSimpleIndexKey __u
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk $ TAST.makeRecord [__fIdT, __fNameT]
@@ -273,10 +274,11 @@ spec = do
                         let qsl = [__qslId, __qslId, __qslName]
                         let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
                         let q = AST.ASTSelectQuery qsl qfl
+                        let tq = AST.ASTTypeHinted q Nothing
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromNestedQueryReferenceAlias q (AST.ASTSimpleAlias __u)
+                        let av = AST.ASTFromNestedQueryReferenceAlias tq (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromTable c
                         let __rk = TAST.TASTSimpleIndexKey __u
                         -- prepare a de-duplicated result
