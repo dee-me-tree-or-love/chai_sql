@@ -386,3 +386,25 @@ spec = do
                     -- check that it reports all the failures
                     let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
                     THS.shouldBe (f q) e
+
+            THS.describe "with mistaken table name for attribute selection" $ do
+                THS.it "fails" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __a = "id"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT thisIsNotAnId FROM foos;
+                    let __na = "foos"
+                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferSelectQuery c
+                    -- check that it reports all the failures
+                    let e = Left $ TE.combineErrors [TCX.__recordNotAtomError]
+                    THS.shouldBe (f q) e
