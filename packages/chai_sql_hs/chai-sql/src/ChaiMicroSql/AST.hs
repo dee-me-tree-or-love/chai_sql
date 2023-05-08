@@ -35,6 +35,48 @@ Some supported examples:
 module ChaiMicroSql.AST ( module ChaiMicroSql.AST ) where
 
 import qualified ChaiMicroSql.CommonUtils as CU
+import qualified ChaiMicroSql.TAST        as TAST
+import qualified ChaiMicroSql.TypeErrors  as TE
+
+-- AST with type annotations
+-- -------------------------
+
+type TypeHintAnnotation a b = (a, Either TE.TEBaseError b)
+
+-- | A single SQL select query with possible type hint and required annotation.
+type ASTSelectQueryHintedAnnotated = GASTSelectQueryTyped ASTSelectAttribute ASTFromTable (TypeHintAnnotation (Maybe TAST.TASTDbView) TAST.TASTDbView)
+
+-- | A single sub query access with required annotation.
+--
+--      [Note]: is used to untie the type-level recursion.
+--
+newtype ASTSelectSubQueryHintedAnnotated = ASTSelectSubQueryHintedAnnotated ASTSelectQueryHintedAnnotated
+
+-- | A single attribute access with required annotation.
+type ASTSelectAttributeAnnotated = GASTSelectAttributeTyped ASTSelectAttributeReference (TypeHintAnnotation () TAST.TASTSimpleAtomicIndex)
+
+-- | A single reference access with required annotation.
+type ASTSelectAttributeReferenceAnnotated = GASTSelectAttributeReferenceTyped (TypeHintAnnotation () TAST.TASTSimpleAtomicIndexPair)
+
+-- | A single from source access with possible type hint and required annotation.
+type ASTFromTableHintedAnnotated = GASTFromTableTyped ASTSelectSubQueryHintedAnnotated (TypeHintAnnotation () TAST.TASTSimpleRecordIndexPair)
+
+
+-- AST with type hints
+-- -------------------
+
+-- | A single SQL select query with an optional type hint.
+type ASTSelectQueryHinted = GASTSelectQueryTyped ASTSelectAttribute ASTFromTableHinted (Maybe TAST.TASTDbView)
+
+-- | A single sub query access with a type hint.
+--
+--      [Note]: is used to untie the type-level recursion.
+--
+newtype ASTSelectSubQueryHinted = ASTSelectSubQueryHinted ASTSelectQueryHinted
+
+-- | A single from source access with a sub-query with possible type hint.
+type ASTFromTableHinted = GASTFromTableTyped ASTSelectSubQueryHinted ()
+
 
 -- AST without type information
 -- ----------------------------
@@ -57,9 +99,9 @@ type ASTSelectAttributeReference = GASTSelectAttributeReferenceTyped ()
 -- | A single from source access.
 type ASTFromTable = GASTFromTableTyped ASTSelectSubQuery ()
 
+
 -- Typed AST building blocks
 -- -------------------------
-
 
 -- | A single SQL select query.
 data GASTSelectQueryTyped s f t = GASTSelectQueryTyped [s] [f] t
@@ -84,6 +126,7 @@ data GASTFromTableTyped q t
     | GASTFromTableTypedReferenceAlias ASTVariable ASTSimpleAlias t                             -- ^ e.g. @FROM X AS Y@
     | GASTFromNestedQueryTypedReferenceAlias q ASTSimpleAlias t   -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
+
 
 -- Common utilities
 -- ----------------
