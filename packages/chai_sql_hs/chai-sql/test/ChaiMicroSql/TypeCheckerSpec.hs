@@ -59,7 +59,7 @@ spec = do
                         let __k = TCX.TCXSimpleTypeContextKey __v
                         let __vt = TAST.TASTAtomicTypeBool
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
-                        let av = AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                        let av = AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __v
                         let f = TC.inferAttributeReference __c
                         let e = Right $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
                         THS.shouldBe (f av) e
@@ -70,7 +70,7 @@ spec = do
                         let __k = TCX.TCXSimpleTypeContextKey __v
                         let __vt = TAST.TASTAtomicTypeBool
                         let __c = TCX.freshContext
-                        let av = AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                        let av = AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __v
                         let f = TC.inferAttributeReference __c
                         let e = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f av) e
@@ -91,7 +91,7 @@ spec = do
                             let __k = TCX.TCXSimpleTypeContextKey __b
                             let __c = TCX.extend __k (TCX.contextualize __bt) TCX.freshContext
                             -- abstract syntax nodes
-                            let abv = AST.ASTSelectAttributeReferenceQualified __ab __av
+                            let abv = AST.GASTSelectAttributeReferenceTypedQualified () __ab __av
                             let f = TC.inferAttributeReference __c
                             let e = Left $ TC.__recordUnknownAttributeError __ab __av
                             THS.shouldBe (f abv) e
@@ -111,7 +111,7 @@ spec = do
                             let __k = TCX.TCXSimpleTypeContextKey __b
                             let __c = TCX.extend __k (TCX.contextualize __bt) TCX.freshContext
                             -- abstract syntax nodes
-                            let abv = AST.ASTSelectAttributeReferenceQualified __ab __av
+                            let abv = AST.GASTSelectAttributeReferenceTypedQualified () __ab __av
                             let f = TC.inferAttributeReference __c
                             let r = Right __bvk
                             THS.shouldBe (f abv) r
@@ -119,7 +119,7 @@ spec = do
         THS.describe "with inferAttribute" $ do
             THS.describe "with a star access" $ do
                 THS.it "returns Right <total record type>" $ do
-                    let a = AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord
+                    let a = AST.GASTSelectAttributeTypedStar () AST.ASTSelectAttributeStarTotalRecord
                     let f = TC.inferAttribute TCX.freshContext
                     let r = Right TAST.TASTSimpleTypeRecordTotal
                     THS.shouldBe (f a) r
@@ -134,7 +134,7 @@ spec = do
                         -- it is known to the context
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         -- we are directly accessing foo
-                        let a = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                        let a = AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () (AST.ASTVariable __v)
                         let f = TC.inferAttribute __c
                         let r = Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
                         THS.shouldBe (f a) r
@@ -148,7 +148,7 @@ spec = do
                         -- it is known to the context
                         let __c = TCX.freshContext
                         -- we are directly accessing foo
-                        let a = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                        let a = AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () (AST.ASTVariable __v)
                         let f = TC.inferAttribute __c
                         let r = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f a) r
@@ -164,7 +164,7 @@ spec = do
                         -- it is known to the context
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         -- we are directly accessing foo
-                        let a = AST.ASTSelectAttributeReferenceAlias (AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)) (AST.ASTSimpleAlias __u)
+                        let a = AST.GASTSelectAttributeTypedReferenceAlias () (AST.GASTSelectAttributeReferenceTypedUnqualified () (AST.ASTVariable __v)) (AST.ASTSimpleAlias __u)
                         let f = TC.inferAttribute __c
                         let r = Right $ TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __u) __vt
                         THS.shouldBe (f a) r
@@ -173,7 +173,7 @@ spec = do
             THS.describe "with at least one error" $ do
                 THS.it "returns Left <all error messages combined>" $ do
                     let __v = "foo"
-                    let av = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                    let av = AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () (AST.ASTVariable __v)
                     let f = TC.inferSelectList TCX.freshContext
                     let e = Left $ TE.combineErrors [TC.__varNotKnownError __v]
                     THS.shouldBe (f [av]) e
@@ -187,7 +187,7 @@ spec = do
                     -- it is known to the context
                     let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                     -- we are retrieving the types
-                    let av = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified (AST.ASTVariable __v)
+                    let av = AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () (AST.ASTVariable __v)
                     let f = TC.inferSelectList __c
                     let __rk = TAST.TASTSimpleIndexKey __v
                     let __rki = TAST.TASTSimpleAtomicIndexPair $ TAST.TASTSimpleAtomicIndexKeyValue __rk __vt
@@ -202,7 +202,7 @@ spec = do
                         let __k = TCX.TCXSimpleTypeContextKey __v
                         let __vt = TAST.emptyTypeRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
-                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                        let av = AST.GASTFromTableTypedReference () $ AST.ASTVariable __v
                         let f = TC.inferFromTable __c
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue (TAST.TASTSimpleIndexKey __v) __vt
                         let r = Right __rki
@@ -213,7 +213,7 @@ spec = do
                         let __v = "foo"
                         let __k = TCX.TCXSimpleTypeContextKey __v
                         let __c = TCX.freshContext
-                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                        let av = AST.GASTFromTableTypedReference () $ AST.ASTVariable __v
                         let f = TC.inferFromTable __c
                         let r = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f av) r
@@ -226,7 +226,7 @@ spec = do
                         let __vt = TAST.emptyTypeRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
+                        let av = AST.GASTFromTableTypedReferenceAlias () (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromTable __c
                         let __rk = TAST.TASTSimpleIndexKey __u
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
@@ -244,14 +244,14 @@ spec = do
                         let __fas = [__fIdT, __fNameT]
                         let __ft = TAST.makeRecord __fas
                         -- construct a query from SELECT * FROM foos;
-                        let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                        let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                        let q = AST.ASTSelectQuery qsl qfl
-                        let tq = AST.ASTTypeHinted q Nothing
+                        let qsl = [AST.GASTSelectAttributeTypedStar () AST.ASTSelectAttributeStarTotalRecord]
+                        let qfl = [AST.GASTFromTableTypedReference () (AST.ASTVariable __f)]
+                        let q = AST.GASTSelectQueryTyped () qsl qfl
+                        let tq = AST.GASTSelectSubQueryTyped q
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromNestedQueryReferenceAlias tq (AST.ASTSimpleAlias __u)
+                        let av = AST.GASTFromNestedQueryTypedReferenceAlias () tq (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromTable c
                         let __rk = TAST.TASTSimpleIndexKey __u
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk $ TAST.makeRecord [__fIdT, __fNameT]
@@ -269,16 +269,16 @@ spec = do
                         let __fas = [__fIdT, __fNameT]
                         let __ft = TAST.makeRecord __fas
                         -- construct a query from SELECT id, id, name FROM foos;
-                        let __qslId = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __a
-                        let __qslName = AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __n
+                        let __qslId = AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __a
+                        let __qslName = AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __n
                         let qsl = [__qslId, __qslId, __qslName]
-                        let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                        let q = AST.ASTSelectQuery qsl qfl
-                        let tq = AST.ASTTypeHinted q Nothing
+                        let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f]
+                        let q = AST.GASTSelectQueryTyped () qsl qfl
+                        let tq = AST.GASTSelectSubQueryTyped q
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromNestedQueryReferenceAlias tq (AST.ASTSimpleAlias __u)
+                        let av = AST.GASTFromNestedQueryTypedReferenceAlias () tq (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromTable c
                         let __rk = TAST.TASTSimpleIndexKey __u
                         -- prepare a de-duplicated result
@@ -287,12 +287,11 @@ spec = do
                         let r = Right __rki
                         THS.shouldBe (f av) r
 
-
         THS.describe "with inferFromList" $ do
             THS.describe "with at least one error" $ do
                 THS.it "returns Left <all error messages combined>" $ do
                     let __v = "foo"
-                    let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                    let av = AST.GASTFromTableTypedReference () $ AST.ASTVariable __v
                     let f = TC.inferFromList TCX.freshContext
                     let e = Left $ TE.combineErrors [TC.__varNotKnownError __v]
                     THS.shouldBe (f [av]) e
@@ -304,7 +303,7 @@ spec = do
                         let __k = TCX.TCXSimpleTypeContextKey __v
                         let __vt = TAST.emptyTypeRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
-                        let av = AST.ASTFromTableReference $ AST.ASTVariable __v
+                        let av = AST.GASTFromTableTypedReference () $ AST.ASTVariable __v
                         let f = TC.inferFromList __c
                         let __rk = TAST.TASTSimpleIndexKey __v
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
@@ -318,7 +317,7 @@ spec = do
                         let __vt = TAST.emptyTypeRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let __u = "bar"
-                        let av = AST.ASTFromTableReferenceAlias (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
+                        let av = AST.GASTFromTableTypedReferenceAlias () (AST.ASTVariable __v) (AST.ASTSimpleAlias __u)
                         let f = TC.inferFromList __c
                         let __rk = TAST.TASTSimpleIndexKey __u
                         let __rki = TAST.TASTSimpleRecordIndexKeyValue __rk __vt
@@ -335,9 +334,9 @@ spec = do
                     let __fas = [__fIdT, __fNameT]
                     let __ft = TAST.makeRecord __fas
                     -- construct a query from SELECT * FROM foos;
-                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedStar () AST.ASTSelectAttributeStarTotalRecord]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -361,9 +360,9 @@ spec = do
                     let __bas = [__bIdT, __bLocationT]
                     let __bt = TAST.makeRecord __bas
                     -- construct a query from SELECT * FROM foos;
-                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f, AST.ASTFromTableReference $ AST.ASTVariable __b]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedStar () AST.ASTSelectAttributeStarTotalRecord]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f, AST.GASTFromTableTypedReference () $ AST.ASTVariable __b]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     let c = TCX.extend (TCX.makeKey __b) (TCX.contextualize __bt) __c
@@ -390,9 +389,9 @@ spec = do
                     let __bas = [__bIdT, __bLocationT]
                     let __bt = TAST.makeRecord __bas
                     -- construct a query from SELECT * FROM foos;
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceQualified (AST.ASTVariable __ba) (AST.ASTVariable __l) ]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f, AST.ASTFromTableReferenceAlias (AST.ASTVariable __b) (AST.ASTSimpleAlias __ba)]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedQualified () (AST.ASTVariable __ba) (AST.ASTVariable __l) ]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f, AST.GASTFromTableTypedReferenceAlias () (AST.ASTVariable __b) (AST.ASTSimpleAlias __ba)]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     let c = TCX.extend (TCX.makeKey __b) (TCX.contextualize __bt) __c
@@ -412,9 +411,9 @@ spec = do
                     let __fas = [__fIdT, __fNameT]
                     let __ft = TAST.makeRecord __fas
                     -- construct a query from SELECT id FROM foos;
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __a]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __a]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -434,9 +433,9 @@ spec = do
                     let __ft = TAST.makeRecord __fas
                     -- construct a query from SELECT thisIsNotAnId FROM foos;
                     let __na = "thisIsNotAnId"
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __na]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -456,9 +455,9 @@ spec = do
                     let __ft = TAST.makeRecord __fas
                     -- construct a query from SELECT thisIsNotAnId FROM foos;
                     let __na = "foos"
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __na]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -479,9 +478,9 @@ spec = do
                     -- construct a query from SELECT thisIsNotAnId FROM foos;
                     let __na = "ghost-attribute"
                     let __nat = TAST.TASTAtomicTypeBool
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
+                    let qsl = [AST.GASTSelectAttributeTypedReference () $ AST.GASTSelectAttributeReferenceTypedUnqualified () $ AST.ASTVariable __na]
+                    let qfl = [AST.GASTFromTableTypedReference () $ AST.ASTVariable __f]
+                    let q = AST.GASTSelectQueryTyped () qsl qfl
                     -- populate starting context
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- populate starting context with a ghost attribute
@@ -491,92 +490,3 @@ spec = do
                     -- check that it reports all the failures
                     let e = Left $ TE.combineErrors [TC.__attributeNotInSourceError $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.makeKey __na) __nat]
                     THS.shouldBe (f q) e
-
-        THS.describe "with inferTypeHintedSelectQuery" $ do
-            THS.describe "with a valid query without a typehint" $ do
-                THS.it "returns inference result" $ do
-                    -- construct the context
-                    let __f = "foos"
-                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
-                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
-                    let __fas = [__fIdT, __fNameT]
-                    let __ft = TAST.makeRecord __fas
-                    -- construct a query from SELECT * FROM foos;
-                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
-                    let tq = AST.ASTTypeHinted q Nothing
-                    -- populate starting context
-                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
-                    -- infer query
-                    let f = TC.inferTypeHintedSelectQuery c
-                    -- check
-                    let e = Right [__fIdT, __fNameT]
-                    THS.shouldBe (f tq) e
-
-            THS.describe "with a valid query with a typehint" $ do
-                THS.it "returns inference result" $ do
-                    -- construct the context
-                    let __f = "foos"
-                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
-                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
-                    let __fas = [__fIdT, __fNameT]
-                    let __ft = TAST.makeRecord __fas
-                    -- construct a query from SELECT * FROM foos;
-                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
-                    let tq = AST.ASTTypeHinted q (Just [__fIdT, __fNameT])
-                    -- populate starting context
-                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
-                    -- infer query
-                    let f = TC.inferTypeHintedSelectQuery c
-                    -- check
-                    let e = Right [__fIdT, __fNameT]
-                    THS.shouldBe (f tq) e
-
-            THS.describe "with invalid attribute selection without a type hint" $ do
-                THS.it "fails" $ do
-                    -- construct the context
-                    let __f = "foos"
-                    let __a = "id"
-                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
-                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
-                    let __fas = [__fIdT, __fNameT]
-                    let __ft = TAST.makeRecord __fas
-                    -- construct a query from SELECT thisIsNotAnId FROM foos;
-                    let __na = "thisIsNotAnId"
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
-                    let tq = AST.ASTTypeHinted q Nothing
-                    -- populate starting context
-                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
-                    -- infer query
-                    let f = TC.inferTypeHintedSelectQuery c
-                    -- check that it reports all the failures
-                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
-                    THS.shouldBe (f tq) e
-
-            THS.describe "with invalid attribute selection with type hint" $ do
-                THS.it "fails" $ do
-                    -- construct the context
-                    let __f = "foos"
-                    let __a = "id"
-                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
-                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
-                    let __fas = [__fIdT, __fNameT]
-                    let __ft = TAST.makeRecord __fas
-                    -- construct a query from SELECT thisIsNotAnId FROM foos;
-                    let __na = "thisIsNotAnId"
-                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
-                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
-                    let q = AST.ASTSelectQuery qsl qfl
-                    let tq = AST.ASTTypeHinted q (Just [__fIdT])
-                    -- populate starting context
-                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
-                    -- infer query
-                    let f = TC.inferTypeHintedSelectQuery c
-                    -- check that it reports all the failures
-                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
-                    THS.shouldBe (f tq) e

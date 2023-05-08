@@ -6,15 +6,17 @@ import qualified ChaiMicroSql.AST         as AST
 import qualified ChaiMicroSql.CommonUtils as CU
 import qualified Test.Hspec               as THS
 
+none :: ()
+none = ()
 
 spec :: THS.Spec
 spec = do
     THS.describe "AST of" $ do
         THS.describe "`SELECT * FROM Foo;`" $ do
             THS.it "parses" $ do
-                let a = AST.ASTSelectQuery
-                        [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
-                        [AST.ASTFromTableReference $ AST.ASTVariable "Foo"]
+                let a = AST.GASTSelectQueryTyped none
+                        [AST.GASTSelectAttributeTypedStar none AST.ASTSelectAttributeStarTotalRecord :: AST.GASTSelectAttributeTyped () ()]
+                        [AST.GASTFromTableTypedReference none (AST.ASTVariable "Foo")] :: AST.GASTSelectQueryTyped () () () ()
                 let p = id -- TODO(backlog): define a parse function
                 THS.shouldBe (p a) a
 

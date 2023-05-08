@@ -68,38 +68,37 @@ type ASTSelectQuery = GASTSelectQueryTyped () () () ()
 -- -------------------------
 
 -- | A single SQL select query.
-data GASTSelectQueryTyped srt sat ft qt
-    = GASTSelectQueryTyped
+data GASTSelectQueryTyped srt sat ft t
+    = GASTSelectQueryTyped t
         [GASTSelectAttributeTyped srt sat]
-        [GASTFromTableTyped srt sat ft qt]
-        qt
+        [GASTFromTableTyped srt sat ft t]
     deriving (Show, Eq)
 
 -- | A single attribute access.
 data GASTSelectAttributeTyped rt t
-    = GASTSelectAttributeTypedStar ASTSelectAttributeStarTotalRecord t  -- ^ e.g. @SELECT *@
-    | GASTSelectAttributeTypedReference (GASTSelectAttributeReferenceTyped rt) t                             -- ^ e.g. @SELECT X@
-    | GASTSelectAttributeTypedReferenceAlias (GASTSelectAttributeReferenceTyped rt) ASTSimpleAlias t         -- ^ e.g. @SELECT X AS Y@
+    = GASTSelectAttributeTypedStar t ASTSelectAttributeStarTotalRecord                                  -- ^ e.g. @SELECT *@
+    | GASTSelectAttributeTypedReference t (GASTSelectAttributeReferenceTyped rt)                        -- ^ e.g. @SELECT X@
+    | GASTSelectAttributeTypedReferenceAlias t (GASTSelectAttributeReferenceTyped rt) ASTSimpleAlias    -- ^ e.g. @SELECT X AS Y@
     deriving (Show, Eq)
 
 -- | A single attribute reference.
 data GASTSelectAttributeReferenceTyped t
-    = GASTSelectAttributeReferenceTypedUnqualified ASTVariable t               -- ^ e.g. `X`
-    | GASTSelectAttributeReferenceTypedQualified ASTVariable ASTVariable t     -- ^ e.g. `X.Y`
+    = GASTSelectAttributeReferenceTypedUnqualified t ASTVariable               -- ^ e.g. `X`
+    | GASTSelectAttributeReferenceTypedQualified t ASTVariable ASTVariable     -- ^ e.g. `X.Y`
     deriving (Show, Eq)
 
 -- | A single sub query access.
 --
 --      [Note]: is used to untie the type-level recursion.
 --
-newtype GASTSelectSubQueryTyped srt sat ft qt = GASTSelectSubQueryTyped (GASTSelectQueryTyped srt sat ft qt)
+newtype GASTSelectSubQueryTyped srt sat ft t = GASTSelectSubQueryTyped (GASTSelectQueryTyped srt sat ft t)
     deriving (Show, Eq)
 
 -- | A single table access.
-data GASTFromTableTyped srt sat ft qt
-    = GASTFromTableTypedReference ASTVariable ft                                                        -- ^ e.g. @FROM X@
-    | GASTFromTableTypedReferenceAlias ASTVariable ASTSimpleAlias ft                                    -- ^ e.g. @FROM X AS Y@
-    | GASTFromNestedQueryTypedReferenceAlias (GASTSelectSubQueryTyped srt sat ft qt) ASTSimpleAlias ft  -- ^ e.g. @FROM (...) AS Y@
+data GASTFromTableTyped srt sat qt t
+    = GASTFromTableTypedReference t ASTVariable                                                         -- ^ e.g. @FROM X@
+    | GASTFromTableTypedReferenceAlias t ASTVariable ASTSimpleAlias                                     -- ^ e.g. @FROM X AS Y@
+    | GASTFromNestedQueryTypedReferenceAlias t (GASTSelectSubQueryTyped srt sat t qt) ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
 
