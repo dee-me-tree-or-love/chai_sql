@@ -489,3 +489,92 @@ spec = do
                     -- check that it reports all the failures
                     let e = Left $ TE.combineErrors [TC.__attributeNotInSourceError $ TAST.TASTSimpleAtomicIndexKeyValue (TAST.makeKey __na) __nat]
                     THS.shouldBe (f q) e
+
+        THS.describe "with inferTypeHintedSelectQuery" $ do
+            THS.describe "with a valid query without a typehint" $ do
+                THS.it "returns inference result" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT * FROM foos;
+                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    let tq = AST.ASTTypeHinted q Nothing
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferTypeHintedSelectQuery c
+                    -- check
+                    let e = Right [__fIdT, __fNameT]
+                    THS.shouldBe (f tq) e
+
+            THS.describe "with a valid query with a typehint" $ do
+                THS.it "returns inference result" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "id") TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT * FROM foos;
+                    let qsl = [AST.ASTSelectAttributeStar AST.ASTSelectAttributeStarTotalRecord]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    let tq = AST.ASTTypeHinted q (Just [__fIdT, __fNameT])
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferTypeHintedSelectQuery c
+                    -- check
+                    let e = Right [__fIdT, __fNameT]
+                    THS.shouldBe (f tq) e
+
+            THS.describe "with invalid attribute selection without a type hint" $ do
+                THS.it "fails" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __a = "id"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT thisIsNotAnId FROM foos;
+                    let __na = "thisIsNotAnId"
+                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    let tq = AST.ASTTypeHinted q Nothing
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferTypeHintedSelectQuery c
+                    -- check that it reports all the failures
+                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
+                    THS.shouldBe (f tq) e
+
+            THS.describe "with invalid attribute selection with type hint" $ do
+                THS.it "fails" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __a = "id"
+                    let __fIdT = TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey __a) TAST.TASTAtomicTypeBool
+                    let __fNameT= TAST.TASTSimpleAtomicIndexKeyValue (TAST.TASTSimpleIndexKey "name") TAST.TASTAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT thisIsNotAnId FROM foos;
+                    let __na = "thisIsNotAnId"
+                    let qsl = [AST.ASTSelectAttributeReference $ AST.ASTSelectAttributeReferenceUnqualified $ AST.ASTVariable __na]
+                    let qfl = [AST.ASTFromTableReference $ AST.ASTVariable __f]
+                    let q = AST.ASTSelectQuery qsl qfl
+                    let tq = AST.ASTTypeHinted q (Just [__fIdT])
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.inferTypeHintedSelectQuery c
+                    -- check that it reports all the failures
+                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
+                    THS.shouldBe (f tq) e

@@ -46,7 +46,8 @@ module ChaiMicroSql.TypeChecker (
         inferFromTable,
         inferFromList,
         inferSelectQuery,
-        __attributeNotInSourceError
+        __attributeNotInSourceError,
+        inferTypeHintedSelectQuery
     ) where
 
 import qualified ChaiMicroSql.AST         as AST
@@ -193,6 +194,13 @@ inferFromList c as = do
 
 -- Full SELECT query
 -- .................
+
+-- | Infer type from a select query with an optional type hint
+--
+--      [Note]: Corresponds to Rule @R4@. Skips the type hint.
+--
+inferTypeHintedSelectQuery :: TCX.TCXSimpleTypeContext -> AST.ASTTypeHintedSelectQuery -> Either TCInferenceError TAST.TASTDbView
+inferTypeHintedSelectQuery c (AST.ASTTypeHinted q _) = inferSelectQuery c q
 
 -- | Select query result type inference.
 --

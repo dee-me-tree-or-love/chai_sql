@@ -35,9 +35,16 @@ Some supported examples:
 module ChaiMicroSql.AST ( module ChaiMicroSql.AST ) where
 
 import qualified ChaiMicroSql.CommonUtils as CU
+import qualified ChaiMicroSql.TAST        as TAST
 
 -- Basic AST
 -- ~~~~~~~~~
+
+-- | An optional type hint wrapper
+data ASTTypeHinted a b = ASTTypeHinted a (Maybe b)
+
+-- | A regular select query with an optional type hint.
+type ASTTypeHintedSelectQuery = ASTTypeHinted ASTSelectQuery TAST.TASTDbView
 
 -- | A single SQL select query.
 -- @Typed@
