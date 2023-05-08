@@ -45,7 +45,8 @@ module ChaiMicroSql.TypeChecker (
         inferSelectList,
         inferFromTable,
         inferFromList,
-        inferSelectQuery
+        inferSelectQuery,
+        __attributeNotInSourceError
     ) where
 
 import qualified ChaiMicroSql.AST         as AST
@@ -204,14 +205,21 @@ inferSelectQuery c (AST.ASTSelectQuery as fs) = do
     let fc = foldl __extendFromRecordPair c fts
     let fac = foldl __extendFromRecordPairAttributes fc fts
     ats <- inferSelectList fac as
-    pure $ __resolveView fats ats
+    let rs = __resolveView fats ats
+    case any isLeft rs of
+        True  -> Left $ TE.combineErrors $ lefts rs
+        False -> pure $ rights rs
 
-__resolveView :: [TAST.TASTSimpleAtomicIndexPair] -> [TAST.TASTSimpleAtomicIndex] -> TAST.TASTDbView
+
+__resolveView :: [TAST.TASTSimpleAtomicIndexPair] -> [TAST.TASTSimpleAtomicIndex] -> [Either TCInferenceError TAST.TASTSimpleAtomicIndexPair]
 __resolveView fs = foldl (__resolveIndexesToView fs) []
 
-__resolveIndexesToView :: [TAST.TASTSimpleAtomicIndexPair] -> TAST.TASTDbView -> TAST.TASTSimpleAtomicIndex -> TAST.TASTDbView
-__resolveIndexesToView ps vs TAST.TASTSimpleTypeRecordTotal    = vs ++ ps
-__resolveIndexesToView _ vs (TAST.TASTSimpleAtomicIndexPair p) = vs ++ [p]
+__resolveIndexesToView :: [TAST.TASTSimpleAtomicIndexPair] -> [Either TCInferenceError TAST.TASTSimpleAtomicIndexPair] -> TAST.TASTSimpleAtomicIndex ->  [Either TCInferenceError TAST.TASTSimpleAtomicIndexPair]
+__resolveIndexesToView ps vs TAST.TASTSimpleTypeRecordTotal    = vs ++ map pure ps
+__resolveIndexesToView ps vs (TAST.TASTSimpleAtomicIndexPair p) = if p `elem` ps then vs ++ [Right p] else vs ++ [Left $ __attributeNotInSourceError p ]
+
+__attributeNotInSourceError :: TAST.TASTSimpleAtomicIndexPair -> TCInferenceError
+__attributeNotInSourceError (TAST.TASTSimpleAtomicIndexKeyValue k _ ) = TE.makeError $ "The requested attribute is not known in the provided source: `" ++ CU.toString k ++ "`"
 
 __collectAttributes :: [TAST.TASTSimpleAtomicIndexPair] -> TAST.TASTSimpleRecordIndexPair -> [TAST.TASTSimpleAtomicIndexPair]
 __collectAttributes xs (TAST.TASTSimpleRecordIndexKeyValue _ r) = xs ++ TAST.indexes r
