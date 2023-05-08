@@ -35,64 +35,66 @@ Some supported examples:
 module ChaiMicroSql.AST ( module ChaiMicroSql.AST ) where
 
 import qualified ChaiMicroSql.CommonUtils as CU
-import qualified ChaiMicroSql.TAST        as TAST
 
--- Basic AST
--- ~~~~~~~~~
-
--- | An optional type hint wrapper
-data ASTTypeHinted a b = ASTTypeHinted a (Maybe b)
-    deriving (Show, Eq)
-
--- | A regular select query with an optional type hint.
-type ASTTypeHintedSelectQuery = ASTTypeHinted ASTSelectQuery TAST.TASTDbView
+-- AST without type information
+-- ----------------------------
 
 -- | A single SQL select query.
--- @Typed@
-data ASTSelectQuery = ASTSelectQuery ASTSelectList ASTFromList
-    deriving (Show, Eq)
+type ASTSelectQuery = GASTSelectQueryTyped ASTSelectAttribute ASTFromTable ()
 
--- | A list of all attribute access.
--- @Typed@
-type ASTSelectList = [ASTSelectAttribute]
+-- | A single sub query access.
+--
+--      [Note]: is used to untie the type-level recursion.
+--
+newtype ASTSelectSubQuery = ASTSelectSubQuery ASTSelectQuery
 
 -- | A single attribute access.
--- @Typed@
-data ASTSelectAttribute
-    = ASTSelectAttributeStar ASTSelectAttributeStarTotalRecord                      -- ^ e.g. @SELECT *@
-    | ASTSelectAttributeReference ASTSelectAttributeReference                       -- ^ e.g. @SELECT X@
-    | ASTSelectAttributeReferenceAlias ASTSelectAttributeReference ASTSimpleAlias   -- ^ e.g. @SELECT X AS Y@
+type ASTSelectAttribute = GASTSelectAttributeTyped ASTSelectAttributeReference ()
+
+-- | A single reference access.
+type ASTSelectAttributeReference = GASTSelectAttributeReferenceTyped ()
+
+-- | A single from source access.
+type ASTFromTable = GASTFromTableTyped ASTSelectSubQuery ()
+
+-- Typed AST building blocks
+-- -------------------------
+
+
+-- | A single SQL select query.
+data GASTSelectQueryTyped s f t = GASTSelectQueryTyped [s] [f] t
     deriving (Show, Eq)
 
--- | A constant total record representation.
--- @Typed@
-data ASTSelectAttributeStarTotalRecord = ASTSelectAttributeStarTotalRecord deriving (Show, Eq)
+-- | A single attribute access.
+data GASTSelectAttributeTyped r t
+    = GASTSelectAttributeTypedStar ASTSelectAttributeStarTotalRecord t  -- ^ e.g. @SELECT *@
+    | GASTSelectAttributeTypedReference r t                             -- ^ e.g. @SELECT X@
+    | GASTSelectAttributeTypedReferenceAlias r ASTSimpleAlias t         -- ^ e.g. @SELECT X AS Y@
+    deriving (Show, Eq)
 
 -- | A single attribute reference.
--- @Typed@
-data ASTSelectAttributeReference
-    = ASTSelectAttributeReferenceUnqualified ASTVariable                -- ^ e.g. `X`
-    | ASTSelectAttributeReferenceQualified ASTVariable ASTVariable      -- ^ e.g. `X.Y`
+data GASTSelectAttributeReferenceTyped t
+    = GASTSelectAttributeReferenceTypedUnqualified ASTVariable t               -- ^ e.g. `X`
+    | GASTSelectAttributeReferenceTypedQualified ASTVariable ASTVariable t     -- ^ e.g. `X.Y`
     deriving (Show, Eq)
 
--- | A list of all source table access.
--- @Typed@
-type ASTFromList = [ASTFromTable]
-
 -- | A single table access.
--- @Typed@
-data ASTFromTable
-    = ASTFromTableReference ASTVariable                                 -- ^ e.g. @FROM X@
-    | ASTFromTableReferenceAlias ASTVariable ASTSimpleAlias             -- ^ e.g. @FROM X AS Y@
-    | ASTFromNestedQueryReferenceAlias ASTTypeHintedSelectQuery ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
+data GASTFromTableTyped q t
+    = GASTFromTableTypedReference ASTVariable t                                                 -- ^ e.g. @FROM X@
+    | GASTFromTableTypedReferenceAlias ASTVariable ASTSimpleAlias t                             -- ^ e.g. @FROM X AS Y@
+    | GASTFromNestedQueryTypedReferenceAlias q ASTSimpleAlias t   -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
 -- Common utilities
 -- ----------------
 
+-- | A constant total record representation.
+data ASTSelectAttributeStarTotalRecord = ASTSelectAttributeStarTotalRecord deriving (Show, Eq)
+
 -- | A simple variable name wrapper.
 -- @Typed@
 newtype ASTVariable = ASTVariable String deriving (Show, Eq)
+
 -- | A simple alias name wrapper.
 newtype ASTSimpleAlias = ASTSimpleAlias String deriving (Show, Eq)
 
