@@ -34,8 +34,8 @@ newtype TCXSimpleTypeContextKey = TCXSimpleTypeContextKey String deriving (Show,
 
 -- | Simple wrapper for Context contents.
 data TCXSimpleTypeContextValue
-    = TCXSimpleTypeContextValueAtomic TAST.TASTAtomicType        -- a recorded key points to an atomic type.
-    | TCXSimpleTypeContextValueRecord TAST.TASTSimpleTypeRecord  -- a recorded key points to a record type.
+    = TCXSimpleTypeContextValueAtomic TAST.TAstAtomicType        -- a recorded key points to an atomic type.
+    | TCXSimpleTypeContextValueRecord TAST.TAstSimpleTypeRecord  -- a recorded key points to a record type.
     deriving (Show, Eq)
 
 -- Context operations
@@ -58,8 +58,8 @@ freshContext = M.empty
 --
 -- Examples:
 --
--- >>> show $ extend (makeKey "foo") (contextualize TAST.TASTAtomicTypeBool) freshContext
--- "fromList [(TCXSimpleTypeContextKey \"foo\",TCXSimpleTypeContextValueAtomic TASTAtomicTypeBool)]"
+-- >>> show $ extend (makeKey "foo") (contextualize TAST.TAstAtomicTypeBool) freshContext
+-- "fromList [(TCXSimpleTypeContextKey \"foo\",TCXSimpleTypeContextValueAtomic TypeAtomicTypeBool)]"
 extend :: TCXSimpleTypeContextKey -> TCXSimpleTypeContextValue -> TCXSimpleTypeContext -> TCXSimpleTypeContext
 extend = M.insert
 
@@ -75,20 +75,20 @@ class Contextable a where
     contextualize :: a -> TCXSimpleTypeContextValue
     decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError a
 
-instance Contextable TAST.TASTAtomicType where
-    contextualize ::  TAST.TASTAtomicType -> TCXSimpleTypeContextValue
+instance Contextable TAST.TAstAtomicType where
+    contextualize ::  TAST.TAstAtomicType -> TCXSimpleTypeContextValue
     contextualize = TCXSimpleTypeContextValueAtomic
-    decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError TAST.TASTAtomicType
+    decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError TAST.TAstAtomicType
     decontextualize (TCXSimpleTypeContextValueAtomic a) = Right a
     decontextualize (TCXSimpleTypeContextValueRecord _) = Left __recordNotAtomError
 
 __recordNotAtomError :: TCXContextError
 __recordNotAtomError = TE.makeError "Can not retrieve atomic type from stored record."
 
-instance Contextable TAST.TASTSimpleTypeRecord where
-    contextualize ::  TAST.TASTSimpleTypeRecord -> TCXSimpleTypeContextValue
+instance Contextable TAST.TAstSimpleTypeRecord where
+    contextualize ::  TAST.TAstSimpleTypeRecord -> TCXSimpleTypeContextValue
     contextualize = TCXSimpleTypeContextValueRecord
-    decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError TAST.TASTSimpleTypeRecord
+    decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError TAST.TAstSimpleTypeRecord
     decontextualize (TCXSimpleTypeContextValueRecord r) = Right r
     decontextualize (TCXSimpleTypeContextValueAtomic _) = Left __atomNotRecordError
 

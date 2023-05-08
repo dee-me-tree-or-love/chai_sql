@@ -1,5 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
-{- | The ASTT for a Micro SQL fragment.
+{- | The AstT for a Micro SQL fragment.
 
 = /Micro/ SQL Fragment
 
@@ -44,61 +44,61 @@ import qualified ChaiMicroSql.TypeErrors  as TE
 type TypeHintAnnotation a b = (a, Either TE.TEBaseError b)
 
 -- | A single SQL select query with possible type hint and required annotation.
-type ASTSelectQueryHintedAnnotated = GASTSelectQueryTyped
-    (TypeHintAnnotation () TAST.TASTSimpleAtomicIndexPair)
-    (TypeHintAnnotation () TAST.TASTSimpleAtomicIndex)
-    (TypeHintAnnotation () TAST.TASTSimpleRecordIndexPair)
-    (Maybe TAST.TASTDbView)
+type AstSelectQueryHintedAnnotated = GAstSelectQuery
+    (TypeHintAnnotation () TAST.TAstSimpleAtomicIndexPair)
+    (TypeHintAnnotation () TAST.TAstSimpleAtomicIndex)
+    (TypeHintAnnotation () TAST.TAstSimpleRecordIndexPair)
+    (Maybe TAST.TAstDbView)
 
 
 -- AST with type hints
 -- -------------------
 
 -- | A single SQL select query with an optional type hint.
-type ASTSelectQueryHinted = GASTSelectQueryTyped () () () (Maybe TAST.TASTDbView)
+type AstSelectQueryHinted = GAstSelectQuery () () () (Maybe TAST.TAstDbView)
 
 -- AST without type information
 -- ----------------------------
 
 -- | A single SQL select query.
-type ASTSelectQuery = GASTSelectQueryTyped () () () ()
+type AstSelectQuery = GAstSelectQuery () () () ()
 
 
 -- Typed AST building blocks
 -- -------------------------
 
 -- | A single SQL select query.
-data GASTSelectQueryTyped srt sat ft t
-    = GASTSelectQueryTyped t
-        [GASTSelectAttributeTyped srt sat]
-        [GASTFromTableTyped srt sat ft t]
+data GAstSelectQuery srt sat ft t
+    = GAstSelectQuery t
+        [GAstSelectAttributeAccess srt sat]
+        [GAstFromAccess srt sat ft t]
     deriving (Show, Eq)
 
 -- | A single attribute access.
-data GASTSelectAttributeTyped rt t
-    = GASTSelectAttributeTypedStar t ASTSelectAttributeStarTotalRecord                                  -- ^ e.g. @SELECT *@
-    | GASTSelectAttributeTypedReference t (GASTSelectAttributeReferenceTyped rt)                        -- ^ e.g. @SELECT X@
-    | GASTSelectAttributeTypedReferenceAlias t (GASTSelectAttributeReferenceTyped rt) ASTSimpleAlias    -- ^ e.g. @SELECT X AS Y@
+data GAstSelectAttributeAccess rt t
+    = GAstSelectAttributeAccessStar t AstSelectAttributeStarTotalRecord                                  -- ^ e.g. @SELECT *@
+    | GAstSelectAttributeAccessReference t (GAstSelectAttributeReference rt)                        -- ^ e.g. @SELECT X@
+    | GAstSelectAttributeAccessReferenceAlias t (GAstSelectAttributeReference rt) AstSimpleAlias    -- ^ e.g. @SELECT X AS Y@
     deriving (Show, Eq)
 
 -- | A single attribute reference.
-data GASTSelectAttributeReferenceTyped t
-    = GASTSelectAttributeReferenceTypedUnqualified t ASTVariable               -- ^ e.g. `X`
-    | GASTSelectAttributeReferenceTypedQualified t ASTVariable ASTVariable     -- ^ e.g. `X.Y`
+data GAstSelectAttributeReference t
+    = GAstSelectAttributeReferenceUnqualified t AstVariable               -- ^ e.g. `X`
+    | GAstSelectAttributeReferenceQualified t AstVariable AstVariable     -- ^ e.g. `X.Y`
     deriving (Show, Eq)
 
 -- | A single sub query access.
 --
 --      [Note]: is used to untie the type-level recursion.
 --
-newtype GASTSelectSubQueryTyped srt sat ft t = GASTSelectSubQueryTyped (GASTSelectQueryTyped srt sat ft t)
+newtype GAstSelectSubQuery srt sat ft t = GAstSelectSubQuery (GAstSelectQuery srt sat ft t)
     deriving (Show, Eq)
 
 -- | A single table access.
-data GASTFromTableTyped srt sat qt t
-    = GASTFromTableTypedReference t ASTVariable                                                         -- ^ e.g. @FROM X@
-    | GASTFromTableTypedReferenceAlias t ASTVariable ASTSimpleAlias                                     -- ^ e.g. @FROM X AS Y@
-    | GASTFromNestedQueryTypedReferenceAlias t (GASTSelectSubQueryTyped srt sat t qt) ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
+data GAstFromAccess srt sat qt t
+    = GAstFromAccessReference t AstVariable                                                         -- ^ e.g. @FROM X@
+    | GAstFromAccessReferenceAlias t AstVariable AstSimpleAlias                                     -- ^ e.g. @FROM X AS Y@
+    | GAstFromAccessNestedQueryAlias t (GAstSelectSubQuery srt sat t qt) AstSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
 
@@ -107,19 +107,19 @@ data GASTFromTableTyped srt sat qt t
 
 
 -- | A constant total record representation.
-data ASTSelectAttributeStarTotalRecord = ASTSelectAttributeStarTotalRecord deriving (Show, Eq)
+data AstSelectAttributeStarTotalRecord = AstSelectAttributeStarTotalRecord deriving (Show, Eq)
 
 -- | A simple variable name wrapper.
 -- @Typed@
-newtype ASTVariable = ASTVariable String deriving (Show, Eq)
+newtype AstVariable = AstVariable String deriving (Show, Eq)
 
 -- | A simple alias name wrapper.
-newtype ASTSimpleAlias = ASTSimpleAlias String deriving (Show, Eq)
+newtype AstSimpleAlias = AstSimpleAlias String deriving (Show, Eq)
 
-instance CU.ToStringable ASTVariable where
-    toString :: ASTVariable -> String
-    toString (ASTVariable v) = v
+instance CU.ToStringable AstVariable where
+    toString :: AstVariable -> String
+    toString (AstVariable v) = v
 
-instance CU.ToStringable ASTSimpleAlias where
-    toString :: ASTSimpleAlias -> String
-    toString (ASTSimpleAlias a) = a
+instance CU.ToStringable AstSimpleAlias where
+    toString :: AstSimpleAlias -> String
+    toString (AstSimpleAlias a) = a

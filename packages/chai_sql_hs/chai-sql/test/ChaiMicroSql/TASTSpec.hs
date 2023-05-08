@@ -11,7 +11,7 @@ spec = do
     THS.describe "Type AST of" $ do
         THS.describe "a simple record" $ do
             THS.it "parses" $ do
-                let a = M.fromList [(TAST.TASTSimpleIndexKey "foo", TAST.TASTAtomicTypeBool)] :: TAST.TASTSimpleTypeRecord
+                let a = M.fromList [(TAST.TAstSimpleIndexKey "foo", TAST.TAstAtomicTypeBool)] :: TAST.TAstSimpleTypeRecord
                 let p = id -- TODO(backlog): define a parse function
                 THS.shouldBe (p a) a
 
@@ -19,6 +19,6 @@ spec = do
         THS.describe "of IndexKey" $ do
             THS.it "returns key name" $ do
                 let n = "foo"
-                let v = TAST.TASTSimpleIndexKey n
+                let v = TAST.TAstSimpleIndexKey n
                 let f = CU.toString
                 THS.shouldBe (f v) n
