@@ -1,3 +1,6 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use if" #-}
 {- | The Type Checker (Inference-based) for a Micro SQL fragment for ChaiSQL.
@@ -64,6 +67,33 @@ import           Data.Either              (isLeft, lefts, rights)
 
 -- | Simple alias for containing a type checker error.
 type TCInferenceError = TE.TEBaseError
+
+class Inferrable a t where
+    infer :: TCX.TCXSimpleTypeContext -> a -> Either TCInferenceError t
+
+instance TCX.Contextable t => (Inferrable AST.AstVariable t) where
+    infer = inferVar
+
+instance (Inferrable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomicIndex) where
+    infer = inferTotalRecord
+
+instance (Inferrable (AST.GAstSelectAttributeReference ()) TAST.TAstSimpleAtomicIndexPair) where
+    infer = inferAttributeReference
+
+instance (Inferrable (AST.GAstSelectAttributeAccess () ()) TAST.TAstSimpleAtomicIndex) where
+    infer = inferAttribute
+
+instance (Inferrable [AST.GAstSelectAttributeAccess () ()] [TAST.TAstSimpleAtomicIndex]) where
+    infer = inferSelectList
+
+instance (Inferrable (AST.GAstFromAccess () () () a) TAST.TAstSimpleRecordIndexPair) where
+    infer = inferFromTable
+
+instance (Inferrable [AST.GAstFromAccess () () () a] [TAST.TAstSimpleRecordIndexPair]) where
+    infer = inferFromList
+
+instance (Inferrable (AST.GAstSelectQuery () () () a) TAST.TAstDbView) where
+    infer = inferSelectQuery
 
 -- Axioms
 -- ------
