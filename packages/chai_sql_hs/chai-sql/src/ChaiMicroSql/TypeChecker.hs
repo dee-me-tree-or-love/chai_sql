@@ -1,6 +1,6 @@
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use if" #-}
 {- | The Type Checker (Inference-based) for a Micro SQL fragment for ChaiSQL.
@@ -72,27 +72,35 @@ class Inferrable a t where
     infer :: TCX.TCXSimpleTypeContext -> a -> Either TCInferenceError t
 
 instance TCX.Contextable t => (Inferrable AST.AstVariable t) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.AstVariable -> Either TCInferenceError t
     infer = inferVar
 
 instance (Inferrable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomicIndex) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeStarTotalRecord -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
     infer = inferTotalRecord
 
 instance (Inferrable (AST.GAstSelectAttributeReference ()) TAST.TAstSimpleAtomicIndexPair) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference () -> Either TCInferenceError TAST.TAstSimpleAtomicIndexPair
     infer = inferAttributeReference
 
 instance (Inferrable (AST.GAstSelectAttributeAccess () ()) TAST.TAstSimpleAtomicIndex) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess () () -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
     infer = inferAttribute
 
 instance (Inferrable [AST.GAstSelectAttributeAccess () ()] [TAST.TAstSimpleAtomicIndex]) where
+    infer :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess () ()] -> Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
     infer = inferSelectList
 
 instance (Inferrable (AST.GAstFromAccess () () () a) TAST.TAstSimpleRecordIndexPair) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess () () () a -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
     infer = inferFromTable
 
 instance (Inferrable [AST.GAstFromAccess () () () a] [TAST.TAstSimpleRecordIndexPair]) where
+    infer :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess () () () a] -> Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
     infer = inferFromList
 
 instance (Inferrable (AST.GAstSelectQuery () () () a) TAST.TAstDbView) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery () () () a -> Either TCInferenceError TAST.TAstDbView
     infer = inferSelectQuery
 
 -- Axioms
