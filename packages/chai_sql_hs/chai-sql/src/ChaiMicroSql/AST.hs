@@ -58,37 +58,46 @@ class TypeInfoable a where
     getTypeInfo :: a t -> t
 
 -- | A single SQL select query.
-data GAstSelectQuery srt sat ft t
+data GAstSelectQuery
+        srt -- ^ Select reference type info
+        sat -- ^ Select access type info
+        ft  -- ^ From access type info
+        st  -- ^ Star type info
+        vt  -- ^ Variable type info
+        at  -- ^ Alias type info
+        t   -- ^ Query type info
     = GAstSelectQuery t
-        [GAstSelectAttributeAccess srt sat]
-        [GAstFromAccess srt sat t ft]
+        [GAstSelectAttributeAccess srt st vt at sat]
+        [GAstFromAccess srt sat t st vt at ft]
     deriving (Show, Eq)
 
-instance TypeInfoable (GAstSelectQuery a b c) where
-    getTypeInfo :: GAstSelectQuery a b c t -> t
+instance TypeInfoable (GAstSelectQuery a b c d e f) where
     getTypeInfo (GAstSelectQuery t _ _) = t
 
 -- | A single attribute access.
-data GAstSelectAttributeAccess rt t
-    = GAstSelectAttributeAccessStar t AstSelectAttributeStarTotalRecord                             -- ^ e.g. @SELECT *@
-    | GAstSelectAttributeAccessReference t (GAstSelectAttributeReference rt)                        -- ^ e.g. @SELECT X@
-    | GAstSelectAttributeAccessReferenceAlias t (GAstSelectAttributeReference rt) AstSimpleAlias    -- ^ e.g. @SELECT X AS Y@
+data GAstSelectAttributeAccess
+        rt  -- ^ Select reference type info
+        st  -- ^ Star type
+        vt  -- ^ Variable type
+        at  -- ^ Alias type
+        t   -- ^ Select access type
+    = GAstSelectAttributeAccessStar t (GAstSelectAttributeStarTotalRecord st)                          -- ^ e.g. @SELECT *@
+    | GAstSelectAttributeAccessReference t (GAstSelectAttributeReference vt rt)                        -- ^ e.g. @SELECT X@
+    | GAstSelectAttributeAccessReferenceAlias t (GAstSelectAttributeReference vt rt) (GAstSimpleAlias at)    -- ^ e.g. @SELECT X AS Y@
     deriving (Show, Eq)
 
-instance TypeInfoable (GAstSelectAttributeAccess a) where
-    getTypeInfo :: GAstSelectAttributeAccess a t -> t
+instance TypeInfoable (GAstSelectAttributeAccess a b c d) where
     getTypeInfo (GAstSelectAttributeAccessStar t _)             = t
     getTypeInfo (GAstSelectAttributeAccessReference t _)        = t
     getTypeInfo (GAstSelectAttributeAccessReferenceAlias t _ _) = t
 
 -- | A single attribute reference.
-data GAstSelectAttributeReference t
-    = GAstSelectAttributeReferenceUnqualified t AstVariable               -- ^ e.g. `X`
-    | GAstSelectAttributeReferenceQualified t AstVariable AstVariable     -- ^ e.g. `X.Y`
+data GAstSelectAttributeReference vt t
+    = GAstSelectAttributeReferenceUnqualified t (GAstVariable vt)               -- ^ e.g. `X`
+    | GAstSelectAttributeReferenceQualified t (GAstVariable vt) (GAstVariable vt)     -- ^ e.g. `X.Y`
     deriving (Show, Eq)
 
-instance TypeInfoable GAstSelectAttributeReference where
-    getTypeInfo :: GAstSelectAttributeReference t -> t
+instance TypeInfoable (GAstSelectAttributeReference a) where
     getTypeInfo (GAstSelectAttributeReferenceUnqualified t _) = t
     getTypeInfo (GAstSelectAttributeReferenceQualified t _ _) = t
 
@@ -96,22 +105,36 @@ instance TypeInfoable GAstSelectAttributeReference where
 --
 --      [Note]: is used to untie the type-level recursion.
 --
-newtype GAstSelectSubQuery srt sat ft t = GAstSelectSubQuery (GAstSelectQuery srt sat ft t)
+newtype GAstSelectSubQuery
+        srt -- ^ Select reference type info
+        sat -- ^ Select access type info
+        ft  -- ^ From access type info
+        st  -- ^ Star type info
+        vt  -- ^ Variable type info
+        at  -- ^ Alias type info
+        t   -- ^ Query type info
+    = GAstSelectSubQuery (GAstSelectQuery srt sat ft st vt at t)
     deriving (Show, Eq)
 
-instance TypeInfoable (GAstSelectSubQuery a b c) where
-    getTypeInfo :: GAstSelectSubQuery a b c t -> t
+instance TypeInfoable (GAstSelectSubQuery a b c d e f) where
     getTypeInfo (GAstSelectSubQuery q) = getTypeInfo q
 
+
 -- | A single table access.
-data GAstFromAccess srt sat qt t
-    = GAstFromAccessReference t AstVariable                                                 -- ^ e.g. @FROM X@
-    | GAstFromAccessReferenceAlias t AstVariable AstSimpleAlias                             -- ^ e.g. @FROM X AS Y@
-    | GAstFromAccessNestedQueryAlias t (GAstSelectSubQuery srt sat t qt) AstSimpleAlias     -- ^ e.g. @FROM (...) AS Y@
+data GAstFromAccess
+        srt -- ^ Select reference type info
+        sat -- ^ Select access type info
+        qt  -- ^ Query type info
+        st  -- ^ Star type info
+        vt  -- ^ Variable type info
+        at  -- ^ Alias type info
+        t   -- ^ From type info
+    = GAstFromAccessReference t (GAstVariable vt)                                                 -- ^ e.g. @FROM X@
+    | GAstFromAccessReferenceAlias t (GAstVariable vt) (GAstSimpleAlias at)                             -- ^ e.g. @FROM X AS Y@
+    | GAstFromAccessNestedQueryAlias t (GAstSelectSubQuery srt sat t st vt at qt) (GAstSimpleAlias at)     -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
 
-instance TypeInfoable (GAstFromAccess a b c) where
-    getTypeInfo :: GAstFromAccess a b c t -> t
+instance TypeInfoable (GAstFromAccess a b c d e f) where
     getTypeInfo (GAstFromAccessReference t _)          = t
     getTypeInfo (GAstFromAccessReferenceAlias t _ _)   = t
     getTypeInfo (GAstFromAccessNestedQueryAlias t _ _) = t
@@ -122,19 +145,31 @@ instance TypeInfoable (GAstFromAccess a b c) where
 
 
 -- | A constant total record representation.
-data AstSelectAttributeStarTotalRecord = AstSelectAttributeStarTotalRecord deriving (Show, Eq)
+newtype GAstSelectAttributeStarTotalRecord t = GAstSelectAttributeStarTotalRecord t deriving (Show, Eq)
+
+instance TypeInfoable GAstSelectAttributeStarTotalRecord where
+    getTypeInfo :: GAstSelectAttributeStarTotalRecord t -> t
+    getTypeInfo (GAstSelectAttributeStarTotalRecord t) = t
 
 -- | A simple variable name wrapper.
 -- @Typed@
-newtype AstVariable = AstVariable String deriving (Show, Eq)
+data GAstVariable t = GAstVariable t String deriving (Show, Eq)
+
+instance TypeInfoable GAstVariable where
+    getTypeInfo :: GAstVariable t -> t
+    getTypeInfo (GAstVariable t _) = t
 
 -- | A simple alias name wrapper.
-newtype AstSimpleAlias = AstSimpleAlias String deriving (Show, Eq)
+data GAstSimpleAlias t = GAstSimpleAlias t String deriving (Show, Eq)
 
-instance CU.ToStringable AstVariable where
-    toString :: AstVariable -> String
-    toString (AstVariable v) = v
+instance TypeInfoable GAstSimpleAlias where
+    getTypeInfo :: GAstSimpleAlias t -> t
+    getTypeInfo (GAstSimpleAlias t _) = t
 
-instance CU.ToStringable AstSimpleAlias where
-    toString :: AstSimpleAlias -> String
-    toString (AstSimpleAlias a) = a
+instance CU.ToStringable (GAstVariable a) where
+    toString :: GAstVariable a -> String
+    toString (GAstVariable _ v) = v
+
+instance CU.ToStringable (GAstSimpleAlias a) where
+    toString :: GAstSimpleAlias a -> String
+    toString (GAstSimpleAlias _ a) = a
