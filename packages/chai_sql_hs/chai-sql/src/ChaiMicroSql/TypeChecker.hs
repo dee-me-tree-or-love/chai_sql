@@ -69,6 +69,7 @@ import           Data.Either              (isLeft, lefts, rights)
 type TCInferenceError = TE.TEBaseError
 
 class Inferrable a t where
+    -- TODO: add annotate :: ...
     infer :: TCX.TCXSimpleTypeContext -> a -> Either TCInferenceError t
 
 instance TCX.Contextable t => (Inferrable AST.AstVariable t) where
@@ -81,15 +82,20 @@ instance (Inferrable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomic
 
 instance (Inferrable (AST.GAstSelectAttributeReference ()) TAST.TAstSimpleAtomicIndexPair) where
     infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference () -> Either TCInferenceError TAST.TAstSimpleAtomicIndexPair
-    infer = inferAttributeReference
+    infer c v = snd . AST.getTypeInfo $ annotateAttributeReference c v
 
 instance (Inferrable (AST.GAstSelectAttributeAccess () ()) TAST.TAstSimpleAtomicIndex) where
     infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess () () -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
-    infer = inferAttribute
+    infer c v = snd . AST.getTypeInfo $ annotateAttribute c v
 
 instance (Inferrable [AST.GAstSelectAttributeAccess () ()] [TAST.TAstSimpleAtomicIndex]) where
     infer :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess () ()] -> Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
-    infer = inferSelectList
+    infer c vs = do
+        let ats = annotateSelectList c vs
+        let ets = map (snd . AST.getTypeInfo) ats
+        case any isLeft ets of
+            True  -> Left $ TE.combineErrors $ lefts ets
+            False -> Right $ rights ets
 
 instance (Inferrable (AST.GAstFromAccess () () () a) TAST.TAstSimpleRecordIndexPair) where
     infer :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess () () () a -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
@@ -138,6 +144,23 @@ inferTotalRecord _ _ = Right TAST.TAstSimpleTypeRecordTotal
 --
 --      [Note]: Corresponds to the Rule @R1@
 --
+annotateAttributeReference :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference a -> AST.GAstSelectAttributeReference (a, Either TCInferenceError TAST.TAstSimpleAtomicIndexPair)
+annotateAttributeReference c (AST.GAstSelectAttributeReferenceUnqualified t v) = do
+    let vt = infer c v
+    let k = TAST.makeKey $ CU.toString v
+    let at = TAST.TAstSimpleAtomicIndexKeyValue k <$> vt
+    AST.GAstSelectAttributeReferenceUnqualified (t, at) v
+annotateAttributeReference c (AST.GAstSelectAttributeReferenceQualified t b v) = do
+    let bt = infer c b
+    let k = TAST.makeKey $ CU.toString v
+    let vt = TAST.get k <$> bt
+    case vt of
+        -- TODO(tech debt): make the inject of type info generic
+        Left e -> AST.GAstSelectAttributeReferenceQualified (t, Left e) b v
+        Right Nothing -> AST.GAstSelectAttributeReferenceQualified (t, Left $ __recordUnknownAttributeError b v) b v
+        Right (Just at) -> AST.GAstSelectAttributeReferenceQualified (t, Right $ TAST.TAstSimpleAtomicIndexKeyValue k at) b v
+
+-- TODO: deprecate
 inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference a -> Either TCInferenceError TAST.TAstSimpleAtomicIndexPair
 inferAttributeReference c (AST.GAstSelectAttributeReferenceUnqualified _ v) = do
     at <- inferVar c v
@@ -161,6 +184,21 @@ __recordUnknownAttributeError b v = TE.makeError $ "Record `" ++ bs ++ "` does n
 --
 --      [Note]: Corresponds to Rule @R2@
 --
+annotateAttribute :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess () () -> AST.GAstSelectAttributeAccess () ((), Either TCInferenceError TAST.TAstSimpleAtomicIndex)
+annotateAttribute c (AST.GAstSelectAttributeAccessStar t s)             = do
+    let at = inferTotalRecord c s
+    AST.GAstSelectAttributeAccessStar (t, at) s
+annotateAttribute c (AST.GAstSelectAttributeAccessReference t a)        = do
+    let at = infer c a
+    AST.GAstSelectAttributeAccessReference (t, TAST.TAstSimpleAtomicIndexPair <$> at) a
+annotateAttribute c (AST.GAstSelectAttributeAccessReferenceAlias t a l@(AST.AstSimpleAlias b)) = do
+    let at = infer c a
+    case at of
+        Left e -> AST.GAstSelectAttributeAccessReferenceAlias (t, Left e) a l
+        Right (TAST.TAstSimpleAtomicIndexKeyValue _ v) -> AST.GAstSelectAttributeAccessReferenceAlias (t,i) a l
+            where i = pure $ TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.makeKey b) v
+
+-- TODO: deprecate
 inferAttribute :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess a b -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
 inferAttribute c (AST.GAstSelectAttributeAccessStar _ s)             = inferTotalRecord c s
 inferAttribute c (AST.GAstSelectAttributeAccessReference _ a)        = do
@@ -174,6 +212,10 @@ inferAttribute c (AST.GAstSelectAttributeAccessReferenceAlias _ a (AST.AstSimple
 --
 --      [Note]: Corresponds to Rule @R3@
 --
+annotateSelectList :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess () ()] -> [AST.GAstSelectAttributeAccess () ((),  Either TCInferenceError TAST.TAstSimpleAtomicIndex)]
+annotateSelectList c = map (annotateAttribute c)
+
+-- TODO: deprecate
 inferSelectList :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess a b] -> Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
 inferSelectList c as = do
     let ets = map (inferAttribute c) as

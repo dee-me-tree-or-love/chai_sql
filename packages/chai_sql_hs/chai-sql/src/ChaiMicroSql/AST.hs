@@ -67,6 +67,9 @@ type AstSelectQuery = GAstSelectQuery () () () ()
 -- Typed AST building blocks
 -- -------------------------
 
+class TypeInfoable a where
+    getTypeInfo :: a t -> t
+
 -- | A single SQL select query.
 data GAstSelectQuery srt sat ft t
     = GAstSelectQuery t
@@ -74,18 +77,33 @@ data GAstSelectQuery srt sat ft t
         [GAstFromAccess srt sat ft t]
     deriving (Show, Eq)
 
+instance TypeInfoable (GAstSelectQuery a b c) where
+    getTypeInfo :: GAstSelectQuery a b c t -> t
+    getTypeInfo (GAstSelectQuery t _ _) = t
+
 -- | A single attribute access.
 data GAstSelectAttributeAccess rt t
-    = GAstSelectAttributeAccessStar t AstSelectAttributeStarTotalRecord                                  -- ^ e.g. @SELECT *@
+    = GAstSelectAttributeAccessStar t AstSelectAttributeStarTotalRecord                             -- ^ e.g. @SELECT *@
     | GAstSelectAttributeAccessReference t (GAstSelectAttributeReference rt)                        -- ^ e.g. @SELECT X@
     | GAstSelectAttributeAccessReferenceAlias t (GAstSelectAttributeReference rt) AstSimpleAlias    -- ^ e.g. @SELECT X AS Y@
     deriving (Show, Eq)
+
+instance TypeInfoable (GAstSelectAttributeAccess a) where
+    getTypeInfo :: GAstSelectAttributeAccess a t -> t
+    getTypeInfo (GAstSelectAttributeAccessStar t _)             = t
+    getTypeInfo (GAstSelectAttributeAccessReference t _)        = t
+    getTypeInfo (GAstSelectAttributeAccessReferenceAlias t _ _) = t
 
 -- | A single attribute reference.
 data GAstSelectAttributeReference t
     = GAstSelectAttributeReferenceUnqualified t AstVariable               -- ^ e.g. `X`
     | GAstSelectAttributeReferenceQualified t AstVariable AstVariable     -- ^ e.g. `X.Y`
     deriving (Show, Eq)
+
+instance TypeInfoable GAstSelectAttributeReference where
+    getTypeInfo :: GAstSelectAttributeReference t -> t
+    getTypeInfo (GAstSelectAttributeReferenceUnqualified t _) = t
+    getTypeInfo (GAstSelectAttributeReferenceQualified t _ _) = t
 
 -- | A single sub query access.
 --
@@ -94,12 +112,22 @@ data GAstSelectAttributeReference t
 newtype GAstSelectSubQuery srt sat ft t = GAstSelectSubQuery (GAstSelectQuery srt sat ft t)
     deriving (Show, Eq)
 
+instance TypeInfoable (GAstSelectSubQuery a b c) where
+    getTypeInfo :: GAstSelectSubQuery a b c t -> t
+    getTypeInfo (GAstSelectSubQuery q) = getTypeInfo q
+
 -- | A single table access.
 data GAstFromAccess srt sat qt t
-    = GAstFromAccessReference t AstVariable                                                         -- ^ e.g. @FROM X@
-    | GAstFromAccessReferenceAlias t AstVariable AstSimpleAlias                                     -- ^ e.g. @FROM X AS Y@
-    | GAstFromAccessNestedQueryAlias t (GAstSelectSubQuery srt sat t qt) AstSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
+    = GAstFromAccessReference t AstVariable                                                 -- ^ e.g. @FROM X@
+    | GAstFromAccessReferenceAlias t AstVariable AstSimpleAlias                             -- ^ e.g. @FROM X AS Y@
+    | GAstFromAccessNestedQueryAlias t (GAstSelectSubQuery srt sat t qt) AstSimpleAlias     -- ^ e.g. @FROM (...) AS Y@
     deriving (Show, Eq)
+
+instance TypeInfoable (GAstFromAccess a b c) where
+    getTypeInfo :: GAstFromAccess a b c t -> t
+    getTypeInfo (GAstFromAccessReference t _)          = t
+    getTypeInfo (GAstFromAccessReferenceAlias t _ _)   = t
+    getTypeInfo (GAstFromAccessNestedQueryAlias t _ _) = t
 
 
 -- Common utilities
