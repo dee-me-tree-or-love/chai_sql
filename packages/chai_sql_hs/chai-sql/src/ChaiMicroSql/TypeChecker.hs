@@ -252,13 +252,33 @@ instance (Inferrable (AST.GAstFromAccess a b c d e f) TAST.TAstSimpleRecordIndex
 -- -- .................
 
 
--- -- | Select query with type inference.
--- --
--- --      [Note]: Corresponds to Rule @R4@
--- --
--- instance (Inferrable (AST.GAstSelectQuery a b c d e f) TAST.TAstDbView) where
---     infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery a b c d e f g -> Either TCInferenceError TAST.TAstDbView
---     infer c v = snd . AST.getTypeInfo $ annotateSelectQuery c v
+-- | Select query with type inference.
+--
+--      [Note]: Corresponds to Rule @R4@
+--
+instance (Inferrable (AST.GAstSelectQuery a b c d e f) TAST.TAstDbView) where
+    annotate :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery a b c d e f p -> AST.GAstSelectQuery a' b' c' d e f (p, Either TCInferenceError TAST.TAstDbView)
+    annotate c (AST.GAstSelectQuery t as fs) = do
+        -- let afts = annotateList c fs :: [AST.GAstFromAccess a b (p, Either TCInferenceError TAST.TAstDbView) d e f (c, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)]
+        -- TODO: add annotation
+        let efts = inferList c fs :: Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
+        case efts of
+            Right fts -> do
+                let fats = foldl __collectAttributes [] fts
+                let fac = foldl __extendFromAttributes c fats
+                let fc = foldl __extendFromRecordPair c fts
+                let uc = TCX.unite fc fac :: TCX.TCXSimpleTypeContext
+                -- TODO: add annotation
+                let eats = inferList uc as :: Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
+                case eats of
+                    Right ats -> do
+                        let rs = __resolveView fats ats
+                        let hsl = any isLeft rs
+                        -- get annotation type
+                        let at = if hsl then Left $ TE.combineErrors $ lefts rs else pure $ rights rs
+                        AST.GAstSelectQuery (t, at) (annotateList c as) (annotateList c fs)
+                    Left _  -> undefined
+            Left _ -> undefined
 
 -- -- | Select query result type inference.
 -- --
@@ -287,35 +307,30 @@ instance (Inferrable (AST.GAstFromAccess a b c d e f) TAST.TAstSimpleRecordIndex
 --     --                 AST.GAstSelectQuery (t, at) as afts
 
 
--- __resolveView :: [TAST.TAstSimpleAtomicIndexPair] -> [TAST.TAstSimpleAtomicIndex] -> [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair]
--- __resolveView fs = foldl (__resolveIndexesToView fs) []
+__resolveView :: [TAST.TAstSimpleAtomicIndexPair] -> [TAST.TAstSimpleAtomicIndex] -> [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair]
+__resolveView fs = foldl (__resolveIndexesToView fs) []
 
--- __resolveIndexesToView :: [TAST.TAstSimpleAtomicIndexPair] -> [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair] -> TAST.TAstSimpleAtomicIndex ->  [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair]
--- __resolveIndexesToView ps vs TAST.TAstSimpleTypeRecordTotal    = vs ++ map pure ps
--- __resolveIndexesToView ps vs (TAST.TAstSimpleAtomicIndexPair p) = if p `elem` ps then vs ++ [Right p] else vs ++ [Left $ __attributeNotInSourceError p ]
+__resolveIndexesToView :: [TAST.TAstSimpleAtomicIndexPair] -> [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair] -> TAST.TAstSimpleAtomicIndex ->  [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair]
+__resolveIndexesToView ps vs TAST.TAstSimpleTypeRecordTotal    = vs ++ map pure ps
+__resolveIndexesToView ps vs (TAST.TAstSimpleAtomicIndexPair p) = if p `elem` ps then vs ++ [Right p] else vs ++ [Left $ __attributeNotInSourceError p ]
 
 -- __attributeNotInSourceError :: TAST.TAstSimpleAtomicIndexPair -> TCInferenceError
 -- __attributeNotInSourceError (TAST.TAstSimpleAtomicIndexKeyValue k _ ) = TE.makeError $ "The requested attribute is not known in the provided source: `" ++ CU.toString k ++ "`"
 
--- __collectAttributes :: [TAST.TAstSimpleAtomicIndexPair] -> TAST.TAstSimpleRecordIndexPair -> [TAST.TAstSimpleAtomicIndexPair]
--- __collectAttributes xs (TAST.TAstSimpleRecordIndexKeyValue _ r) = xs ++ TAST.indexes r
+__collectAttributes :: [TAST.TAstSimpleAtomicIndexPair] -> TAST.TAstSimpleRecordIndexPair -> [TAST.TAstSimpleAtomicIndexPair]
+__collectAttributes xs (TAST.TAstSimpleRecordIndexKeyValue _ r) = xs ++ TAST.indexes r
 
--- __extendFromRecordPair :: TCX.TCXSimpleTypeContext -> TAST.TAstSimpleRecordIndexPair -> TCX.TCXSimpleTypeContext
--- __extendFromRecordPair c (TAST.TAstSimpleRecordIndexKeyValue k r) = __extend' c k r
+__extendFromRecordPair :: TCX.TCXSimpleTypeContext -> TAST.TAstSimpleRecordIndexPair -> TCX.TCXSimpleTypeContext
+__extendFromRecordPair c (TAST.TAstSimpleRecordIndexKeyValue k r) = __extend' c k r
 
--- __extendFromRecordPairAttributes :: TCX.TCXSimpleTypeContext -> TAST.TAstSimpleRecordIndexPair -> TCX.TCXSimpleTypeContext
--- __extendFromRecordPairAttributes c (TAST.TAstSimpleRecordIndexKeyValue _ r) = do
---     let ras = TAST.pairs r
---     foldl __extendFromAttributes c ras
+__extendFromAttributes :: TCX.TCXSimpleTypeContext -> TAST.TAstSimpleAtomicIndexPair -> TCX.TCXSimpleTypeContext
+__extendFromAttributes c (TAST.TAstSimpleAtomicIndexKeyValue k r) = __extend' c k r
 
--- __extendFromAttributes :: TCX.TCXSimpleTypeContext -> (TAST.TAstSimpleIndexKey, TAST.TAstAtomicType) -> TCX.TCXSimpleTypeContext
--- __extendFromAttributes c (k, a) = __extend' c k a
-
--- __extend' :: (CU.ToStringable a, TCX.Contextable b) => TCX.TCXSimpleTypeContext -> a -> b -> TCX.TCXSimpleTypeContext
--- __extend' c k r = do
---     let k' = TCX.makeKey $ CU.toString k
---     let r' = TCX.contextualize r
---     TCX.extend k' r' c
+__extend' :: (CU.ToStringable a, TCX.Contextable b) => TCX.TCXSimpleTypeContext -> a -> b -> TCX.TCXSimpleTypeContext
+__extend' c k r = do
+    let k' = TCX.makeKey $ CU.toString k
+    let r' = TCX.contextualize r
+    TCX.extend k' r' c
 
 
 -- -- Common Utilities
