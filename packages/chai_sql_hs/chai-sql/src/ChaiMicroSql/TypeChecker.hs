@@ -99,11 +99,16 @@ instance (Inferrable [AST.GAstSelectAttributeAccess () ()] [TAST.TAstSimpleAtomi
 
 instance (Inferrable (AST.GAstFromAccess () () () a) TAST.TAstSimpleRecordIndexPair) where
     infer :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess () () () a -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
-    infer = inferFromTable
+    infer c v = snd . AST.getTypeInfo $ annotateFromTable c v
 
 instance (Inferrable [AST.GAstFromAccess () () () a] [TAST.TAstSimpleRecordIndexPair]) where
     infer :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess () () () a] -> Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
-    infer = inferFromList
+    infer c vs = do
+        let ats = annotateFromList c vs
+        let ets = map (snd . AST.getTypeInfo) ats
+        case any isLeft ets of
+            True  -> Left $ TE.combineErrors $ lefts ets
+            False -> Right $ rights ets
 
 instance (Inferrable (AST.GAstSelectQuery () () () a) TAST.TAstDbView) where
     infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery () () () a -> Either TCInferenceError TAST.TAstDbView
@@ -230,6 +235,30 @@ inferSelectList c as = do
 --
 --      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
 --
+annotateFromTable :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d -> AST.GAstFromAccess a b c (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)
+annotateFromTable c (AST.GAstFromAccessReference t v) = do
+    let vt = infer c v
+    let k = TAST.makeKey $ CU.toString v
+    AST.GAstFromAccessReference (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v
+annotateFromTable c (AST.GAstFromAccessReferenceAlias t v a) = do
+    let vt = infer c v
+    let k = TAST.makeKey $ CU.toString a
+    AST.GAstFromAccessReferenceAlias (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v a
+annotateFromTable c (AST.GAstFromAccessNestedQueryAlias t (AST.GAstSelectSubQuery q) a) = do
+    -- infer the query result
+    -- TODO: annotate sub query and get the type
+    let qt = inferSelectQuery c q
+    -- if query contains duplicate columns, resolve colisions
+    let cqt = foldl __getCountLabels [] <$> qt
+    -- create a record form the resolved colisions
+    let r = TAST.makeRecord . map __dedup <$> cqt
+    -- return the record indexed by key
+    let k = TAST.makeKey $ CU.toString a
+    -- TODO: solve the sub query
+    let aq = error "TODO: Not implemented" :: AST.GAstSelectSubQuery a b (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair) c
+    AST.GAstFromAccessNestedQueryAlias (t,TAST.TAstSimpleRecordIndexKeyValue k <$> r) aq a
+
+-- TODO: deprecate
 inferFromTable :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
 inferFromTable c (AST.GAstFromAccessReference _ v) = do
     vt <- inferVar c v
@@ -264,6 +293,10 @@ __dedup (p@(TAST.TAstSimpleAtomicIndexKeyValue k v), n) = if n == 0 then p else 
 --
 --      [Note]: Corresponds to @Rule R3@
 --
+annotateFromList :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a b c d] -> [AST.GAstFromAccess a b c (d,Either TCInferenceError TAST.TAstSimpleRecordIndexPair)]
+annotateFromList c = map (annotateFromTable c)
+
+-- TODO: deprecate
 inferFromList :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a b c d] -> Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
 inferFromList c as = do
     let ets = map (inferFromTable c) as
@@ -278,6 +311,27 @@ inferFromList c as = do
 --
 --      [Note]: Corresponds to Rule @R4@
 --
+annotateSelectQuery :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery () () () d -> AST.GAstSelectQuery () () () (d,Either TCInferenceError TAST.TAstDbView)
+annotateSelectQuery c (AST.GAstSelectQuery t as fs) = do
+    let afts = annotateFromList c fs
+    let __fts = infer c fs :: Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
+    case __fts of
+        Left e -> error "not implemented"
+        Right fts -> do
+            let fats = foldl __collectAttributes [] fts
+            let fc = foldl __extendFromRecordPair c fts
+            let fac = foldl __extendFromRecordPairAttributes c fts
+            let uc = TCX.unite fc fac :: TCX.TCXSimpleTypeContext
+            let __ats = inferSelectList uc as :: Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
+            case __ats of
+                Left e -> error "not implemented"
+                Right ats -> do
+                    let rs = __resolveView fats ats
+                    let hsl = any isLeft rs
+                    let at = if hsl then Left $ TE.combineErrors $ lefts rs else pure $ rights rs
+                    AST.GAstSelectQuery (t, at) as afts
+
+-- TODO: deprecate
 inferSelectQuery :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery a b c d -> Either TCInferenceError TAST.TAstDbView
 inferSelectQuery c (AST.GAstSelectQuery _ as fs) = do
     fts <- inferFromList c fs

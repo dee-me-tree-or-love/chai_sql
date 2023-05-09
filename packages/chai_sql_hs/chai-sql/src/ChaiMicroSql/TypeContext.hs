@@ -11,11 +11,12 @@ module ChaiMicroSql.TypeContext (
         freshContext,
         extend,
         get,
+        makeKey,
+        unite,
         TCXContextError,
         Contextable(..),
         __atomNotRecordError,
-        __recordNotAtomError,
-        makeKey
+        __recordNotAtomError
     ) where
 
 import qualified ChaiMicroSql.TAST       as TAST
@@ -66,6 +67,10 @@ extend = M.insert
 -- | Find a key if present.
 get :: TCXSimpleTypeContextKey -> TCXSimpleTypeContext -> Maybe TCXSimpleTypeContextValue
 get = M.lookup
+
+-- | Left-prefferance union of two contexts.
+unite :: TCXSimpleTypeContext -> TCXSimpleTypeContext -> TCXSimpleTypeContext
+unite = M.union
 
 -- | A wrapper for context errors
 type TCXContextError = TE.TEBaseError
