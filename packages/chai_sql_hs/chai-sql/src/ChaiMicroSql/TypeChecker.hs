@@ -39,17 +39,17 @@ This is a naive inference-based type checker.
 -}
 module ChaiMicroSql.TypeChecker (
         TCInferenceError,
-        inferVar,
-        __varNotKnownError,
-        inferTotalRecord,
-        inferAttributeReference,
-        __recordUnknownAttributeError,
-        inferAttribute,
-        inferSelectList,
-        inferFromTable,
-        inferFromList,
-        inferSelectQuery,
-        __attributeNotInSourceError
+        -- inferVar,
+        -- __varNotKnownError,
+        -- inferTotalRecord,
+        -- inferAttributeReference,
+        -- __recordUnknownAttributeError,
+        -- inferAttribute,
+        -- inferSelectList,
+        -- inferFromTable,
+        -- inferFromList,
+        -- inferSelectQuery,
+        -- __attributeNotInSourceError
     ) where
 
 import qualified ChaiMicroSql.AST         as AST
@@ -72,50 +72,17 @@ class Inferrable a t where
     -- TODO: add annotate :: ...
     infer :: TCX.TCXSimpleTypeContext -> a -> Either TCInferenceError t
 
-instance TCX.Contextable t => (Inferrable AST.AstVariable t) where
-    infer :: TCX.TCXSimpleTypeContext -> AST.AstVariable -> Either TCInferenceError t
-    infer = inferVar
-
-instance (Inferrable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomicIndex) where
-    infer :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeStarTotalRecord -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
-    infer = inferTotalRecord
-
-instance (Inferrable (AST.GAstSelectAttributeReference ()) TAST.TAstSimpleAtomicIndexPair) where
-    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference () -> Either TCInferenceError TAST.TAstSimpleAtomicIndexPair
-    infer c v = snd . AST.getTypeInfo $ annotateAttributeReference c v
-
-instance (Inferrable (AST.GAstSelectAttributeAccess () ()) TAST.TAstSimpleAtomicIndex) where
-    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess () () -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
-    infer c v = snd . AST.getTypeInfo $ annotateAttribute c v
-
-instance (Inferrable [AST.GAstSelectAttributeAccess () ()] [TAST.TAstSimpleAtomicIndex]) where
-    infer :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess () ()] -> Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
-    infer c vs = do
-        let ats = annotateSelectList c vs
-        let ets = map (snd . AST.getTypeInfo) ats
-        case any isLeft ets of
-            True  -> Left $ TE.combineErrors $ lefts ets
-            False -> Right $ rights ets
-
-instance (Inferrable (AST.GAstFromAccess () () () a) TAST.TAstSimpleRecordIndexPair) where
-    infer :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess () () () a -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
-    infer c v = snd . AST.getTypeInfo $ annotateFromTable c v
-
-instance (Inferrable [AST.GAstFromAccess () () () a] [TAST.TAstSimpleRecordIndexPair]) where
-    infer :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess () () () a] -> Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
-    infer c vs = do
-        let ats = annotateFromList c vs
-        let ets = map (snd . AST.getTypeInfo) ats
-        case any isLeft ets of
-            True  -> Left $ TE.combineErrors $ lefts ets
-            False -> Right $ rights ets
-
-instance (Inferrable (AST.GAstSelectQuery () () () a) TAST.TAstDbView) where
-    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery () () () a -> Either TCInferenceError TAST.TAstDbView
-    infer = inferSelectQuery
 
 -- Axioms
 -- ------
+
+-- | Variable with inferrable types.
+--
+--      [Note]: Corresponds to the Axiom @A1@.
+--
+instance TCX.Contextable t => (Inferrable AST.AstVariable t) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.AstVariable -> Either TCInferenceError t
+    infer = inferVar
 
 -- | Variable type inference.
 --
@@ -132,6 +99,15 @@ inferVar c (AST.AstVariable v) = do
 __varNotKnownError :: String -> TCInferenceError
 __varNotKnownError v = TE.makeError $ "Could not infer variable type. Variable `" ++ v ++ "` is not in context."
 
+
+-- | Total record type with inferrable type.
+--
+--      [Note]: Corresponds to the Axiom @A2@.
+--
+instance (Inferrable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomicIndex) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeStarTotalRecord -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
+    infer = inferTotalRecord
+
 -- | Total record type inference.
 --
 --      [Note]: Corresponds to the Axiom @A2@.
@@ -144,6 +120,15 @@ inferTotalRecord _ _ = Right TAST.TAstSimpleTypeRecordTotal
 
 -- Attribute access
 -- ................
+
+
+-- | Attribute reference with type inference.
+--
+--      [Note]: Corresponds to the Rule @R1@
+--
+instance (Inferrable (AST.GAstSelectAttributeReference a) TAST.TAstSimpleAtomicIndexPair) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference a -> Either TCInferenceError TAST.TAstSimpleAtomicIndexPair
+    infer c v = snd . AST.getTypeInfo $ annotateAttributeReference c v
 
 -- | Attribute reference inference.
 --
@@ -160,24 +145,10 @@ annotateAttributeReference c (AST.GAstSelectAttributeReferenceQualified t b v) =
     let k = TAST.makeKey $ CU.toString v
     let vt = TAST.get k <$> bt
     case vt of
-        -- TODO(tech debt): make the inject of type info generic
+        -- TODO(tech debt): make the inject of type info generic?
         Left e -> AST.GAstSelectAttributeReferenceQualified (t, Left e) b v
         Right Nothing -> AST.GAstSelectAttributeReferenceQualified (t, Left $ __recordUnknownAttributeError b v) b v
         Right (Just at) -> AST.GAstSelectAttributeReferenceQualified (t, Right $ TAST.TAstSimpleAtomicIndexKeyValue k at) b v
-
--- TODO: deprecate
-inferAttributeReference :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeReference a -> Either TCInferenceError TAST.TAstSimpleAtomicIndexPair
-inferAttributeReference c (AST.GAstSelectAttributeReferenceUnqualified _ v) = do
-    at <- inferVar c v
-    let k = TAST.makeKey $ CU.toString v
-    Right $ TAST.TAstSimpleAtomicIndexKeyValue k at
-inferAttributeReference c (AST.GAstSelectAttributeReferenceQualified _ b v) = do
-    bt <- inferVar c b
-    let k = TAST.makeKey $ CU.toString v
-    let t = TAST.get k bt
-    case t of
-        Just t' -> Right $ TAST.TAstSimpleAtomicIndexKeyValue k t'
-        Nothing -> Left $ __recordUnknownAttributeError b v
 
 __recordUnknownAttributeError :: AST.AstVariable -> AST.AstVariable -> TCInferenceError
 __recordUnknownAttributeError b v = TE.makeError $ "Record `" ++ bs ++ "` does not contain attribute `" ++ vs ++ "`. In expression `" ++ bs ++ "." ++ vs ++ "`, reconsider attribute access."
@@ -185,11 +156,20 @@ __recordUnknownAttributeError b v = TE.makeError $ "Record `" ++ bs ++ "` does n
         bs = CU.toString b
         vs = CU.toString v
 
+
+-- | Single attribute access with type inference
+--
+--      [Note]: Corresponds to Rule @R2@
+--
+instance (Inferrable (AST.GAstSelectAttributeAccess a b) TAST.TAstSimpleAtomicIndex) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess a b -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
+    infer c v = snd . AST.getTypeInfo $ annotateAttribute c v
+
 -- | Single attribute access inference
 --
 --      [Note]: Corresponds to Rule @R2@
 --
-annotateAttribute :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess () () -> AST.GAstSelectAttributeAccess () ((), Either TCInferenceError TAST.TAstSimpleAtomicIndex)
+annotateAttribute :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess a b -> AST.GAstSelectAttributeAccess a (b, Either TCInferenceError TAST.TAstSimpleAtomicIndex)
 annotateAttribute c (AST.GAstSelectAttributeAccessStar t s)             = do
     let at = inferTotalRecord c s
     AST.GAstSelectAttributeAccessStar (t, at) s
@@ -203,39 +183,45 @@ annotateAttribute c (AST.GAstSelectAttributeAccessReferenceAlias t a l@(AST.AstS
         Right (TAST.TAstSimpleAtomicIndexKeyValue _ v) -> AST.GAstSelectAttributeAccessReferenceAlias (t,i) a l
             where i = pure $ TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.makeKey b) v
 
--- TODO: deprecate
-inferAttribute :: TCX.TCXSimpleTypeContext -> AST.GAstSelectAttributeAccess a b -> Either TCInferenceError TAST.TAstSimpleAtomicIndex
-inferAttribute c (AST.GAstSelectAttributeAccessStar _ s)             = inferTotalRecord c s
-inferAttribute c (AST.GAstSelectAttributeAccessReference _ a)        = do
-    at <- inferAttributeReference c a
-    Right $ TAST.TAstSimpleAtomicIndexPair at
-inferAttribute c (AST.GAstSelectAttributeAccessReferenceAlias _ a (AST.AstSimpleAlias b)) = do
-    (TAST.TAstSimpleAtomicIndexKeyValue _ v) <- inferAttributeReference c a
-    Right $ TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.makeKey b) v
+
+-- | Attribute list access with type inference
+--
+--      [Note]: Corresponds to Rule @R3@
+--
+instance (Inferrable [AST.GAstSelectAttributeAccess a b] [TAST.TAstSimpleAtomicIndex]) where
+    infer :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess a b] -> Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
+    infer c vs = do
+        let ats = annotateSelectList c vs
+        let ets = map (snd . AST.getTypeInfo) ats
+        case any isLeft ets of
+            True  -> Left $ TE.combineErrors $ lefts ets
+            False -> Right $ rights ets
 
 -- | Attribute list access inference
 --
 --      [Note]: Corresponds to Rule @R3@
 --
-annotateSelectList :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess () ()] -> [AST.GAstSelectAttributeAccess () ((),  Either TCInferenceError TAST.TAstSimpleAtomicIndex)]
+annotateSelectList :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess a b] -> [AST.GAstSelectAttributeAccess a (b,  Either TCInferenceError TAST.TAstSimpleAtomicIndex)]
 annotateSelectList c = map (annotateAttribute c)
 
--- TODO: deprecate
-inferSelectList :: TCX.TCXSimpleTypeContext -> [AST.GAstSelectAttributeAccess a b] -> Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
-inferSelectList c as = do
-    let ets = map (inferAttribute c) as
-    case any isLeft ets of
-        True  -> Left $ TE.combineErrors $ lefts ets
-        False -> Right $ rights ets
 
 -- Table access
 -- ............
+
+
+-- | Table access with type  inference.
+--
+--      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
+--
+instance (Inferrable (AST.GAstFromAccess a b c d) TAST.TAstSimpleRecordIndexPair) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
+    infer c v = snd . AST.getTypeInfo $ annotateFromTable c v
 
 -- | Table access inference.
 --
 --      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
 --
-annotateFromTable :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d -> AST.GAstFromAccess a b c (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)
+annotateFromTable :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a1 b1 c1 d -> AST.GAstFromAccess a2 b2 c2 (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)
 annotateFromTable c (AST.GAstFromAccessReference t v) = do
     let vt = infer c v
     let k = TAST.makeKey $ CU.toString v
@@ -245,39 +231,20 @@ annotateFromTable c (AST.GAstFromAccessReferenceAlias t v a) = do
     let k = TAST.makeKey $ CU.toString a
     AST.GAstFromAccessReferenceAlias (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v a
 annotateFromTable c (AST.GAstFromAccessNestedQueryAlias t (AST.GAstSelectSubQuery q) a) = do
-    -- infer the query result
-    -- TODO: annotate sub query and get the type
-    let qt = inferSelectQuery c q
-    -- if query contains duplicate columns, resolve colisions
-    let cqt = foldl __getCountLabels [] <$> qt
-    -- create a record form the resolved colisions
-    let r = TAST.makeRecord . map __dedup <$> cqt
-    -- return the record indexed by key
-    let k = TAST.makeKey $ CU.toString a
-    -- TODO: solve the sub query
-    let aq = error "TODO: Not implemented" :: AST.GAstSelectSubQuery a b (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair) c
-    AST.GAstFromAccessNestedQueryAlias (t,TAST.TAstSimpleRecordIndexKeyValue k <$> r) aq a
-
--- TODO: deprecate
-inferFromTable :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
-inferFromTable c (AST.GAstFromAccessReference _ v) = do
-    vt <- inferVar c v
-    let k = TAST.makeKey $ CU.toString v
-    Right $ TAST.TAstSimpleRecordIndexKeyValue k vt
-inferFromTable c (AST.GAstFromAccessReferenceAlias _ v a) = do
-    vt <- inferVar c v
-    let k = TAST.makeKey $ CU.toString a
-    Right $ TAST.TAstSimpleRecordIndexKeyValue k vt
-inferFromTable c (AST.GAstFromAccessNestedQueryAlias _ (AST.GAstSelectSubQuery q) a) = do
-    -- infer the query result
-    qt <- inferSelectQuery c q
-    -- if query contains duplicate columns, resolve colisions
-    let cqt = foldl __getCountLabels [] qt
-    -- create a record form the resolved colisions
-    let r = TAST.makeRecord $ map __dedup cqt
-    -- return the record indexed by key
-    let k = TAST.makeKey $ CU.toString a
-    Right $ TAST.TAstSimpleRecordIndexKeyValue k r
+    error "not implemented yet!"
+    -- FIXME: solve
+    -- -- infer the query result
+    -- -- TODO: annotate sub query and get the type
+    -- let qt = inferSelectQuery c q
+    -- -- if query contains duplicate columns, resolve colisions
+    -- let cqt = foldl __getCountLabels [] <$> qt
+    -- -- create a record form the resolved colisions
+    -- let r = TAST.makeRecord . map __dedup <$> cqt
+    -- -- return the record indexed by key
+    -- let k = TAST.makeKey $ CU.toString a
+    -- -- TODO: solve the sub query
+    -- let aq = error "TODO: Not implemented" :: AST.GAstSelectSubQuery a b (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair) c
+    -- AST.GAstFromAccessNestedQueryAlias (t,TAST.TAstSimpleRecordIndexKeyValue k <$> r) aq a
 
 __getCountLabels :: Eq a => [(a, Int)] -> a -> [(a, Int)]
 __getCountLabels xs p = xs ++ [(p, c)]
@@ -289,60 +256,65 @@ __extendKey k n = TAST.makeKey $ CU.toString k ++ ":" ++ show n
 __dedup :: (Eq b, Num b, Show b) => (TAST.TAstSimpleAtomicIndexPair, b) -> TAST.TAstSimpleAtomicIndexPair
 __dedup (p@(TAST.TAstSimpleAtomicIndexKeyValue k v), n) = if n == 0 then p else TAST.TAstSimpleAtomicIndexKeyValue (__extendKey k n) v
 
+
+-- | Table list access with type inference.
+--
+--      [Note]: Corresponds to @Rule R3@
+--
+instance (Inferrable [AST.GAstFromAccess a b c d] [TAST.TAstSimpleRecordIndexPair]) where
+    infer :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a b c d] -> Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
+    infer c vs = do
+        let ats = annotateFromList c vs
+        let ets = map (snd . AST.getTypeInfo) ats
+        case any isLeft ets of
+            True  -> Left $ TE.combineErrors $ lefts ets
+            False -> Right $ rights ets
+
 -- | Table list access inference.
 --
 --      [Note]: Corresponds to @Rule R3@
 --
-annotateFromList :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a b c d] -> [AST.GAstFromAccess a b c (d,Either TCInferenceError TAST.TAstSimpleRecordIndexPair)]
+annotateFromList :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a1 b1 c1 d] -> [AST.GAstFromAccess a2 b2 c2 (d, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)]
 annotateFromList c = map (annotateFromTable c)
 
--- TODO: deprecate
-inferFromList :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a b c d] -> Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
-inferFromList c as = do
-    let ets = map (inferFromTable c) as
-    case any isLeft ets of
-        True  -> Left $ TE.combineErrors $ lefts ets
-        False -> Right $ rights ets
 
 -- Full SELECT query
 -- .................
+
+
+-- | Select query with type inference.
+--
+--      [Note]: Corresponds to Rule @R4@
+--
+instance (Inferrable (AST.GAstSelectQuery a b c d) TAST.TAstDbView) where
+    infer :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery a b c d -> Either TCInferenceError TAST.TAstDbView
+    infer c v = snd . AST.getTypeInfo $ annotateSelectQuery c v
 
 -- | Select query result type inference.
 --
 --      [Note]: Corresponds to Rule @R4@
 --
-annotateSelectQuery :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery () () () d -> AST.GAstSelectQuery () () () (d,Either TCInferenceError TAST.TAstDbView)
+annotateSelectQuery :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery a1 b1 c1 d -> AST.GAstSelectQuery a2 b2 c2 (d,Either TCInferenceError TAST.TAstDbView)
 annotateSelectQuery c (AST.GAstSelectQuery t as fs) = do
-    let afts = annotateFromList c fs
-    let __fts = infer c fs :: Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
-    case __fts of
-        Left e -> error "not implemented"
-        Right fts -> do
-            let fats = foldl __collectAttributes [] fts
-            let fc = foldl __extendFromRecordPair c fts
-            let fac = foldl __extendFromRecordPairAttributes c fts
-            let uc = TCX.unite fc fac :: TCX.TCXSimpleTypeContext
-            let __ats = inferSelectList uc as :: Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
-            case __ats of
-                Left e -> error "not implemented"
-                Right ats -> do
-                    let rs = __resolveView fats ats
-                    let hsl = any isLeft rs
-                    let at = if hsl then Left $ TE.combineErrors $ lefts rs else pure $ rights rs
-                    AST.GAstSelectQuery (t, at) as afts
-
--- TODO: deprecate
-inferSelectQuery :: TCX.TCXSimpleTypeContext -> AST.GAstSelectQuery a b c d -> Either TCInferenceError TAST.TAstDbView
-inferSelectQuery c (AST.GAstSelectQuery _ as fs) = do
-    fts <- inferFromList c fs
-    let fats = foldl __collectAttributes [] fts
-    let fc = foldl __extendFromRecordPair c fts
-    let fac = foldl __extendFromRecordPairAttributes fc fts
-    ats <- inferSelectList fac as
-    let rs = __resolveView fats ats
-    case any isLeft rs of
-        True  -> Left $ TE.combineErrors $ lefts rs
-        False -> pure $ rights rs
+    error "not implemented yet!"
+    -- FIXME: solve
+    -- let afts = annotateFromList c fs
+    -- let __fts = infer c fs :: Either TCInferenceError [TAST.TAstSimpleRecordIndexPair]
+    -- case __fts of
+    --     Left e -> error "not implemented"
+    --     Right fts -> do
+    --         let fats = foldl __collectAttributes [] fts
+    --         let fc = foldl __extendFromRecordPair c fts
+    --         let fac = foldl __extendFromRecordPairAttributes c fts
+    --         let uc = TCX.unite fc fac :: TCX.TCXSimpleTypeContext
+    --         let __ats = inferSelectList uc as :: Either TCInferenceError [TAST.TAstSimpleAtomicIndex]
+    --         case __ats of
+    --             Left e -> error "not implemented"
+    --             Right ats -> do
+    --                 let rs = __resolveView fats ats
+    --                 let hsl = any isLeft rs
+    --                 let at = if hsl then Left $ TE.combineErrors $ lefts rs else pure $ rights rs
+    --                 AST.GAstSelectQuery (t, at) as afts
 
 
 __resolveView :: [TAST.TAstSimpleAtomicIndexPair] -> [TAST.TAstSimpleAtomicIndex] -> [Either TCInferenceError TAST.TAstSimpleAtomicIndexPair]

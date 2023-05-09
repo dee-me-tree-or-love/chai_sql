@@ -51,19 +51,6 @@ type AstSelectQueryHintedAnnotated = GAstSelectQuery
     (Maybe TAST.TAstDbView)
 
 
--- AST with type hints
--- -------------------
-
--- | A single SQL select query with an optional type hint.
-type AstSelectQueryHinted = GAstSelectQuery () () () (Maybe TAST.TAstDbView)
-
--- AST without type information
--- ----------------------------
-
--- | A single SQL select query.
-type AstSelectQuery = GAstSelectQuery () () () ()
-
-
 -- Typed AST building blocks
 -- -------------------------
 
@@ -74,7 +61,7 @@ class TypeInfoable a where
 data GAstSelectQuery srt sat ft t
     = GAstSelectQuery t
         [GAstSelectAttributeAccess srt sat]
-        [GAstFromAccess srt sat ft t]
+        [GAstFromAccess srt sat t ft]
     deriving (Show, Eq)
 
 instance TypeInfoable (GAstSelectQuery a b c) where
