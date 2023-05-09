@@ -60,7 +60,8 @@ freshContext = M.empty
 -- Examples:
 --
 -- >>> show $ extend (makeKey "foo") (contextualize TAST.TAstAtomicTypeBool) freshContext
--- "fromList [(TCXSimpleTypeContextKey \"foo\",TCXSimpleTypeContextValueAtomic TypeAtomicTypeBool)]"
+-- "fromList [(TCXSimpleTypeContextKey \"foo\",TCXSimpleTypeContextValueAtomic TAstAtomicTypeBool)]"
+--
 extend :: TCXSimpleTypeContextKey -> TCXSimpleTypeContextValue -> TCXSimpleTypeContext -> TCXSimpleTypeContext
 extend = M.insert
 

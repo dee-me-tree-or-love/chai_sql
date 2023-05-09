@@ -37,8 +37,8 @@ data TAstSimpleAtomicIndexPair = TAstSimpleAtomicIndexKeyValue TAstSimpleIndexKe
 type TAstSimpleTypeRecord = (M.Map TAstSimpleIndexKey TAstAtomicType)
 
 -- | A default empty record.
-emptyTypeRecord :: TAstSimpleTypeRecord
-emptyTypeRecord = M.empty
+emptyRecord :: TAstSimpleTypeRecord
+emptyRecord = M.empty
 
 -- | A type used to construct key-value index pairs for atomic type collections.
 data TAstSimpleRecordIndexPair = TAstSimpleRecordIndexKeyValue TAstSimpleIndexKey TAstSimpleTypeRecord   -- ^ A key-value pari for a record type.

@@ -71,7 +71,7 @@ class AST.TypeInfoable a => Inferrable a t where
 -- Examples:
 --
 -- >>> infer TCX.freshContext (AST.GAstVariable () "m") :: Either TCInferenceError TAST.TAstAtomicType
--- Left (TEBaseError "Could not infer variable type. Variable `v` is not in context.")
+-- Left (TEBaseError "Could not infer variable type. Variable `m` is not in context.")
 --
 -- >>> annotate (TCX.extend (TCX.makeKey "m") (TCX.contextualize TAST.TAstAtomicTypeBool) TCX.freshContext) (AST.GAstVariable () "m") :: AST.GAstVariable ((), Either TCInferenceError TAST.TAstAtomicType)
 -- GAstVariable ((),Right TAstAtomicTypeBool) "m"
@@ -196,28 +196,32 @@ instance (Inferrable (AST.GAstSelectAttributeAccess a b c d) TAST.TAstSimpleAtom
 -- -- ............
 
 
--- -- | Table access with type  inference.
--- --
--- --      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
--- --
--- instance (Inferrable (AST.GAstFromAccess a b c d e f g) TAST.TAstSimpleRecordIndexPair) where
---     infer :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d e f g -> Either TCInferenceError TAST.TAstSimpleRecordIndexPair
---     infer c v = snd . AST.getTypeInfo $ annotateFromTable c v
+-- | Table access with type  inference.
+--
+--      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
+--
+-- Examples:
+--
+-- >>> ctx = (TCX.extend (TCX.makeKey "m") (TCX.contextualize TAST.emptyRecord) TCX.freshContext)
+-- >>> infer ctx (AST.GAstFromAccessReference () (AST.GAstVariable () "m")) :: Either TCInferenceError TAST.TAstSimpleRecordIndexPair
+-- Right (TAstSimpleRecordIndexKeyValue (TAstSimpleIndexKey "m") (fromList []))
+--
+-- >>> annotate ctx (AST.GAstFromAccessReference () (AST.GAstVariable () "m")) :: AST.GAstFromAccess () () () () () () ((), Either TCInferenceError TAST.TAstSimpleRecordIndexPair)
+-- GAstFromAccessReference ((),Right (TAstSimpleRecordIndexKeyValue (TAstSimpleIndexKey "m") (fromList []))) (GAstVariable () "m")
+--
+instance (Inferrable (AST.GAstFromAccess a b c d e f) TAST.TAstSimpleRecordIndexPair) where
+    annotate :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d e f p -> AST.GAstFromAccess a b c d e f (p, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)
+    annotate c (AST.GAstFromAccessReference t v) = do
+        let vt = infer c v
+        let k = TAST.makeKey $ CU.toString v
+        AST.GAstFromAccessReference (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v
+    annotate c (AST.GAstFromAccessReferenceAlias t v a) = do
+        let vt = infer c v
+        let k = TAST.makeKey $ CU.toString a
+        AST.GAstFromAccessReferenceAlias (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v a
+    annotate c (AST.GAstFromAccessNestedQueryAlias t (AST.GAstSelectSubQuery q) a) = do
+        error "not implemented yet!"
 
--- -- | Table access inference.
--- --
--- --      [Note]: Corresponds to the Axiom @A1@ and Rule @R2@
--- --
--- annotateFromTable :: TCX.TCXSimpleTypeContext -> AST.GAstFromAccess a b c d e f t -> AST.GAstFromAccess a' b' c' d' e' f' (t, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)
--- annotateFromTable c (AST.GAstFromAccessReference t v) = do
---     let vt = infer c v
---     let k = TAST.makeKey $ CU.toString v
---     AST.GAstFromAccessReference (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v
--- annotateFromTable c (AST.GAstFromAccessReferenceAlias t v a) = do
---     let vt = infer c v
---     let k = TAST.makeKey $ CU.toString a
---     AST.GAstFromAccessReferenceAlias (t, TAST.TAstSimpleRecordIndexKeyValue k <$> vt) v a
--- annotateFromTable c (AST.GAstFromAccessNestedQueryAlias t (AST.GAstSelectSubQuery q) a) = do
 --     error "not implemented yet!"
 --     -- FIXME: solve
 --     -- -- infer the query result
@@ -242,14 +246,6 @@ instance (Inferrable (AST.GAstSelectAttributeAccess a b c d) TAST.TAstSimpleAtom
 
 -- __dedup :: (Eq b, Num b, Show b) => (TAST.TAstSimpleAtomicIndexPair, b) -> TAST.TAstSimpleAtomicIndexPair
 -- __dedup (p@(TAST.TAstSimpleAtomicIndexKeyValue k v), n) = if n == 0 then p else TAST.TAstSimpleAtomicIndexKeyValue (__extendKey k n) v
-
-
--- -- | Table list access inference.
--- --
--- --      [Note]: Corresponds to @Rule R3@
--- --
--- annotateFromList :: TCX.TCXSimpleTypeContext -> [AST.GAstFromAccess a b c d e f t] -> [AST.GAstFromAccess a' b' c' d' e' f' (t, Either TCInferenceError TAST.TAstSimpleRecordIndexPair)]
--- annotateFromList c = map (annotateFromTable c)
 
 
 -- -- Full SELECT query

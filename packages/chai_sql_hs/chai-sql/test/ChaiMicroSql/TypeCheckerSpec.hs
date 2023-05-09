@@ -24,7 +24,7 @@ spec = do
             THS.describe "with known variable with record type" $ do
                 THS.it "returns Right <record type>" $ do
                     let __v = "foo"
-                    let __avt = TAST.emptyTypeRecord
+                    let __avt = TAST.emptyRecord
                     let av = AST.AstVariable __v
                     let k = TCX.TCXSimpleTypeContextKey __v
                     let c = TCX.extend k (TCX.contextualize __avt) TCX.freshContext
@@ -86,7 +86,7 @@ spec = do
                             -- base type
                             let __b = "foo"
                             let __ab = AST.AstVariable __b
-                            let __bt = TAST.emptyTypeRecord
+                            let __bt = TAST.emptyRecord
                             -- context stuff
                             let __k = TCX.TCXSimpleTypeContextKey __b
                             let __c = TCX.extend __k (TCX.contextualize __bt) TCX.freshContext
@@ -200,7 +200,7 @@ spec = do
                     THS.it "returns Right <inference result>" $ do
                         let __v = "foo"
                         let __k = TCX.TCXSimpleTypeContextKey __v
-                        let __vt = TAST.emptyTypeRecord
+                        let __vt = TAST.emptyRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let av = AST.GAstFromAccessReference () $ AST.AstVariable __v
                         let f = TC.inferFromTable __c
@@ -223,7 +223,7 @@ spec = do
                     THS.it "returns Right <inference result>" $ do
                         let __v = "foo"
                         let __k = TCX.TCXSimpleTypeContextKey __v
-                        let __vt = TAST.emptyTypeRecord
+                        let __vt = TAST.emptyRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let __u = "bar"
                         let av = AST.GAstFromAccessReferenceAlias () (AST.AstVariable __v) (AST.AstSimpleAlias __u)
@@ -301,7 +301,7 @@ spec = do
                     THS.it "returns Right <all types combined>" $ do
                         let __v = "foo"
                         let __k = TCX.TCXSimpleTypeContextKey __v
-                        let __vt = TAST.emptyTypeRecord
+                        let __vt = TAST.emptyRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let av = AST.GAstFromAccessReference () $ AST.AstVariable __v
                         let f = TC.inferFromList __c
@@ -314,7 +314,7 @@ spec = do
                     THS.it "returns Right <all types combined>" $ do
                         let __v = "foo"
                         let __k = TCX.TCXSimpleTypeContextKey __v
-                        let __vt = TAST.emptyTypeRecord
+                        let __vt = TAST.emptyRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let __u = "bar"
                         let av = AST.GAstFromAccessReferenceAlias () (AST.AstVariable __v) (AST.AstSimpleAlias __u)

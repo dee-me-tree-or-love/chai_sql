@@ -20,7 +20,7 @@ spec = do
 
             THS.describe "with record" $ do
                 THS.it "is returns contextualized record" $ do
-                    let a = TAST.emptyTypeRecord
+                    let a = TAST.emptyRecord
                     let f = TCX.contextualize
                     let e = TCX.TCXSimpleTypeContextValueRecord a
                     THS.shouldBe (f a) e
@@ -44,7 +44,7 @@ spec = do
 
             THS.describe "with contextualized record" $ do
                 THS.it "is returns a record" $ do
-                    let __a = TAST.emptyTypeRecord
+                    let __a = TAST.emptyRecord
                     let a = TCX.TCXSimpleTypeContextValueRecord __a
                     let f = TCX.decontextualize
                     let e = Right __a
@@ -53,7 +53,7 @@ spec = do
 
                 THS.describe "but expected atom" $ do
                     THS.it "is returns an error" $ do
-                        let __a = TAST.emptyTypeRecord
+                        let __a = TAST.emptyRecord
                         let a = TCX.TCXSimpleTypeContextValueRecord __a
                         let f = TCX.decontextualize :: (TCX.TCXSimpleTypeContextValue -> Either TCX.TCXContextError TAST.TAstAtomicType)
                         let e = Left TCX.__recordNotAtomError
