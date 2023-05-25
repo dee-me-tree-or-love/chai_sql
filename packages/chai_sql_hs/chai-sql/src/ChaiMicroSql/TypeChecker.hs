@@ -67,7 +67,7 @@ type TcCheckResult = Maybe TcCheckError
 -- | A result of the annotation with its source.
 data TcInferenceWrapper t a = TcInferenceWrapper {
         inferenceResult :: TcInferenceResult t,
-        checkingErrors  :: TcCheckResult,
+        checkingError   :: TcCheckResult,
         inferenceSource :: a
     }
     deriving (Show, Eq)
@@ -76,7 +76,7 @@ class Annotatable a t where
     annotate :: TCX.TCXSimpleTypeContext -> a -> TcInferenceWrapper t a
 
     check :: TCX.TCXSimpleTypeContext -> a -> (TcCheckResult, TcInferenceResult t)
-    check c v = (checkingErrors s, inferenceResult s)
+    check c v = (checkingError s, inferenceResult s)
         where s = annotate c v
 
     infer :: TCX.TCXSimpleTypeContext -> a -> TcInferenceResult t
