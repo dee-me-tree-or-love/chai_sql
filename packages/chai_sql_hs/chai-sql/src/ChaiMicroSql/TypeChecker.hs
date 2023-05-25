@@ -52,27 +52,39 @@ import           Data.Either              (isLeft, lefts, rights)
 -- -- Base utilities
 -- -- --------------
 
--- | Simple alias for containing a type checker error.
+-- | Simple alias for a type checker's inference error.
 type TcInferenceError = TE.TEBaseError
 
--- | Simple wrapper for infernece result
+-- | Simple alias for a type checker's check error.
+type TcCheckError = TE.TEBaseError
+
+-- | Simple wrapper for inference result.
 type TcInferenceResult = Either TcInferenceError
 
--- | A result of the annotation with its source
-newtype TcInferenceWrapper t a = TcInferenceWrapper {content :: (TcInferenceResult t, a)}
+-- | Simple wrapper for checking result.
+type TcCheckResult = Maybe TcCheckError
+
+-- | A result of the annotation with its source.
+data TcInferenceWrapper t a = TcInferenceWrapper {
+        inferenceResult :: TcInferenceResult t,
+        checkingErrors  :: TcCheckResult,
+        inferenceSource :: a
+    }
     deriving (Show, Eq)
-
-unwrapType :: TcInferenceWrapper t a -> TcInferenceResult t
-unwrapType = fst . content
-
-unwrapSource :: TcInferenceWrapper t a -> a
-unwrapSource = snd . content
 
 class Annotatable a t where
     annotate :: TCX.TCXSimpleTypeContext -> a -> TcInferenceWrapper t a
+
+    check :: TCX.TCXSimpleTypeContext -> a -> (TcCheckResult, TcInferenceResult t)
+    check c v = (checkingErrors s, inferenceResult s)
+        where s = annotate c v
+
     infer :: TCX.TCXSimpleTypeContext -> a -> TcInferenceResult t
-    infer c v = unwrapType $ annotate c v
-    -- TODO(backlog): implement thƒe check :: ...
+    infer c v = snd $ check c v
+
+    -- TODO(backlog): implement the check :: ...
+    -- "Inference involves checking."
+    --      :: slide 10 from https://www.cs.princeton.edu/courses/archive/spring15/cos320/lectures/06-Types-2x2.pdf
 
 
 -- Axioms
@@ -103,9 +115,9 @@ instance TCX.Contextable t => Annotatable AST.AstVariable t where
             Just __t  -> do
                 let dt = TCX.decontextualize __t :: TCX.Contextable t => Either TCX.TCXContextError t
                 case dt of
-                    Right t' -> TcInferenceWrapper (pure t', a)
-                    Left e   -> TcInferenceWrapper (Left e, a)
-            Nothing -> TcInferenceWrapper (Left $ __varNotKnownError v, a)
+                    Right t' -> TcInferenceWrapper (pure t') Nothing a
+                    Left e   -> TcInferenceWrapper (Left e) Nothing a
+            Nothing -> TcInferenceWrapper (Left $ __varNotKnownError v) Nothing a
 
 -- | A utility to construct a variable inference error message.
 __varNotKnownError :: String -> TcInferenceError
@@ -126,7 +138,7 @@ __varNotKnownError v = TE.makeError $ "Could not infer variable type. Variable `
 --
 instance Annotatable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomicIndex where
   annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeStarTotalRecord -> TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeStarTotalRecord
-  annotate _ v = TcInferenceWrapper (pure TAST.TAstSimpleTypeRecordTotal, v)
+  annotate _ = TcInferenceWrapper (pure TAST.TAstSimpleTypeRecordTotal) Nothing
 
 
 -- -- -- Rules
@@ -155,15 +167,15 @@ instance Annotatable AST.AstSelectAttributeReference TAST.TAstSimpleAtomicIndexP
         let vt = infer c v :: TcInferenceResult TAST.TAstAtomicType
         let k = TAST.makeKey $ CU.toString v
         let at = TAST.TAstSimpleAtomicIndexKeyValue k <$> vt
-        TcInferenceWrapper (at, a)
+        TcInferenceWrapper at Nothing a
     annotate c a@(AST.AstSelectAttributeReferenceQualified b v) = do
         let bt = infer c b :: TcInferenceResult TAST.TAstSimpleTypeRecord
         let k = TAST.makeKey $ CU.toString v
         let vt = TAST.get k <$> bt
         case vt of
-            Right (Just at) -> TcInferenceWrapper (pure $ TAST.TAstSimpleAtomicIndexKeyValue k at, a)
-            Right Nothing -> TcInferenceWrapper (Left $ __recordUnknownAttributeError b v, a)
-            Left e -> TcInferenceWrapper (Left e, a)
+            Right (Just at) -> TcInferenceWrapper (pure $ TAST.TAstSimpleAtomicIndexKeyValue k at) Nothing a
+            Right Nothing -> TcInferenceWrapper (Left $ __recordUnknownAttributeError b v) Nothing a
+            Left e -> TcInferenceWrapper (Left e) Nothing a
 
 
 __recordUnknownAttributeError :: AST.AstVariable -> AST.AstVariable -> TcInferenceError
@@ -191,17 +203,17 @@ __recordUnknownAttributeError b v = do
 --
 instance Annotatable AST.AstSelectAttributeAccess TAST.TAstSimpleAtomicIndex where
     annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeAccess -> TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeAccess
-    annotate c a@(AST.AstSelectAttributeAccessStar v) =  TcInferenceWrapper (infer c v, a)
+    annotate c a@(AST.AstSelectAttributeAccessStar v) =  TcInferenceWrapper (infer c v) Nothing a
     annotate c a@(AST.AstSelectAttributeAccessReference v) = do
         let vt = infer c v
         let at = TAST.TAstSimpleAtomicIndexPair <$> vt
-        TcInferenceWrapper (at, a)
+        TcInferenceWrapper at Nothing a
     annotate c a@(AST.AstSelectAttributeAccessReferenceAlias v l) = do
         case infer c v of
             Right (TAST.TAstSimpleAtomicIndexKeyValue _ u) -> do
                 let at = TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.makeKey $ CU.toString l) u
-                TcInferenceWrapper (pure at, a)
-            Left e  -> TcInferenceWrapper (Left e, a)
+                TcInferenceWrapper (pure at) Nothing a
+            Left e  -> TcInferenceWrapper (Left e) Nothing a
 
 
 -- Table access
@@ -229,16 +241,16 @@ instance Annotatable AST.AstFromAccess TAST.TAstSimpleRecordIndexPair where
         let vt = infer c v
         let k = TAST.makeKey $ CU.toString v
         let at = TAST.TAstSimpleRecordIndexKeyValue k <$> vt
-        TcInferenceWrapper (at, a)
+        TcInferenceWrapper at Nothing a
     annotate c a@(AST.AstFromAccessReferenceAlias v l) = do
         let vt = infer c v :: TcInferenceResult TAST.TAstSimpleTypeRecord
         let k = TAST.makeKey $ CU.toString l
         let at = TAST.TAstSimpleRecordIndexKeyValue k <$> vt
-        TcInferenceWrapper (at,a)
+        TcInferenceWrapper at Nothing a
     annotate c a@(AST.AstFromAccessNestedQueryAlias q l) = do
         -- annotate sub query and get the type
         let aq = annotate c q :: TcInferenceWrapper TAST.TAstDbView AST.AstSelectQuery
-        let qt = unwrapType aq
+        let qt = inferenceResult aq
         -- if query contains duplicate columns, resolve colisions
         let cqt = foldl __getCountLabels [] <$> qt
         -- create a record form the resolved colisions
@@ -246,7 +258,7 @@ instance Annotatable AST.AstFromAccess TAST.TAstSimpleRecordIndexPair where
         -- return the record indexed by key
         let k = TAST.makeKey $ CU.toString l
         let at = TAST.TAstSimpleRecordIndexKeyValue k <$> r
-        TcInferenceWrapper (at, a)
+        TcInferenceWrapper at Nothing a
 
 
 __getCountLabels :: Eq a => [(a, Int)] -> a -> [(a, Int)]
@@ -272,11 +284,11 @@ __extendKey k n = TAST.makeKey $ CU.toString k ++ ":" ++ show n
 --
 instance Annotatable AST.AstSelectQuery TAST.TAstDbView where
   annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectQuery -> TcInferenceWrapper TAST.TAstDbView AST.AstSelectQuery
-  annotate c a@(AST.AstSelectQuery _ as fs) = do
+  annotate c a@(AST.AstSelectQuery Nothing as fs) = do -- ^ annotating a query /without/ a type hint
     let afs = map (annotate c) fs :: [TcInferenceWrapper TAST.TAstSimpleRecordIndexPair AST.AstFromAccess]
-    let efts = map unwrapType afs :: [TcInferenceResult TAST.TAstSimpleRecordIndexPair]
+    let efts = map inferenceResult afs :: [TcInferenceResult TAST.TAstSimpleRecordIndexPair]
     case any isLeft efts of
-        True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts efts, a)
+        True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts efts) Nothing a
         False -> do
             let fts = rights efts
             let fats = foldl __collectAttributes [] fts
@@ -284,14 +296,22 @@ instance Annotatable AST.AstSelectQuery TAST.TAstDbView where
             let fac = foldl __extendFromAttributes c fats
             let uc = TCX.unite fc fac :: TCX.TCXSimpleTypeContext
             let aas = map (annotate uc) as :: [TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeAccess]
-            let eats = map unwrapType aas :: [TcInferenceResult TAST.TAstSimpleAtomicIndex]
+            let eats = map inferenceResult aas :: [TcInferenceResult TAST.TAstSimpleAtomicIndex]
             case any isLeft eats of
-                True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts eats, a)
+                True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts eats) Nothing a
                 False -> do
                     let ats = rights eats
                     let rs = __resolveView fats ats
                     let at = if any isLeft rs then Left $ TE.combineErrors $ lefts rs else pure $ rights rs
-                    TcInferenceWrapper (at, a)
+                    TcInferenceWrapper at Nothing a
+  annotate c a@(AST.AstSelectQuery (Just h) as fs) = do -- ^ annotating a query /with/ a type hint
+    let it = infer c (AST.AstSelectQuery Nothing as fs) :: TcInferenceResult TAST.TAstDbView
+    case it of
+        e@(Left _) -> TcInferenceWrapper e Nothing a
+        t@(Right i) -> do
+            if i == h
+            then TcInferenceWrapper t Nothing a
+            else TcInferenceWrapper t (Just $ __unmatchedHintError h i) a
 
 __resolveView :: [TAST.TAstSimpleAtomicIndexPair] -> [TAST.TAstSimpleAtomicIndex] -> [TcInferenceResult TAST.TAstSimpleAtomicIndexPair]
 __resolveView fs = foldl (__resolveIndexesToView fs) []
@@ -317,3 +337,6 @@ __extend' c k r = do
     let k' = TCX.makeKey $ CU.toString k
     let r' = TCX.contextualize r
     TCX.extend k' r' c
+
+__unmatchedHintError :: (Show h, Show i) => h -> i -> TcInferenceError
+__unmatchedHintError h i = TE.makeError $ "Specified type hint `" ++ show h ++ "` does not match inferred type `" ++ show i ++ "`"
