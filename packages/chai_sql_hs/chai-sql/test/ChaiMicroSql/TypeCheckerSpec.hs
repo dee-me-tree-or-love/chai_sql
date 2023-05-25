@@ -246,7 +246,7 @@ spec = do
                         -- construct a query from SELECT * FROM foos;
                         let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
                         let qfl = [AST.AstFromAccessReference  (AST.AstVariable __f)]
-                        let q = AST.AstSelectQuery  qsl qfl
+                        let q = AST.AstSelectQuery Nothing qsl qfl
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
@@ -272,7 +272,7 @@ spec = do
                         let __qslName = AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __n
                         let qsl = [__qslId, __qslId, __qslName]
                         let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                        let q = AST.AstSelectQuery  qsl qfl
+                        let q = AST.AstSelectQuery Nothing qsl qfl
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
@@ -334,7 +334,7 @@ spec = do
                     -- construct a query from SELECT * FROM foos;
                     let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -360,7 +360,7 @@ spec = do
                     -- construct a query from SELECT * FROM foos;
                     let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f, AST.AstFromAccessReference  $ AST.AstVariable __b]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     let c = TCX.extend (TCX.makeKey __b) (TCX.contextualize __bt) __c
@@ -389,7 +389,7 @@ spec = do
                     -- construct a query from SELECT * FROM foos;
                     let qsl = [AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceQualified  (AST.AstVariable __ba) (AST.AstVariable __l) ]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f, AST.AstFromAccessReferenceAlias  (AST.AstVariable __b) (AST.AstSimpleAlias __ba)]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     let c = TCX.extend (TCX.makeKey __b) (TCX.contextualize __bt) __c
@@ -411,7 +411,7 @@ spec = do
                     -- construct a query from SELECT id FROM foos;
                     let qsl = [AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __a]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -433,7 +433,7 @@ spec = do
                     let __na = "thisIsNotAnId"
                     let qsl = [AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __na]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -455,7 +455,7 @@ spec = do
                     let __na = "foos"
                     let qsl = [AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __na]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
@@ -478,7 +478,7 @@ spec = do
                     let __nat = TAST.TAstAtomicTypeBool
                     let qsl = [AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __na]
                     let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                    let q = AST.AstSelectQuery  qsl qfl
+                    let q = AST.AstSelectQuery Nothing qsl qfl
                     -- populate starting context
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- populate starting context with a ghost attribute
