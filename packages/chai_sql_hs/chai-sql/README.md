@@ -26,9 +26,8 @@ $ stack run -- --help
 
 ### 📦 `stack install` - to make *ChaiSQL* available globally
 
-> After this, all examples in
-> [section above](#💨-stack-run----arguments---executes-a-freshly-built-project-with-arguments)
-> can replace `stack run --` with `chaisql-cli`
+> After this, all examples in the section above
+> can use `chaisql-cli` instead of `stack run --`
 
 #### 🧰 `chaisql-cli` is available locally after installing
 
