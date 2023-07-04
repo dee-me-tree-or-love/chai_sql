@@ -73,14 +73,12 @@ data TcInferenceWrapper t a = TcInferenceWrapper {
     deriving (Show, Eq)
 
 class Annotatable a t where
+    -- | Adds inferred and checked annotations to the provided AST.
     annotate :: TCX.TCXSimpleTypeContext -> a -> TcInferenceWrapper t a
 
-    check :: TCX.TCXSimpleTypeContext -> a -> (TcCheckResult, TcInferenceResult t)
-    check c v = (checkingResult s, inferenceResult s)
-        where s = annotate c v
-
+    -- | Only infers the annotations.
     infer :: TCX.TCXSimpleTypeContext -> a -> TcInferenceResult t
-    infer c v = snd $ check c v
+    infer c v = inferenceResult $ annotate c v
 
 -- Axioms
 -- ------
@@ -159,12 +157,16 @@ instance Annotatable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomic
 instance Annotatable AST.AstSelectAttributeReference TAST.TAstSimpleAtomicIndexPair where
     annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeReference -> TcInferenceWrapper TAST.TAstSimpleAtomicIndexPair AST.AstSelectAttributeReference
     annotate c a@(AST.AstSelectAttributeReferenceUnqualified v)  = do
-        let (ce, vt) = check c v
+        let ck = annotate c v
+        let ce = checkingResult ck
+        let vt = inferenceResult ck
         let k = TAST.makeKey $ CU.toString v
         let at = TAST.TAstSimpleAtomicIndexKeyValue k <$> vt
         TcInferenceWrapper at ce a
     annotate c a@(AST.AstSelectAttributeReferenceQualified b v) = do
-        let (ce, bt) = check c b
+        let ck = annotate c b
+        let ce = checkingResult ck
+        let bt = inferenceResult ck
         let k = TAST.makeKey $ CU.toString v
         let vt = TAST.get k <$> bt
         case vt of
@@ -198,14 +200,22 @@ __recordUnknownAttributeError b v = do
 --
 instance Annotatable AST.AstSelectAttributeAccess TAST.TAstSimpleAtomicIndex where
     annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeAccess -> TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeAccess
-    annotate c a@(AST.AstSelectAttributeAccessStar v) =  TcInferenceWrapper vt ce a
-        where (ce, vt) = check c v
+    annotate c a@(AST.AstSelectAttributeAccessStar v) =  do
+        let ck = annotate c v
+        let ce = checkingResult ck
+        let vt = inferenceResult ck
+        TcInferenceWrapper vt ce a
+        
     annotate c a@(AST.AstSelectAttributeAccessReference v) = do
-        let (ce, vt) = check c v
+        let ck = annotate c v
+        let ce = checkingResult ck
+        let vt = inferenceResult ck
         let at = TAST.TAstSimpleAtomicIndexPair <$> vt
         TcInferenceWrapper at ce a
     annotate c a@(AST.AstSelectAttributeAccessReferenceAlias v l) = do
-        let (ce, vt) = check c v
+        let ck = annotate c v
+        let ce = checkingResult ck
+        let vt = inferenceResult ck
         case vt of
             Right (TAST.TAstSimpleAtomicIndexKeyValue _ u) -> do
                 let at = TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.makeKey $ CU.toString l) u
@@ -235,12 +245,16 @@ instance Annotatable AST.AstSelectAttributeAccess TAST.TAstSimpleAtomicIndex whe
 instance Annotatable AST.AstFromAccess TAST.TAstSimpleRecordIndexPair where
     annotate :: TCX.TCXSimpleTypeContext -> AST.AstFromAccess -> TcInferenceWrapper TAST.TAstSimpleRecordIndexPair AST.AstFromAccess
     annotate c a@(AST.AstFromAccessReference v) = do
-        let (ce, vt) = check c v
+        let ck = annotate c v
+        let ce = checkingResult ck
+        let vt = inferenceResult ck
         let k = TAST.makeKey $ CU.toString v
         let at = TAST.TAstSimpleRecordIndexKeyValue k <$> vt
         TcInferenceWrapper at ce a
     annotate c a@(AST.AstFromAccessReferenceAlias v l) = do
-        let (ce, vt) = check c v
+        let ck = annotate c v
+        let ce = checkingResult ck
+        let vt = inferenceResult ck
         let k = TAST.makeKey $ CU.toString l
         let at = TAST.TAstSimpleRecordIndexKeyValue k <$> vt
         TcInferenceWrapper at ce a
