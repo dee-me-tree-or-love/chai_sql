@@ -301,8 +301,9 @@ instance Annotatable AST.AstSelectQuery TAST.TAstDbView where
     let afs = map (annotate c) fs :: [TcInferenceWrapper TAST.TAstSimpleRecordIndexPair AST.AstFromAccess]
     let efts = map inferenceResult afs :: [TcInferenceResult TAST.TAstSimpleRecordIndexPair]
     let cets = map checkingResult afs :: [TcCheckResult]
+    let cetsj = foldl (\e' e'' -> TE.joinErrors <$> e' <*> e'') (Just TE.emptyError) cets
     case any isLeft efts of
-        True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts efts) Nothing a
+        True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts efts) cetsj a
         False -> do
             let fts = rights efts
             let fats = foldl __collectAttributes [] fts
@@ -312,12 +313,12 @@ instance Annotatable AST.AstSelectQuery TAST.TAstDbView where
             let aas = map (annotate uc) as :: [TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeAccess]
             let eats = map inferenceResult aas :: [TcInferenceResult TAST.TAstSimpleAtomicIndex]
             case any isLeft eats of
-                True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts eats) (foldl (\e' e'' -> TE.joinErrors <$> e' <*> e'') Nothing cets) a
+                True  -> TcInferenceWrapper (Left $ TE.combineErrors $ lefts eats) cetsj a
                 False -> do
                     let ats = rights eats
                     let rs = __resolveView fats ats
                     let at = if any isLeft rs then Left $ TE.combineErrors $ lefts rs else pure $ rights rs
-                    TcInferenceWrapper at Nothing a
+                    TcInferenceWrapper at cetsj a
   annotate c a@(AST.AstSelectQuery (Just h) as fs) = do -- ^ annotating a query /with/ a type hint
     let a' = annotate c (AST.AstSelectQuery Nothing as fs)
     let it = inferenceResult a'
