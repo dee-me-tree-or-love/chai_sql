@@ -308,11 +308,11 @@ instance Annotatable AST.AstSelectQuery TAST.TAstDbView where
     let it = inferenceResult a'
     let ce = checkingResult a'
     case it of
-        e@(Left _) -> TcInferenceWrapper e ce a
         t@(Right i) -> do
             if i == h
             then TcInferenceWrapper t ce a
             else TcInferenceWrapper t (TE.joinErrors <$> ce  <*> Just (__unmatchedHintError h i)) a
+        e@(Left _) -> TcInferenceWrapper e ce a
 
 __resolveView :: [TAST.TAstSimpleAtomicIndexPair] -> [TAST.TAstSimpleAtomicIndex] -> [TcInferenceResult TAST.TAstSimpleAtomicIndexPair]
 __resolveView fs = foldl (__resolveIndexesToView fs) []

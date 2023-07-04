@@ -1,5 +1,5 @@
 module ChaiMicroSql.TypeErrors (
-        TEBaseError,
+        TEBaseError(..),
         makeError,
         emptyError,
         joinErrors,
@@ -15,7 +15,7 @@ makeError = TEBaseError . pure
 
 -- | Simple utility to create an error with an empty message.
 emptyError :: TEBaseError
-emptyError = makeError ""
+emptyError = TEBaseError []
 
 -- | A utility to join two errors into one.
 --

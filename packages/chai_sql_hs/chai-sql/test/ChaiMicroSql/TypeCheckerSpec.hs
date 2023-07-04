@@ -17,7 +17,7 @@ spec = do
                 THS.it "returns Left <error text>" $ do
                     let __v = "foo"
                     let av = AST.AstVariable __v
-                    let f = TC.infer TCX.freshContext :: (AST.AstVariable -> Either TC.TcInferenceError TAST.TAstAtomicType)
+                    let f = TC.infer TCX.freshContext :: (AST.AstVariable -> TC.TcInferenceResult TAST.TAstAtomicType)
                     let e = Left $ TC.__varNotKnownError __v
                     THS.shouldBe (f av) e
 
@@ -28,7 +28,7 @@ spec = do
                     let av = AST.AstVariable __v
                     let k = TCX.TCXSimpleTypeContextKey __v
                     let c = TCX.extend k (TCX.contextualize __avt) TCX.freshContext
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstVariable -> TC.TcInferenceResult TAST.TAstSimpleTypeRecord)
                     let e = Right __avt
                     THS.shouldBe (f av) e
 
@@ -39,7 +39,7 @@ spec = do
                     let av = AST.AstVariable __v
                     let k = TCX.TCXSimpleTypeContextKey __v
                     let c = TCX.extend k (TCX.contextualize __avt) TCX.freshContext
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstVariable -> TC.TcInferenceResult TAST.TAstAtomicType)
                     let e = Right __avt
                     THS.shouldBe (f av) e
 
@@ -47,7 +47,7 @@ spec = do
             THS.describe "with a total record" $ do
                 THS.it "returns Right <total record type>" $ do
                     let a = AST.AstSelectAttributeStarTotalRecord
-                    let f = TC.infer TCX.freshContext
+                    let f = TC.infer TCX.freshContext :: (AST.AstSelectAttributeStarTotalRecord -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndex)
                     let e = Right TAST.TAstSimpleTypeRecordTotal
                     THS.shouldBe (f a) e
 
@@ -60,7 +60,7 @@ spec = do
                         let __vt = TAST.TAstAtomicTypeBool
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let av = AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __v
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstSelectAttributeReference -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndexPair)
                         let e = Right $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey __v) __vt
                         THS.shouldBe (f av) e
 
@@ -71,7 +71,7 @@ spec = do
                         let __vt = TAST.TAstAtomicTypeBool
                         let __c = TCX.freshContext
                         let av = AST.AstSelectAttributeReferenceUnqualified  $ AST.AstVariable __v
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstSelectAttributeReference -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndexPair)
                         let e = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f av) e
 
@@ -92,7 +92,7 @@ spec = do
                             let __c = TCX.extend __k (TCX.contextualize __bt) TCX.freshContext
                             -- abstract syntax nodes
                             let abv = AST.AstSelectAttributeReferenceQualified  __ab __av
-                            let f = TC.infer __c
+                            let f = TC.infer __c :: (AST.AstSelectAttributeReference -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndexPair)
                             let e = Left $ TC.__recordUnknownAttributeError __ab __av
                             THS.shouldBe (f abv) e
 
@@ -112,7 +112,7 @@ spec = do
                             let __c = TCX.extend __k (TCX.contextualize __bt) TCX.freshContext
                             -- abstract syntax nodes
                             let abv = AST.AstSelectAttributeReferenceQualified  __ab __av
-                            let f = TC.infer __c
+                            let f = TC.infer __c :: (AST.AstSelectAttributeReference -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndexPair)
                             let r = Right __bvk
                             THS.shouldBe (f abv) r
 
@@ -120,7 +120,7 @@ spec = do
             THS.describe "with a star access" $ do
                 THS.it "returns Right <total record type>" $ do
                     let a = AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord
-                    let f = TC.infer TCX.freshContext
+                    let f = TC.infer TCX.freshContext :: (AST.AstSelectAttributeAccess -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndex)
                     let r = Right TAST.TAstSimpleTypeRecordTotal
                     THS.shouldBe (f a) r
 
@@ -135,7 +135,7 @@ spec = do
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         -- we are directly accessing foo
                         let a = AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  (AST.AstVariable __v)
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstSelectAttributeAccess -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndex)
                         let r = Right $ TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey __v) __vt
                         THS.shouldBe (f a) r
 
@@ -149,7 +149,7 @@ spec = do
                         let __c = TCX.freshContext
                         -- we are directly accessing foo
                         let a = AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  (AST.AstVariable __v)
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstSelectAttributeAccess -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndex)
                         let r = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f a) r
 
@@ -165,34 +165,9 @@ spec = do
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         -- we are directly accessing foo
                         let a = AST.AstSelectAttributeAccessReferenceAlias  (AST.AstSelectAttributeReferenceUnqualified  (AST.AstVariable __v)) (AST.AstSimpleAlias __u)
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstSelectAttributeAccess -> TC.TcInferenceResult TAST.TAstSimpleAtomicIndex)
                         let r = Right $ TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey __u) __vt
                         THS.shouldBe (f a) r
-
-        THS.describe "with inferSelectList" $ do
-            THS.describe "with at least one error" $ do
-                THS.it "returns Left <all error messages combined>" $ do
-                    let __v = "foo"
-                    let av = AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  (AST.AstVariable __v)
-                    let f = TC.infer TCX.freshContext
-                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __v]
-                    THS.shouldBe (f [av]) e
-
-            THS.describe "with no errors" $ do
-                THS.it "returns Right <all types combined>" $ do
-                    -- foo is an attribute of type Bool
-                    let __v = "foo"
-                    let __k = TCX.TCXSimpleTypeContextKey __v
-                    let __vt = TAST.TAstAtomicTypeBool
-                    -- it is known to the context
-                    let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
-                    -- we are retrieving the types
-                    let av = AST.AstSelectAttributeAccessReference  $ AST.AstSelectAttributeReferenceUnqualified  (AST.AstVariable __v)
-                    let f = TC.infer __c
-                    let __rk = TAST.TAstSimpleIndexKey __v
-                    let __rki = TAST.TAstSimpleAtomicIndexPair $ TAST.TAstSimpleAtomicIndexKeyValue __rk __vt
-                    let r = Right [__rki]
-                    THS.shouldBe (f [av]) r
 
         THS.describe "with inferFromTable" $ do
             THS.describe "with a simple table access" $ do
@@ -203,7 +178,7 @@ spec = do
                         let __vt = TAST.emptyRecord
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let av = AST.AstFromAccessReference  $ AST.AstVariable __v
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstFromAccess -> TC.TcInferenceResult TAST.TAstSimpleRecordIndexPair)
                         let __rki = TAST.TAstSimpleRecordIndexKeyValue (TAST.TAstSimpleIndexKey __v) __vt
                         let r = Right __rki
                         THS.shouldBe (f av) r
@@ -214,7 +189,7 @@ spec = do
                         let __k = TCX.TCXSimpleTypeContextKey __v
                         let __c = TCX.freshContext
                         let av = AST.AstFromAccessReference  $ AST.AstVariable __v
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstFromAccess -> TC.TcInferenceResult TAST.TAstSimpleRecordIndexPair)
                         let r = Left $ TC.__varNotKnownError __v
                         THS.shouldBe (f av) r
 
@@ -227,7 +202,7 @@ spec = do
                         let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
                         let __u = "bar"
                         let av = AST.AstFromAccessReferenceAlias  (AST.AstVariable __v) (AST.AstSimpleAlias __u)
-                        let f = TC.infer __c
+                        let f = TC.infer __c :: (AST.AstFromAccess -> TC.TcInferenceResult TAST.TAstSimpleRecordIndexPair)
                         let __rk = TAST.TAstSimpleIndexKey __u
                         let __rki = TAST.TAstSimpleRecordIndexKeyValue __rk __vt
                         let r = Right __rki
@@ -251,7 +226,7 @@ spec = do
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
                         let av = AST.AstFromAccessNestedQueryAlias q (AST.AstSimpleAlias __u)
-                        let f = TC.infer c
+                        let f = TC.infer c :: (AST.AstFromAccess -> TC.TcInferenceResult TAST.TAstSimpleRecordIndexPair)
                         let __rk = TAST.TAstSimpleIndexKey __u
                         let __rki = TAST.TAstSimpleRecordIndexKeyValue __rk $ TAST.makeRecord [__fIdT, __fNameT]
                         let r = Right __rki
@@ -277,50 +252,13 @@ spec = do
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         let __u = "bar"
                         let av = AST.AstFromAccessNestedQueryAlias q (AST.AstSimpleAlias __u)
-                        let f = TC.infer c
+                        let f = TC.infer c :: (AST.AstFromAccess -> TC.TcInferenceResult TAST.TAstSimpleRecordIndexPair)
                         let __rk = TAST.TAstSimpleIndexKey __u
                         -- prepare a de-duplicated result
                         let __fIdT1 = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey $ __a ++ ":1") TAST.TAstAtomicTypeBool
                         let __rki = TAST.TAstSimpleRecordIndexKeyValue __rk $ TAST.makeRecord [__fIdT, __fIdT1, __fNameT]
                         let r = Right __rki
                         THS.shouldBe (f av) r
-
-        THS.describe "with inferFromList" $ do
-            THS.describe "with at least one error" $ do
-                THS.it "returns Left <all error messages combined>" $ do
-                    let __v = "foo"
-                    let av = AST.AstFromAccessReference  $ AST.AstVariable __v
-                    let f = TC.infer TCX.freshContext
-                    let e = Left $ TE.combineErrors [TC.__varNotKnownError __v]
-                    THS.shouldBe (f [av]) e
-
-            THS.describe "with no errors" $ do
-                THS.describe "without any aliases" $ do
-                    THS.it "returns Right <all types combined>" $ do
-                        let __v = "foo"
-                        let __k = TCX.TCXSimpleTypeContextKey __v
-                        let __vt = TAST.emptyRecord
-                        let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
-                        let av = AST.AstFromAccessReference  $ AST.AstVariable __v
-                        let f = TC.infer __c
-                        let __rk = TAST.TAstSimpleIndexKey __v
-                        let __rki = TAST.TAstSimpleRecordIndexKeyValue __rk __vt
-                        let r = Right [__rki]
-                        THS.shouldBe (f [av]) r
-
-                THS.describe "with an aliases" $ do
-                    THS.it "returns Right <all types combined>" $ do
-                        let __v = "foo"
-                        let __k = TCX.TCXSimpleTypeContextKey __v
-                        let __vt = TAST.emptyRecord
-                        let __c = TCX.extend __k (TCX.contextualize __vt) TCX.freshContext
-                        let __u = "bar"
-                        let av = AST.AstFromAccessReferenceAlias  (AST.AstVariable __v) (AST.AstSimpleAlias __u)
-                        let f = TC.infer __c
-                        let __rk = TAST.TAstSimpleIndexKey __u
-                        let __rki = TAST.TAstSimpleRecordIndexKeyValue __rk __vt
-                        let r = Right [__rki]
-                        THS.shouldBe (f [av]) r
 
         THS.describe "with inferSelectQuery" $ do
             THS.describe "with star selection" $ do
@@ -338,9 +276,47 @@ spec = do
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check
                     let e = Right [__fIdT, __fNameT]
+                    THS.shouldBe (f q) e
+
+                THS.it "with correct hint returns all attributes from the from list" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __fIdT = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "id") TAST.TAstAtomicTypeBool
+                    let __fNameT= TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "name") TAST.TAstAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT * FROM foos;
+                    let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
+                    let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
+                    let q = AST.AstSelectQuery (Just [__fIdT, __fNameT]) qsl qfl
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
+                    -- check
+                    let e = Right [__fIdT, __fNameT]
+                    THS.shouldBe (f q) e
+
+                THS.it "with incorrect hint returns error" $ do
+                    -- construct the context
+                    let __f = "foos"
+                    let __fIdT = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "id") TAST.TAstAtomicTypeBool
+                    let __fNameT= TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "name") TAST.TAstAtomicTypeBool
+                    let __fas = [__fIdT, __fNameT]
+                    let __ft = TAST.makeRecord __fas
+                    -- construct a query from SELECT * FROM foos;
+                    let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
+                    let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
+                    let q = AST.AstSelectQuery (Just [__fIdT]) qsl qfl
+                    -- populate starting context
+                    let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                    -- infer query
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
+                    -- check
+                    let e = Left TE.emptyError
                     THS.shouldBe (f q) e
 
             THS.describe "with star selection and cross product" $ do
@@ -365,7 +341,7 @@ spec = do
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     let c = TCX.extend (TCX.makeKey __b) (TCX.contextualize __bt) __c
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check
                     let e = Right [__fIdT, __fNameT, __bIdT, __bLocationT]
                     THS.shouldBe (f q) e
@@ -394,7 +370,7 @@ spec = do
                     let __c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     let c = TCX.extend (TCX.makeKey __b) (TCX.contextualize __bt) __c
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check
                     let e = Right [__bLocationT]
                     THS.shouldBe (f q) e
@@ -415,7 +391,7 @@ spec = do
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check
                     let e = Right [__fIdT]
                     THS.shouldBe (f q) e
@@ -437,7 +413,7 @@ spec = do
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check that it reports all the failures
                     let e = Left $ TE.combineErrors [TC.__varNotKnownError __na]
                     THS.shouldBe (f q) e
@@ -459,12 +435,12 @@ spec = do
                     -- populate starting context
                     let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check that it reports all the failures
                     let e = Left $ TE.combineErrors [TCX.__recordNotAtomError]
                     THS.shouldBe (f q) e
 
-            THS.describe "with atrribute not in soiurce but in context" $ do
+            THS.describe "with atrribute not in source but in context" $ do
                 THS.it "fails" $ do
                     -- construct the context
                     let __f = "foos"
@@ -484,7 +460,7 @@ spec = do
                     -- populate starting context with a ghost attribute
                     let c = TCX.extend (TCX.makeKey __na) (TCX.contextualize __nat) __c
                     -- infer query
-                    let f = TC.infer c
+                    let f = TC.infer c :: (AST.AstSelectQuery -> TC.TcInferenceResult TAST.TAstDbView)
                     -- check that it reports all the failures
                     let e = Left $ TE.combineErrors [TC.__attributeNotInSourceError $ TAST.TAstSimpleAtomicIndexKeyValue (TAST.makeKey __na) __nat]
                     THS.shouldBe (f q) e
