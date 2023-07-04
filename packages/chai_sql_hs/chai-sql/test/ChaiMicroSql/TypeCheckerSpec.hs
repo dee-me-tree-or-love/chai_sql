@@ -498,11 +498,12 @@ spec = do
                         -- construct a query from SELECT * FROM foos;
                         let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
                         let qfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
-                        let q = AST.AstSelectQuery (Just [__fIdT]) qsl qfl
+                        let __nfas = [__fIdT]
+                        let q = AST.AstSelectQuery (Just __nfas) qsl qfl
                         -- populate starting context
                         let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
                         -- expected
                         let f = TC.annotate c :: (AST.AstSelectQuery -> TC.TcInferenceWrapper TAST.TAstDbView AST.AstSelectQuery)
                         -- expected
-                        let e = Nothing
+                        let e = Just $ TC.__unmatchedHintError __nfas __fas
                         THS.shouldBe (TC.checkingResult $ f q) e

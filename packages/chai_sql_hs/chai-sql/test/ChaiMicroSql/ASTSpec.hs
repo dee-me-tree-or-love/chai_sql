@@ -6,9 +6,6 @@ import qualified ChaiMicroSql.AST         as AST
 import qualified ChaiMicroSql.CommonUtils as CU
 import qualified Test.Hspec               as THS
 
-none :: ()
-none = ()
-
 spec :: THS.Spec
 spec = do
     THS.describe "AST of" $ do

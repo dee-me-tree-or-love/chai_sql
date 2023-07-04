@@ -45,6 +45,7 @@ import qualified ChaiMicroSql.TAST        as TAST
 import qualified ChaiMicroSql.TypeContext as TCX
 import qualified ChaiMicroSql.TypeErrors  as TE
 import           Data.Either              (isLeft, lefts, rights)
+import           GHC.Base                 ((<|>))
 
 -- -- Type Inference Procedures
 -- -- -------------------------
@@ -205,7 +206,7 @@ instance Annotatable AST.AstSelectAttributeAccess TAST.TAstSimpleAtomicIndex whe
         let ce = checkingResult ck
         let vt = inferenceResult ck
         TcInferenceWrapper vt ce a
-        
+
     annotate c a@(AST.AstSelectAttributeAccessReference v) = do
         let ck = annotate c v
         let ce = checkingResult ck
@@ -320,13 +321,19 @@ instance Annotatable AST.AstSelectQuery TAST.TAstDbView where
   annotate c a@(AST.AstSelectQuery (Just h) as fs) = do -- ^ annotating a query /with/ a type hint
     let a' = annotate c (AST.AstSelectQuery Nothing as fs)
     let it = inferenceResult a'
-    let ce = checkingResult a'
+    let ce = checkingResult a' <|> Just TE.emptyError
     case it of
-        t@(Right i) -> do
+        Right i -> do
             if i == h
-            then TcInferenceWrapper t ce a
-            else TcInferenceWrapper t (TE.joinErrors <$> ce  <*> Just (__unmatchedHintError h i)) a
-        e@(Left _) -> TcInferenceWrapper e ce a
+            then a' {inferenceSource = a}
+            else a' {checkingResult = TE.joinErrors <$> ce  <*> Just (__unmatchedHintError h i), inferenceSource = a}
+        Left _ -> a' {inferenceSource = a}
+    -- case it of
+    --     Right i -> do
+    --         if i == h
+    --         then TcInferenceWrapper it ce a
+    --         else TcInferenceWrapper it (TE.joinErrors <$> ce  <*> Just (__unmatchedHintError h i)) a
+    --     Left _ -> TcInferenceWrapper it ce a
 
 __resolveView :: [TAST.TAstSimpleAtomicIndexPair] -> [TAST.TAstSimpleAtomicIndex] -> [TcInferenceResult TAST.TAstSimpleAtomicIndexPair]
 __resolveView fs = foldl (__resolveIndexesToView fs) []
