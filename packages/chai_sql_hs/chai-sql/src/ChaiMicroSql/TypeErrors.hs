@@ -7,11 +7,11 @@ module ChaiMicroSql.TypeErrors (
     ) where
 
 -- | A basic error wrapper.
-newtype TEBaseError = TEBaseError String deriving (Show, Eq)
+newtype TEBaseError = TEBaseError [String] deriving (Show, Eq)
 
 -- | Creates a new error.
 makeError :: String -> TEBaseError
-makeError = TEBaseError
+makeError = TEBaseError . pure
 
 -- | Simple utility to create an error with an empty message.
 emptyError :: TEBaseError
@@ -23,15 +23,14 @@ emptyError = makeError ""
 --
 -- Examples:
 --
--- >>> joinErrors (TEBaseError "Ay, caramba") (TEBaseError "d'oh")
--- TEBaseError "Ay, caramba\n- d'oh"
+-- >>> joinErrors (TEBaseError ["Ay, caramba"]) (TEBaseError ["d'oh"])
+-- TEBaseError ["Ay, caramba","d'oh"]
 --
--- >>> foldl joinErrors (TEBaseError "") [(TEBaseError "Ay, caramba"), (TEBaseError "d'oh"), (TEBaseError "Hrmmm....")]
--- TEBaseError "- Ay, caramba\n- d'oh\n- Hrmmm...."
+-- >>> foldl joinErrors (TEBaseError []) [(TEBaseError ["Ay, caramba"]), (TEBaseError ["d'oh"]), (TEBaseError ["Hrmmm...."])]
+-- TEBaseError ["Ay, caramba","d'oh","Hrmmm...."]
 --
 joinErrors :: TEBaseError -> TEBaseError -> TEBaseError
-joinErrors (TEBaseError "") (TEBaseError b) = TEBaseError $ "- " ++ b
-joinErrors (TEBaseError a) (TEBaseError b) = TEBaseError $ a ++ "\n- " ++ b
+joinErrors (TEBaseError xs) (TEBaseError ys) = TEBaseError $ xs ++ ys
 
 -- | A utility to combine multiple errors into one.
 --

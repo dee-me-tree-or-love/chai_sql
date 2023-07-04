@@ -31,7 +31,7 @@ This is a naive inference-based type checker.
 
 == Rules
 
-    - @R1@: ~ /Qualifed attribute access/ ~   @G |- x : {R} /\ v ! {R} |= G |- x.v : $v : {R}(v) $@
+    - @R1@: ~ /Qualifed attribute access/ ~   @G |- x : {R} /\ v ! {R} |= G |- x.v : $v : {R}(v)$@
     - @R2@: ~ /Alias index swap/ ~            @G |- x : $a : T$ |= G |- x as v : $v : T$@
     - @R3@: ~ /List of variables/ ~           @(G |- u : $a : T$ ) /\ (G |- us : [p]) |= G |- u, us : [p] ++ [$a : T$]@
     - @R4@: ~ /Resolve the attributes/ ~      @(G U ([ts] ++ |[ts]|) |- xs : [cs]) /\ (G |- ys : [ts]) |= 'SELECT' xs 'FROM' ys : [cs] <\ [ts]@
@@ -93,11 +93,11 @@ class Annotatable a t where
 -- Examples:
 --
 -- >>> infer TCX.freshContext (AST.AstVariable "m") :: TcInferenceResult TAST.TAstAtomicType
--- Left (TEBaseError "Could not infer variable type. Variable `m` is not in context.")
+-- Left (TEBaseError ["Could not infer variable type. Variable `m` is not in context."])
 --
 -- >>> ctx = TCX.extend (TCX.makeKey "m") (TCX.contextualize TAST.TAstAtomicTypeBool) TCX.freshContext
 -- >>> annotate ctx (AST.AstVariable "m") :: TcInferenceWrapper TAST.TAstAtomicType AST.AstVariable
--- TcInferenceWrapper {content = (Right TAstAtomicTypeBool,AstVariable "m")}
+-- TcInferenceWrapper {inferenceResult = Right TAstAtomicTypeBool, checkingResult = Nothing, inferenceSource = AstVariable "m"}
 --
 -- >>> infer ctx (AST.AstVariable "m")  :: TcInferenceResult TAST.TAstAtomicType
 -- Right TAstAtomicTypeBool
@@ -126,7 +126,7 @@ __varNotKnownError v = TE.makeError $ "Could not infer variable type. Variable `
 -- Examples:
 --
 -- >>> annotate TCX.freshContext AST.AstSelectAttributeStarTotalRecord :: TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeStarTotalRecord
--- TcInferenceWrapper {content = (Right TAstSimpleTypeRecordTotal,AstSelectAttributeStarTotalRecord)}
+-- TcInferenceWrapper {inferenceResult = Right TAstSimpleTypeRecordTotal, checkingResult = Nothing, inferenceSource = AstSelectAttributeStarTotalRecord}
 --
 -- >>> infer TCX.freshContext AST.AstSelectAttributeStarTotalRecord :: TcInferenceResult TAST.TAstSimpleAtomicIndex
 -- Right TAstSimpleTypeRecordTotal
@@ -154,7 +154,7 @@ instance Annotatable AST.AstSelectAttributeStarTotalRecord TAST.TAstSimpleAtomic
 -- Right (TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey "m") TAstAtomicTypeBool)
 --
 -- >>> annotate ctx (AST.AstSelectAttributeReferenceQualified (AST.AstVariable "m") (AST.AstVariable "q")) :: TcInferenceWrapper TAST.TAstSimpleAtomicIndexPair AST.AstSelectAttributeReference
--- TcInferenceWrapper {content = (Left (TEBaseError "Can not retrieve record type from stored atomic."),AstSelectAttributeReferenceQualified (AstVariable "m") (AstVariable "q"))}
+-- TcInferenceWrapper {inferenceResult = Left (TEBaseError ["Can not retrieve record type from stored atomic."]), checkingResult = Nothing, inferenceSource = AstSelectAttributeReferenceQualified (AstVariable "m") (AstVariable "q")}
 --
 instance Annotatable AST.AstSelectAttributeReference TAST.TAstSimpleAtomicIndexPair where
     annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeReference -> TcInferenceWrapper TAST.TAstSimpleAtomicIndexPair AST.AstSelectAttributeReference
@@ -194,7 +194,7 @@ __recordUnknownAttributeError b v = do
 -- Right TAstSimpleTypeRecordTotal
 --
 -- >>> annotate ctx (AST.AstSelectAttributeAccessStar AST.AstSelectAttributeStarTotalRecord) :: TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeAccess
--- TcInferenceWrapper {content = (Right TAstSimpleTypeRecordTotal,AstSelectAttributeAccessStar AstSelectAttributeStarTotalRecord)}
+-- TcInferenceWrapper {inferenceResult = Right TAstSimpleTypeRecordTotal, checkingResult = Nothing, inferenceSource = AstSelectAttributeAccessStar AstSelectAttributeStarTotalRecord}
 --
 instance Annotatable AST.AstSelectAttributeAccess TAST.TAstSimpleAtomicIndex where
     annotate :: TCX.TCXSimpleTypeContext -> AST.AstSelectAttributeAccess -> TcInferenceWrapper TAST.TAstSimpleAtomicIndex AST.AstSelectAttributeAccess
@@ -228,7 +228,7 @@ instance Annotatable AST.AstSelectAttributeAccess TAST.TAstSimpleAtomicIndex whe
 -- Right (TAstSimpleRecordIndexKeyValue (TAstSimpleIndexKey "m") (fromList []))
 --
 -- >>> annotate ctx (AST.AstFromAccessReference (AST.AstVariable "m")) :: TcInferenceWrapper TAST.TAstSimpleRecordIndexPair AST.AstFromAccess
--- TcInferenceWrapper {content = (Right (TAstSimpleRecordIndexKeyValue (TAstSimpleIndexKey "m") (fromList [])),AstFromAccessReference (AstVariable "m"))}
+-- TcInferenceWrapper {inferenceResult = Right (TAstSimpleRecordIndexKeyValue (TAstSimpleIndexKey "m") (fromList [])), checkingResult = Nothing, inferenceSource = AstFromAccessReference (AstVariable "m")}
 --
 -- TODO: add a sub-query example
 --
