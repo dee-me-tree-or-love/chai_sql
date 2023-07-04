@@ -507,3 +507,33 @@ spec = do
                         -- expected
                         let e = Just $ TC.__unmatchedHintError __nfas __fas
                         THS.shouldBe (TC.checkingResult $ f q) e
+
+            THS.describe "with check Select Query" $ do
+                THS.describe "with nested selection" $ do
+                    THS.it "with wrong nested and top-level hints" $ do
+                        -- construct the context
+                        let __f = "foos"
+                        let __fIdT = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "id") TAST.TAstAtomicTypeBool
+                        let __fNameT= TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "name") TAST.TAstAtomicTypeBool
+                        let __fas = [__fIdT, __fNameT]
+                        let __ft = TAST.makeRecord __fas
+                        -- wrong type hints
+                        let __nsfas = [__fIdT]
+                        let __nfas = [__fNameT]
+                        -- construct a query from SELECT * FROM foos;
+                        let qsl = [AST.AstSelectAttributeAccessStar  AST.AstSelectAttributeStarTotalRecord]
+                        let sqfl = [AST.AstFromAccessReference  $ AST.AstVariable __f]
+                        let sq = AST.AstSelectQuery (Just __nsfas) qsl sqfl
+                        -- make it a sub-query
+                        let __u = "bar"
+                        let av = AST.AstFromAccessNestedQueryAlias sq (AST.AstSimpleAlias __u)
+                        -- construct a query from SELECT * FROM (SELECT * FROM foos) AS bar;
+                        let qfl = [av]
+                        let q = AST.AstSelectQuery (Just __nfas) qsl qfl
+                        -- populate starting context
+                        let c = TCX.extend (TCX.makeKey __f) (TCX.contextualize __ft) TCX.freshContext
+                        -- expected
+                        let f = TC.annotate c :: (AST.AstSelectQuery -> TC.TcInferenceWrapper TAST.TAstDbView AST.AstSelectQuery)
+                        -- expected
+                        let e = Just $ TE.combineErrors [TC.__unmatchedHintError __nsfas __fas, TC.__unmatchedHintError __nfas __fas]
+                        THS.shouldBe (TC.checkingResult $ f q) e
