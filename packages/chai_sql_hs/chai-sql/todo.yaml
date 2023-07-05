@@ -1,7 +1,10 @@
 tasks:
   todo:
+    - implement SQL parser
+    - refactor the checker error-handling+reporting
   doing:
   done:
+    - refactor and extend the test suite
 
 # ~~~~
 notes:

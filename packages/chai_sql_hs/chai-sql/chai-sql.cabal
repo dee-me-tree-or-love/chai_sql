@@ -27,6 +27,9 @@ library
   exposed-modules:
       ChaiMicroSql.AST
       ChaiMicroSql.CommonUtils
+      ChaiMicroSql.Parsing.Lexer
+      ChaiMicroSql.Parsing.Parser
+      ChaiMicroSql.Parsing.Tokens
       ChaiMicroSql.TAST
       ChaiMicroSql.TypeChecker
       ChaiMicroSql.TypeContext
@@ -67,6 +70,7 @@ test-suite chai-sql-test
   main-is: Spec.hs
   other-modules:
       ChaiMicroSql.ASTSpec
+      ChaiMicroSql.Parsing.ParserSpec
       ChaiMicroSql.TASTSpec
       ChaiMicroSql.TypeCheckerSpec
       ChaiMicroSql.TypeContextSpec

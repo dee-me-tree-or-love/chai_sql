@@ -40,6 +40,8 @@ import qualified ChaiMicroSql.TAST        as TAST
 -- Concrete AST
 -- ------------
 
+-- TODO(tech-debt): simplify the data names
+
 -- | A single SQL select query with a possible type hint.
 data AstSelectQuery = AstSelectQuery (Maybe TAST.TAstDbView) [AstSelectAttributeAccess] [AstFromAccess]
     deriving (Show, Eq)
@@ -57,15 +59,15 @@ data AstSelectAttributeReference
     | AstSelectAttributeReferenceQualified AstVariable AstVariable     -- ^ e.g. @X.Y@
     deriving (Show, Eq)
 
+-- | A constant total record representation.
+data AstSelectAttributeStarTotalRecord = AstSelectAttributeStarTotalRecord deriving (Show, Eq)
+
 -- | A single table access.
 data AstFromAccess
     = AstFromAccessReference AstVariable                              -- ^ e.g. @... FROM x ...@
     | AstFromAccessReferenceAlias AstVariable AstSimpleAlias          -- ^ e.g. @... FROM x AS y ...@
     | AstFromAccessNestedQueryAlias AstSelectQuery AstSimpleAlias     -- ^ e.g. @... FROM (SELECT ...) AS Y ...@
     deriving (Show, Eq)
-
--- | A constant total record representation.
-data AstSelectAttributeStarTotalRecord = AstSelectAttributeStarTotalRecord deriving (Show, Eq)
 
 -- | A simple variable name wrapper.
 newtype AstVariable = AstVariable String deriving (Show, Eq)
