@@ -1,9 +1,10 @@
 tasks:
   todo:
-    - implement SQL parser
     - refactor the checker error-handling+reporting
   doing:
+    - implement context loader
   done:
+    - implement SQL parser
     - refactor and extend the test suite
 
 # ~~~~

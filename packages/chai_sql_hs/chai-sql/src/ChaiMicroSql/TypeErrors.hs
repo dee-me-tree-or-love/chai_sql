@@ -1,3 +1,4 @@
+-- TODO(tech-debt): make this a BasicErrors module
 module ChaiMicroSql.TypeErrors (
         TEBaseError(..),
         makeError,
