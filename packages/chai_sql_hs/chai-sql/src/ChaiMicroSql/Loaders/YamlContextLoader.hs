@@ -13,10 +13,7 @@ import           Data.List                (intercalate)
 import qualified Data.Yaml                as Y
 import           GHC.Generics             (Generic)
 
-{- TODO:
-
-- Take in a YAML file describing the DB schema
-- Parse the YAML file into the Context
+{- FIXME: refine the documentation
 
 Example YAML:
 
@@ -31,7 +28,6 @@ tables:
         - name: peep
           spec: Bool
 ```
-
  -}
 
 -- YAML parsing of raw schemas
