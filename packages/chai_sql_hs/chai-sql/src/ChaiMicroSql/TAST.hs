@@ -41,7 +41,7 @@ emptyRecord :: TAstSimpleTypeRecord
 emptyRecord = M.empty
 
 -- | A type used to construct key-value index pairs for atomic type collections.
-data TAstSimpleRecordIndexPair = TAstSimpleRecordIndexKeyValue TAstSimpleIndexKey TAstSimpleTypeRecord   -- ^ A key-value pari for a record type.
+data TAstSimpleRecordIndexPair = TAstSimpleRecordIndexKeyValue TAstSimpleIndexKey TAstSimpleTypeRecord   -- ^ A key-value pair for a record type.
         deriving (Show, Eq, Ord)
 
 -- | A specialized type construct representing DB query results.
@@ -55,9 +55,13 @@ type TAstDbView = [TAstSimpleAtomicIndexPair]
 -- | Simple wrapper for Record type indexing.
 newtype TAstSimpleIndexKey = TAstSimpleIndexKey String deriving (Show, Eq, Ord)
 
--- | Simpler key maker
+-- | Simple key maker
 makeKey :: String -> TAstSimpleIndexKey
 makeKey = TAstSimpleIndexKey
+
+-- | Get string of the key
+unKey :: TAstSimpleIndexKey -> String
+unKey (TAstSimpleIndexKey v) = v
 
 instance CU.ToStringable TAstSimpleIndexKey where
     toString :: TAstSimpleIndexKey -> String

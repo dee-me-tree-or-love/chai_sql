@@ -81,9 +81,13 @@ class Contextable a where
     contextualize :: a -> TCXSimpleTypeContextValue
     decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError a
 
+    extendContext :: TCXSimpleTypeContextKey -> a -> TCXSimpleTypeContext -> TCXSimpleTypeContext
+    extendContext k a = extend k (contextualize a)
+
 instance Contextable TAST.TAstAtomicType where
     contextualize ::  TAST.TAstAtomicType -> TCXSimpleTypeContextValue
     contextualize = TCXSimpleTypeContextValueAtomic
+
     decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError TAST.TAstAtomicType
     decontextualize (TCXSimpleTypeContextValueAtomic a) = Right a
     decontextualize (TCXSimpleTypeContextValueRecord _) = Left __recordNotAtomError
@@ -94,6 +98,7 @@ __recordNotAtomError = TE.makeError "Can not retrieve atomic type from stored re
 instance Contextable TAST.TAstSimpleTypeRecord where
     contextualize ::  TAST.TAstSimpleTypeRecord -> TCXSimpleTypeContextValue
     contextualize = TCXSimpleTypeContextValueRecord
+
     decontextualize :: TCXSimpleTypeContextValue -> Either TCXContextError TAST.TAstSimpleTypeRecord
     decontextualize (TCXSimpleTypeContextValueRecord r) = Right r
     decontextualize (TCXSimpleTypeContextValueAtomic _) = Left __atomNotRecordError
