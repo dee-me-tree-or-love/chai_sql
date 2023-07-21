@@ -1,11 +1,16 @@
 tasks:
   todo:
+    - increase test coverage
+    - simplify data type names
+    - make a nicer formatter for errors
     - refactor the checker error-handling+reporting
   doing:
-    - implement context loader
+    - link together the context loader, the SQL parser, and the type checker
   done:
+    - implement context loader
     - implement SQL parser
     - refactor and extend the test suite
+    - basic type checking
 
 # ~~~~
 notes:
