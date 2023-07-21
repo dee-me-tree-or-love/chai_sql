@@ -61,3 +61,17 @@ spec = do
                 THS.it ("`" ++ i ++ "` into a correct AST") $ do
                     let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReference $ AST.AstSelectAttributeReferenceQualified (AST.AstVariable "Bar") (AST.AstVariable "Qua")] [AST.AstFromAccessReference (AST.AstVariable "Foo")]
                     THS.shouldBe (p i) [e]
+
+            THS.describe "parses" $ do
+                let i = "SELECT Bar.Qua as q FROM Foo"
+                THS.it ("`" ++ i ++ "` into a correct AST") $ do
+                    let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReferenceAlias (AST.AstSelectAttributeReferenceQualified (AST.AstVariable "Bar") (AST.AstVariable "Qua")) $ AST.AstSimpleAlias "q"] [AST.AstFromAccessReference (AST.AstVariable "Foo")]
+                    THS.shouldBe (p i) [e]
+
+            THS.describe "parses" $ do
+                let i = "SELECT Bar.Qua AS q FROM Foo"
+                THS.it ("`" ++ i ++ "` into a correct AST") $ do
+                    let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReferenceAlias (AST.AstSelectAttributeReferenceQualified (AST.AstVariable "Bar") (AST.AstVariable "Qua")) $ AST.AstSimpleAlias "q"] [AST.AstFromAccessReference (AST.AstVariable "Foo")]
+                    THS.shouldBe (p i) [e]
+
+

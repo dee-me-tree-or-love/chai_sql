@@ -58,12 +58,15 @@ StackAttributeAccess    :: { [SAST.AstSelectAttributeAccess] }
 StackAttributeAccess    : AttributeAccess                           { [$1] }
                         | StackAttributeAccess ',' AttributeAccess  { $3 : $1 }
 
--- TODO: extend to support aliases and constants
+-- TODO: extend to support constants
 AttributeAccess     :: { SAST.AstSelectAttributeAccess }
-AttributeAccess     : Variable                  { SAST.AstSelectAttributeAccessReference $ SAST.AstSelectAttributeReferenceUnqualified $1 }
-                    | Variable '.' Variable     { SAST.AstSelectAttributeAccessReference $ SAST.AstSelectAttributeReferenceQualified $1 $3 }
-                    | star                      { SAST.AstSelectAttributeAccessStar SAST.AstSelectAttributeStarTotalRecord }
+AttributeAccess     : AttributeAccessTerm           { SAST.AstSelectAttributeAccessReference $1 }
+                    | AttributeAccessTerm Alias     { SAST.AstSelectAttributeAccessReferenceAlias $1 $2 }
+                    | star                          { SAST.AstSelectAttributeAccessStar SAST.AstSelectAttributeStarTotalRecord }
 
+AttributeAccessTerm :: { SAST.AstSelectAttributeReference }
+AttributeAccessTerm : Variable                      { SAST.AstSelectAttributeReferenceUnqualified $1 }
+                    | Variable '.' Variable         { SAST.AstSelectAttributeReferenceQualified $1 $3 }
 
 StackFromAccess     :: { [SAST.AstFromAccess] }
 StackFromAccess     : FromAccess                        { [$1] }
@@ -75,6 +78,9 @@ FromAccess  : Variable  { SAST.AstFromAccessReference $1 }
 
 Variable    :: { SAST.AstVariable }
 Variable    : term { SAST.AstVariable $1 }
+
+Alias       :: { SAST.AstSimpleAlias }
+Alias       : as term { SAST.AstSimpleAlias $2 }
 
 {
 parseError :: [CPT.Token] -> a

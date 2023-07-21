@@ -40,7 +40,7 @@ import qualified ChaiMicroSql.TAST        as TAST
 -- Concrete AST
 -- ------------
 
--- TODO(tech-debt): simplify the data names
+-- TODO(tech-debt): simplify the data names and align with parser
 
 -- | A single SQL select query with a possible type hint.
 data AstSelectQuery = AstSelectQuery (Maybe TAST.TAstDbView) [AstSelectAttributeAccess] [AstFromAccess]
