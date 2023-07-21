@@ -38,12 +38,14 @@ $ chaisql-cli --help
 
 ## Development
 
+> 💡 Quick tip: run `cat README.md | grep stack` to quickly locate all `stack` commands.
+
 ### 🚚 `stack build` - builds the project
 
 ### 🧪 `stack test` - executes the test suite
 
 #### 🔬 `stack test --coverage` - executes the test suite with coverage report
 
-### 🖍️ `stack exec -- doctest src` - checks the examples in the library documentation
+### 📝 `stack exec -- doctest src` - checks the examples in the library documentation
 
 ### 📔 `stack exec -- haddock --html src/**/*.hs -o .docs` - builds the API documentation
