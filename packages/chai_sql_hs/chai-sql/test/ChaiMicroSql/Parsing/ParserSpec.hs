@@ -51,6 +51,18 @@ spec = do
                     THS.shouldBe (p i) [e]
 
             THS.describe "parses" $ do
+                let i = "SELECT Bar FROM Foo as f"
+                THS.it ("`" ++ i ++ "` into a correct AST") $ do
+                    let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReference $ AST.AstSelectAttributeReferenceUnqualified (AST.AstVariable "Bar")] [AST.AstFromAccessReferenceAlias (AST.AstVariable "Foo") (AST.AstSimpleAlias "f")]
+                    THS.shouldBe (p i) [e]
+
+            THS.describe "parses" $ do
+                let i = "SELECT Bar FROM Foo AS f"
+                THS.it ("`" ++ i ++ "` into a correct AST") $ do
+                    let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReference $ AST.AstSelectAttributeReferenceUnqualified (AST.AstVariable "Bar")] [AST.AstFromAccessReferenceAlias (AST.AstVariable "Foo") (AST.AstSimpleAlias "f")]
+                    THS.shouldBe (p i) [e]
+
+            THS.describe "parses" $ do
                 let i = "SELECT Bar, Qua FROM Foo"
                 THS.it ("`" ++ i ++ "` into a correct AST") $ do
                     let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReference $ AST.AstSelectAttributeReferenceUnqualified (AST.AstVariable "Qua"), AST.AstSelectAttributeAccessReference $ AST.AstSelectAttributeReferenceUnqualified (AST.AstVariable "Bar")] [AST.AstFromAccessReference (AST.AstVariable "Foo")]
@@ -74,4 +86,8 @@ spec = do
                     let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReferenceAlias (AST.AstSelectAttributeReferenceQualified (AST.AstVariable "Bar") (AST.AstVariable "Qua")) $ AST.AstSimpleAlias "q"] [AST.AstFromAccessReference (AST.AstVariable "Foo")]
                     THS.shouldBe (p i) [e]
 
-
+            THS.describe "parses" $ do
+                let i = "SELECT Bar FROM (SELECT * FROM Foo) as f"
+                THS.it ("`" ++ i ++ "` into a correct AST") $ do
+                    let e = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessReference $ AST.AstSelectAttributeReferenceUnqualified $ AST.AstVariable "Bar"] [AST.AstFromAccessNestedQueryAlias (AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessStar AST.AstSelectAttributeStarTotalRecord] [AST.AstFromAccessReference $ AST.AstVariable "Foo"]) $ AST.AstSimpleAlias "f"]
+                    THS.shouldBe (p i) [e]

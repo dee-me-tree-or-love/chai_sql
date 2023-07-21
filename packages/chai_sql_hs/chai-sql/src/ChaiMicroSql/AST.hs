@@ -46,6 +46,7 @@ import qualified ChaiMicroSql.TAST        as TAST
 data AstSelectQuery = AstSelectQuery (Maybe TAST.TAstDbView) [AstSelectAttributeAccess] [AstFromAccess]
     deriving (Show, Eq)
 
+-- TODO: extend to support constants
 -- | A single attribute access.
 data AstSelectAttributeAccess
     = AstSelectAttributeAccessStar AstSelectAttributeStarTotalRecord                        -- ^ e.g. @SELECT * ...@

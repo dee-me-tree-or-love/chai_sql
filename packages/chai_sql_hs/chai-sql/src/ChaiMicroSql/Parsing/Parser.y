@@ -1,8 +1,8 @@
 {
 module ChaiMicroSql.Parsing.Parser (parse) where
 
+import qualified ChaiMicroSql.AST            as AST
 import qualified ChaiMicroSql.Parsing.Tokens as CPT
-import qualified ChaiMicroSql.AST as SAST
 }
 
 %name parse
@@ -45,42 +45,43 @@ import qualified ChaiMicroSql.AST as SAST
 -- Top Level: SQL Statements
 -- +++++++++++++++++++++++++
 
-StackSqlSelectQueries   :: { [SAST.AstSelectQuery] }
+StackSqlSelectQueries   :: { [AST.AstSelectQuery] }
 StackSqlSelectQueries   : SqlSelectQuery                            { [$1] }
                         | StackSqlSelectQueries SqlSelectQuery      { $2 : $1 }
 
-SqlSelectQuery :: { SAST.AstSelectQuery }
+SqlSelectQuery :: { AST.AstSelectQuery }
 SqlSelectQuery  : SqlSelectQuery ';'                                { $1 }
-                | select StackAttributeAccess                       { SAST.AstSelectQuery mempty $2 [] }
-                | select StackAttributeAccess from StackFromAccess  { SAST.AstSelectQuery mempty $2 $4 }
+                | select StackAttributeAccess                       { AST.AstSelectQuery mempty $2 [] }
+                | select StackAttributeAccess from StackFromAccess  { AST.AstSelectQuery mempty $2 $4 }
 
-StackAttributeAccess    :: { [SAST.AstSelectAttributeAccess] }
+StackAttributeAccess    :: { [AST.AstSelectAttributeAccess] }
 StackAttributeAccess    : AttributeAccess                           { [$1] }
                         | StackAttributeAccess ',' AttributeAccess  { $3 : $1 }
 
 -- TODO: extend to support constants
-AttributeAccess     :: { SAST.AstSelectAttributeAccess }
-AttributeAccess     : AttributeAccessTerm           { SAST.AstSelectAttributeAccessReference $1 }
-                    | AttributeAccessTerm Alias     { SAST.AstSelectAttributeAccessReferenceAlias $1 $2 }
-                    | star                          { SAST.AstSelectAttributeAccessStar SAST.AstSelectAttributeStarTotalRecord }
+AttributeAccess     :: { AST.AstSelectAttributeAccess }
+AttributeAccess     : AttributeAccessTerm           { AST.AstSelectAttributeAccessReference $1 }
+                    | AttributeAccessTerm Alias     { AST.AstSelectAttributeAccessReferenceAlias $1 $2 }
+                    | star                          { AST.AstSelectAttributeAccessStar AST.AstSelectAttributeStarTotalRecord }
 
-AttributeAccessTerm :: { SAST.AstSelectAttributeReference }
-AttributeAccessTerm : Variable                      { SAST.AstSelectAttributeReferenceUnqualified $1 }
-                    | Variable '.' Variable         { SAST.AstSelectAttributeReferenceQualified $1 $3 }
+AttributeAccessTerm :: { AST.AstSelectAttributeReference }
+AttributeAccessTerm : Variable                      { AST.AstSelectAttributeReferenceUnqualified $1 }
+                    | Variable '.' Variable         { AST.AstSelectAttributeReferenceQualified $1 $3 }
 
-StackFromAccess     :: { [SAST.AstFromAccess] }
+StackFromAccess     :: { [AST.AstFromAccess] }
 StackFromAccess     : FromAccess                        { [$1] }
                     | StackFromAccess ',' FromAccess    { $3 : $1 }
 
--- TODO: extend to support aliases and sub-queries
-FromAccess  :: { SAST.AstFromAccess }
-FromAccess  : Variable  { SAST.AstFromAccessReference $1 }
+FromAccess  :: { AST.AstFromAccess }
+FromAccess  : Variable                      { AST.AstFromAccessReference $1 }
+            | Variable Alias                { AST.AstFromAccessReferenceAlias $1 $2 }
+            | '(' SqlSelectQuery ')' Alias  { AST.AstFromAccessNestedQueryAlias $2 $4 } 
 
-Variable    :: { SAST.AstVariable }
-Variable    : term { SAST.AstVariable $1 }
+Variable    :: { AST.AstVariable }
+Variable    : term { AST.AstVariable $1 }
 
-Alias       :: { SAST.AstSimpleAlias }
-Alias       : as term { SAST.AstSimpleAlias $2 }
+Alias       :: { AST.AstSimpleAlias }
+Alias       : as term { AST.AstSimpleAlias $2 }
 
 {
 parseError :: [CPT.Token] -> a
