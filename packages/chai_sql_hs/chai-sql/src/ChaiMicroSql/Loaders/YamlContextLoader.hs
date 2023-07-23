@@ -2,7 +2,7 @@
 {-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-module ChaiMicroSql.Loaders.YamlContextLoader () where
+module ChaiMicroSql.Loaders.YamlContextLoader (load) where
 
 import qualified ChaiMicroSql.TAST        as TAST
 import qualified ChaiMicroSql.TypeContext as TCX
@@ -214,6 +214,9 @@ __decodeFailedError e = TE.makeError $ "Error occurred when decoding the scheme:
 --
 -- >>> load ("tables: [{\"title\": \"Foo\", \"columns\": [{\"name\": \"bar\", \"spec\": \"Number\"}]}]" :: ByteString)
 -- Right (fromList [(TCXSimpleTypeContextKey "Foo",TCXSimpleTypeContextValueRecord (fromList [(TAstSimpleIndexKey "bar",TAstAtomicTypeNumber)]))])
+--
+-- >>> load ("foo: {}" :: ByteString)
+-- Left (TEBaseError ["Error occurred when decoding the scheme: AesonException \"Error in $: parsing ChaiMicroSql.Loaders.YamlContextLoader.DbSchema(DbSchema) failed, key \\\"tables\\\" not found\""])
 --
 load :: ByteString -> Either YclLoaderError TCX.TCXSimpleTypeContext
 load s = do
