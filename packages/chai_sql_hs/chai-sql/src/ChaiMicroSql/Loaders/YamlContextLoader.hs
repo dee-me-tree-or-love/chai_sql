@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
@@ -39,6 +40,7 @@ newtype DbSchema = DbSchema {tables :: [TableSchema]}
 data TableSchema = TableSchema {title :: String, columns :: [ColumnSchema]}
   deriving (Eq, Show, Generic)
 
+-- TODO(tech-debt): make the spec more strict by using a summation type
 data ColumnSchema = ColumnSchema {name :: String, spec :: String}
   deriving (Eq, Show, Generic)
 
@@ -54,7 +56,7 @@ instance Y.FromJSON ColumnSchema
 -- | Simple alias for a type checker's check error.
 type YclLoaderError = TE.TEBaseError
 
--- | Application-level validation of the parsed schema.
+-- | Application-level (well-formedness) validation of the parsed schema.
 class Validator a where
   validate :: a -> Either YclLoaderError a
 
@@ -122,7 +124,7 @@ instance Validator ColumnSchema where
 __specInvalidError :: String -> String -> [String] -> YclLoaderError
 __specInvalidError n s ts = TE.makeError $ "Unexpected `spec` value `" ++ s ++ "` provided for column `" ++ n ++ "`. Accepting only `" ++ intercalate " | " ts ++ "`."
 
-class Translator a b where
+class Validator a => Translator a b where
   translate :: a -> Either YclLoaderError b
 
 -- | Translator from db schema to TypeAST elements.

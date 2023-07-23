@@ -68,6 +68,7 @@ tests:
     dependencies:
       - chai-sql
       - containers
+      - bytestring
       - hspec
       - hspec-discover
       - doctest
