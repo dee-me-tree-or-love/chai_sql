@@ -64,8 +64,8 @@ spec = do
                     let ec = Right TCX.freshContext
                     THS.shouldBe (YCL.load src) ec
 
-        THS.describe "on not well-formed schemas" $ do
-            THS.describe "with non-existent column types" $ do
+        THS.describe "on not valid (non-parseable) schemas" $ do
+            THS.describe "with non-supported column types" $ do
                 THS.it "returns error" $ do
                     let src = "tables: \n\
                             \  - title: Foo \n\
@@ -76,13 +76,9 @@ spec = do
                             \        spec: MaliciousNotText\n\
                             \      - name: peep\n\
                             \        spec: MaliciousNotBool" :: ByteString
-                    let ec = Left $ TE.combineErrors [ TE.makeError "Table `Foo` contains invalid columns."
-                                                     , TE.makeError "Unexpected `spec` value `MaliciousNotNumber` provided for column `bar`. Accepting only `Number | Text | Bool`."
-                                                     , TE.makeError "Unexpected `spec` value `MaliciousNotText` provided for column `quack`. Accepting only `Number | Text | Bool`."
-                                                     , TE.makeError "Unexpected `spec` value `MaliciousNotBool` provided for column `peep`. Accepting only `Number | Text | Bool`." ]
+                    let ec = Left $ TE.makeError "Error occurred when decoding the scheme: AesonException \"Error in $.tables[0].columns[0].spec: Provided `spec` value is not one of supported types: Number | Bool | Text\""
                     THS.shouldBe (YCL.load src) ec
 
-        THS.describe "on not valid (non-parseable) schemas" $ do
             THS.describe "with non-existent column types" $ do
                 THS.it "returns error" $ do
                     let src = "tablOOOOOOs: \n\
