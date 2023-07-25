@@ -2,6 +2,7 @@
 module ChaiMicroSql.Parsing.Parser (parse) where
 
 import qualified ChaiMicroSql.AST            as AST
+import qualified ChaiMicroSql.TAST            as TAST
 import qualified ChaiMicroSql.Parsing.Tokens as CPT
 }
 
@@ -17,6 +18,10 @@ import qualified ChaiMicroSql.Parsing.Tokens as CPT
     from        { CPT.TFrom }
     star        { CPT.TStar }
     as          { CPT.TAs }
+
+    csBool      { CPT.TCsBool }
+    csText      { CPT.TCsText }
+    csNumber    { CPT.TCsNumber }
 
     ':'         { CPT.TColon }
     ';'         { CPT.TSemicolon }
@@ -50,9 +55,28 @@ StackSqlSelectQueries   : SqlSelectQuery                            { [$1] }
                         | StackSqlSelectQueries SqlSelectQuery      { $2 : $1 }
 
 SqlSelectQuery :: { AST.AstSelectQuery }
-SqlSelectQuery  : SqlSelectQuery ';'                                { $1 }
-                | select StackAttributeAccess                       { AST.AstSelectQuery mempty $2 [] }
-                | select StackAttributeAccess from StackFromAccess  { AST.AstSelectQuery mempty $2 $4 }
+SqlSelectQuery  : SqlSelectQuery ';'                                                        { $1 }
+                | SqlSelectQueryTypeHint select StackAttributeAccess                        { AST.AstSelectQuery $1 $3 [] }
+                | SqlSelectQueryTypeHint select StackAttributeAccess from StackFromAccess   { AST.AstSelectQuery $1 $3 $5 }
+
+SqlSelectQueryTypeHint :: { Maybe TAST.TAstDbView }
+SqlSelectQueryTypeHint  : '-- @cs' ':' ':' '{' TypeHintAttributes '}'  { pure $5 }
+                        |                                                           { mempty }
+
+TypeHintAttributes  :: { [TAST.TAstSimpleAtomicIndexPair] }
+TypeHintAttributes  : TypeHintAttributePair                         { [$1] }
+                    | TypeHintAttributes ',' TypeHintAttributePair  { $3 : $1 }
+
+TypeHintAttributePair   :: { TAST.TAstSimpleAtomicIndexPair }
+TypeHintAttributePair   : TypeHintAttributeKey ':' TypeHintAttributeType    { TAST.TAstSimpleAtomicIndexKeyValue $1 $3 }
+
+TypeHintAttributeKey    :: { TAST.TAstSimpleIndexKey }
+TypeHintAttributeKey    : term { TAST.makeKey $1 }
+
+TypeHintAttributeType   :: { TAST.TAstAtomicType }
+                        : csBool    { TAST.TAstAtomicTypeBool }
+                        | csText    { TAST.TAstAtomicTypeText }
+                        | csNumber  { TAST.TAstAtomicTypeNumber }
 
 StackAttributeAccess    :: { [AST.AstSelectAttributeAccess] }
 StackAttributeAccess    : AttributeAccess                           { [$1] }

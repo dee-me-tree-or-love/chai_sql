@@ -21,6 +21,10 @@ data Token
   | TAll
   | TStar
   | TAs
+  -- type keywords
+  | TCsBool
+  | TCsText
+  | TCsNumber
   -- constructs
   | TOperator String
   | TTerm String

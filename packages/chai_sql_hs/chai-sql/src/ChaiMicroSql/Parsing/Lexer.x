@@ -12,7 +12,10 @@ import ChaiMicroSql.Parsing.Tokens as CPT
 @distinct = distinct|DISTINCT
 @all      = all|ALL
 @star     = \*
-@chaisql  = \@chaisql
+@chaisql  = \@chaisql|\@cs
+@csBool   = Bool
+@csText   = Text
+@csNumber = Number
 
 $operator     = [\=\+\-\/]                -- various operators
 $digit        = 0-9                       -- digits
@@ -50,6 +53,11 @@ tokens :-
   @all                              { \_ -> CPT.TAll }
   @star                             { \_ -> CPT.TStar }
   @as                               { \_ -> CPT.TAs }
+
+  -- type keywords
+  @csBool                           { \_ -> CPT.TCsBool }
+  @csText                           { \_ -> CPT.TCsText }
+  @csNumber                         { \_ -> CPT.TCsNumber }
 
   -- expression blocks
   $operator+                        { \s -> CPT.TOperator s }

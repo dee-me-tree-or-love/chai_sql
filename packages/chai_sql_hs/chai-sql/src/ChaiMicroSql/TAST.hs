@@ -19,8 +19,8 @@ data TAstSimpleTypeBasic
 -- | Basic atomic types: @Bool | Number | Text@
 data TAstAtomicType
     = TAstAtomicTypeBool    -- ^ @Bool@
-    | TAstAtomicTypeNumber  -- ^ @Number@
     | TAstAtomicTypeText    -- ^ @Text@
+    | TAstAtomicTypeNumber  -- ^ @Number@
     deriving (Show, Eq, Ord)
 
 -- | A type used to index type collections.
@@ -33,6 +33,11 @@ data TAstSimpleAtomicIndex
 data TAstSimpleAtomicIndexPair = TAstSimpleAtomicIndexKeyValue TAstSimpleIndexKey TAstAtomicType   -- ^ A key-value pari for an atomic type.
     deriving (Show, Eq, Ord)
 
+-- | A specialized type construct representing DB query results.
+--
+-- Corresponds to a view type with possible duplicate keys.
+type TAstDbView = [TAstSimpleAtomicIndexPair]
+
 -- | A type key-value type record map.
 type TAstSimpleTypeRecord = (M.Map TAstSimpleIndexKey TAstAtomicType)
 
@@ -43,11 +48,6 @@ emptyRecord = M.empty
 -- | A type used to construct key-value index pairs for atomic type collections.
 data TAstSimpleRecordIndexPair = TAstSimpleRecordIndexKeyValue TAstSimpleIndexKey TAstSimpleTypeRecord   -- ^ A key-value pair for a record type.
         deriving (Show, Eq, Ord)
-
--- | A specialized type construct representing DB query results.
---
--- Corresponds to a view type with possible duplicate keys.
-type TAstDbView = [TAstSimpleAtomicIndexPair]
 
 -- Common utilities
 -- ----------------
