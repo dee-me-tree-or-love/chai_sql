@@ -23,8 +23,8 @@ spec = do
                 let f = CU.toString
                 THS.shouldBe (f v) n
 
-    THS.describe "DB views" $ do
-        THS.describe "equal views" $ do
+    THS.describe "Type records" $ do
+        THS.describe "equal records" $ do
             THS.it "are equal" $ do
                 let a = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "id") TAST.TAstAtomicTypeBool
                 let b = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "name") TAST.TAstAtomicTypeBool
@@ -34,7 +34,7 @@ spec = do
                 let t' = TAST.makeRecord [a', b']
                 THS.shouldBe t t'
 
-        THS.describe "non-equal views" $ do
+        THS.describe "non-equal records" $ do
             THS.it "are not equal" $ do
                 let a = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "id") TAST.TAstAtomicTypeBool
                 let b = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "name") TAST.TAstAtomicTypeBool

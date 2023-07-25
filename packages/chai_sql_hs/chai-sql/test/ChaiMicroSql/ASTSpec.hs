@@ -11,7 +11,7 @@ spec = do
     THS.describe "AST of" $ do
         THS.describe "`SELECT * FROM Foo;`" $ do
             THS.it "parses" $ do
-                let a = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessStar AST.AstSelectAttributeStarTotalRecord] [AST.AstFromAccessReference (AST.AstVariable "Foo")] 
+                let a = AST.AstSelectQuery Nothing [AST.AstSelectAttributeAccessStar AST.AstSelectAttributeStarTotalRecord] [AST.AstFromAccessReference (AST.AstVariable "Foo")]
                 let p = id -- TODO(backlog): define a parse function
                 THS.shouldBe (p a) a
 

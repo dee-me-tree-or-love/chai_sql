@@ -1,7 +1,7 @@
 module ChaiMicroSql.TypeErrorsSpec (spec) where
 
-import qualified ChaiMicroSql.TypeErrors  as TE
-import qualified Test.Hspec               as THS
+import qualified ChaiMicroSql.TypeErrors as TE
+import qualified Test.Hspec              as THS
 
 
 spec :: THS.Spec

@@ -4,7 +4,7 @@
 {-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-module ChaiMicroSql.Loaders.YamlContextLoader (load, loads) where
+module ChaiMicroSql.Loaders.YamlContextLoader (YclLoaderError, load, loads) where
 
 import qualified ChaiMicroSql.TAST        as TAST
 import qualified ChaiMicroSql.TypeContext as TCX

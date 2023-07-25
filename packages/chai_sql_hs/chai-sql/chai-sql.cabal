@@ -77,6 +77,7 @@ test-suite chai-sql-test
       ChaiMicroSql.TypeCheckerSpec
       ChaiMicroSql.TypeContextSpec
       ChaiMicroSql.TypeErrorsSpec
+      LibSpec
       Paths_chai_sql
   hs-source-dirs:
       test
