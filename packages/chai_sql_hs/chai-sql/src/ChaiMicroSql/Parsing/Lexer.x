@@ -12,7 +12,7 @@ import ChaiMicroSql.Parsing.Tokens as CPT
 @distinct = distinct|DISTINCT
 @all      = all|ALL
 @star     = \*
-@chaisql  = \@chaisql|\@cs
+@chaisql  = \@chaisql|\@cs|chaisql
 @csBool   = Bool
 @csText   = Text
 @csNumber = Number
@@ -33,8 +33,9 @@ tokens :-
   $white+                           ;
 
   -- constructs
-  "--"(\ )+@chaisql                 { \_ -> CPT.TChaiComment }
+  -- FIXME: this somehow overshadows the TChaiComment with space
   "--"(\ )+@spaceverbal             { \_ -> CPT.TComment }
+  "--"@chaisql                      { \_ -> CPT.TChaiComment }
   ";"                               { \_ -> CPT.TSemicolon }
   ":"                               { \_ -> CPT.TColon }
   ","                               { \_ -> CPT.TComma }
