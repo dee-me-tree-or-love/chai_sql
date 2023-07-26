@@ -98,3 +98,66 @@ spec = do
         let context =  L.loadYamlContext contextSrc
         let e = TE.makeError "Error occurred when decoding the scheme: AesonException \"Error in $: parsing ChaiMicroSql.Loaders.YamlContextLoader.DbSchema(DbSchema) failed, key \\\"tables\\\" not found\""
         THS.shouldBe context $ Left e
+
+  THS.describe "type checking sample" $ do
+    THS.describe "with valid context and SQL type hint" $ do
+      THS.it "returns no errors" $ do
+        let contextSrc = "tables: \n\
+              \  - title: Cats \n\
+              \    columns: \n\
+              \      - name: age\n\
+              \        spec: Number\n\
+              \      - name: name\n\
+              \        spec: Text\n\
+              \      - name: isHomely\n\
+              \        spec: Bool\n\
+              \  - title: Friends \n\
+              \    columns: \n\
+              \      - name: firstFriendName\n\
+              \        spec: Text\n\
+              \      - name: secondFriendName\n\
+              \        spec: Text\n\
+              \      - name: bestFriends\n\
+              \        spec: Bool" :: ByteString
+        let sqlSrc = "--@cs :: {name: Text, firstFriendName: Text, secondFriendName: Text}\n\
+          \SELECT name, firstFriendName, secondFriendName FROM Cats AS c, Friends AS c;" :: String
+
+        case L.loadYamlContext contextSrc of
+          Left _ -> error "should not be reachable"
+          Right c -> do
+            let sql = head $ L.parseSql sqlSrc
+            let checkResult = L.checkSqlType c sql
+
+            THS.shouldBe checkResult Nothing
+
+    THS.describe "with valid context and wrong SQL type hint" $ do
+      THS.it "returns mismatch error" $ do
+        let contextSrc = "tables: \n\
+              \  - title: Cats \n\
+              \    columns: \n\
+              \      - name: age\n\
+              \        spec: Number\n\
+              \      - name: name\n\
+              \        spec: Text\n\
+              \      - name: isHomely\n\
+              \        spec: Bool\n\
+              \  - title: Friends \n\
+              \    columns: \n\
+              \      - name: firstFriendName\n\
+              \        spec: Text\n\
+              \      - name: secondFriendName\n\
+              \        spec: Text\n\
+              \      - name: bestFriends\n\
+              \        spec: Bool" :: ByteString
+        let sqlSrc = "--@cs :: {age: Number}\n\
+          \SELECT name, firstFriendName, secondFriendName FROM Cats AS c, Friends AS c;" :: String
+
+        case L.loadYamlContext contextSrc of
+          Left _ -> error "should not be reachable"
+          Right c -> do
+            let sql = head $ L.parseSql sqlSrc
+            let checkResult = L.checkSqlType c sql
+
+            -- TODO(tech-debt): improve the checking error readability
+            let e = TE.makeError "Specified type hint `[TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"age\") TAstAtomicTypeNumber]` does not match inferred type `[TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"secondFriendName\") TAstAtomicTypeText,TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"firstFriendName\") TAstAtomicTypeText,TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"name\") TAstAtomicTypeText]`"
+            THS.shouldBe checkResult $ Just e
