@@ -28,6 +28,7 @@ library
       ChaiMicroSql.AST
       ChaiMicroSql.CommonUtils
       ChaiMicroSql.Loaders.YamlContextLoader
+      ChaiMicroSql.Main
       ChaiMicroSql.Parsing.Lexer
       ChaiMicroSql.Parsing.Parser
       ChaiMicroSql.Parsing.Tokens
@@ -35,8 +36,8 @@ library
       ChaiMicroSql.TypeChecker
       ChaiMicroSql.TypeContext
       ChaiMicroSql.TypeErrors
+      CLI.Main
       Lib
-      Schemas.Loader
   other-modules:
       Paths_chai_sql
   hs-source-dirs:
@@ -50,6 +51,7 @@ library
     , array
     , base
     , bytestring
+    , cmdargs
     , containers
     , yaml
   default-language: Haskell2010
@@ -72,12 +74,12 @@ test-suite chai-sql-test
   other-modules:
       ChaiMicroSql.ASTSpec
       ChaiMicroSql.Loaders.YamlContextLoaderSpec
+      ChaiMicroSql.MainSpec
       ChaiMicroSql.Parsing.ParserSpec
       ChaiMicroSql.TASTSpec
       ChaiMicroSql.TypeCheckerSpec
       ChaiMicroSql.TypeContextSpec
       ChaiMicroSql.TypeErrorsSpec
-      LibSpec
       Paths_chai_sql
   hs-source-dirs:
       test

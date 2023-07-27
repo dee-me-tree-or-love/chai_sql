@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module LibSpec (spec) where
+module ChaiMicroSql.MainSpec (spec) where
 
+import qualified ChaiMicroSql.Main       as CSM
 import qualified ChaiMicroSql.TAST       as TAST
 import qualified ChaiMicroSql.TypeErrors as TE
 import           Data.ByteString         (ByteString)
-import qualified Lib                     as L
 import qualified Test.Hspec              as THS
 
 spec :: THS.Spec
@@ -32,11 +32,11 @@ spec = do
               \        spec: Bool" :: ByteString
         let sqlSrc = "SELECT name, firstFriendName, secondFriendName FROM Cats AS c, Friends AS c;" :: String
 
-        case L.loadYamlContext contextSrc of
+        case CSM.loadYamlContext contextSrc of
           Left _ -> error "should not be reachable"
           Right c -> do
-            let sql = head $ L.parseSql sqlSrc
-            let inferredType = L.inferSqlType c sql
+            let sql = head $ CSM.parseSql sqlSrc
+            let inferredType = CSM.inferSqlType c sql
 
             let n = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "name") TAST.TAstAtomicTypeText
             let fn = TAST.TAstSimpleAtomicIndexKeyValue (TAST.TAstSimpleIndexKey "firstFriendName") TAST.TAstAtomicTypeText
@@ -65,11 +65,11 @@ spec = do
               \        spec: Bool" :: ByteString
         let sqlSrc = "SELECT notAnAttribute1, notAnAttribute1 FROM NotCats AS c, NotFriends AS c;" :: String
 
-        case L.loadYamlContext contextSrc of
+        case CSM.loadYamlContext contextSrc of
           Left _ -> error "should not be reachable"
           Right c -> do
-            let sql = head $ L.parseSql sqlSrc
-            let inferredType = L.inferSqlType c sql
+            let sql = head $ CSM.parseSql sqlSrc
+            let inferredType = CSM.inferSqlType c sql
 
             let e1 = TE.makeError "Could not infer variable type. Variable `NotFriends` is not in context."
             let e2 = TE.makeError"Could not infer variable type. Variable `NotCats` is not in context."
@@ -95,7 +95,7 @@ spec = do
               \      - name: bestFriends\n\
               \        spec: NotBool" :: ByteString
 
-        let context =  L.loadYamlContext contextSrc
+        let context =  CSM.loadYamlContext contextSrc
         let e = TE.makeError "Error occurred when decoding the scheme: AesonException \"Error in $: parsing ChaiMicroSql.Loaders.YamlContextLoader.DbSchema(DbSchema) failed, key \\\"tables\\\" not found\""
         THS.shouldBe context $ Left e
 
@@ -122,11 +122,11 @@ spec = do
         let sqlSrc = "--@cs :: {name: Text, firstFriendName: Text, secondFriendName: Text}\n\
           \SELECT name, firstFriendName, secondFriendName FROM Cats AS c, Friends AS c;" :: String
 
-        case L.loadYamlContext contextSrc of
+        case CSM.loadYamlContext contextSrc of
           Left _ -> error "should not be reachable"
           Right c -> do
-            let sql = head $ L.parseSql sqlSrc
-            let checkResult = L.checkSqlType c sql
+            let sql = head $ CSM.parseSql sqlSrc
+            let checkResult = CSM.checkSqlType c sql
 
             THS.shouldBe checkResult Nothing
 
@@ -152,11 +152,11 @@ spec = do
         let sqlSrc = "--@cs :: {age: Number}\n\
           \SELECT name, firstFriendName, secondFriendName FROM Cats AS c, Friends AS c;" :: String
 
-        case L.loadYamlContext contextSrc of
+        case CSM.loadYamlContext contextSrc of
           Left _ -> error "should not be reachable"
           Right c -> do
-            let sql = head $ L.parseSql sqlSrc
-            let checkResult = L.checkSqlType c sql
+            let sql = head $ CSM.parseSql sqlSrc
+            let checkResult = CSM.checkSqlType c sql
 
             -- TODO(tech-debt): improve the checking error readability
             let e = TE.makeError "Specified type hint `[TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"age\") TAstAtomicTypeNumber]` does not match inferred type `[TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"secondFriendName\") TAstAtomicTypeText,TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"firstFriendName\") TAstAtomicTypeText,TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"name\") TAstAtomicTypeText]`"
