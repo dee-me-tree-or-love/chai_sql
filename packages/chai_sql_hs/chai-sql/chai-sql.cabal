@@ -27,12 +27,17 @@ library
   exposed-modules:
       ChaiMicroSql.AST
       ChaiMicroSql.CommonUtils
+      ChaiMicroSql.Loaders.YamlContextLoader
+      ChaiMicroSql.Main
+      ChaiMicroSql.Parsing.Lexer
+      ChaiMicroSql.Parsing.Parser
+      ChaiMicroSql.Parsing.Tokens
       ChaiMicroSql.TAST
       ChaiMicroSql.TypeChecker
       ChaiMicroSql.TypeContext
       ChaiMicroSql.TypeErrors
+      CLI.Main
       Lib
-      Schemas.Loader
   other-modules:
       Paths_chai_sql
   hs-source-dirs:
@@ -46,11 +51,12 @@ library
     , array
     , base
     , bytestring
+    , cmdargs
     , containers
     , yaml
   default-language: Haskell2010
 
-executable chai-sql-exe
+executable chaisql
   main-is: Main.hs
   other-modules:
       Paths_chai_sql
@@ -67,6 +73,9 @@ test-suite chai-sql-test
   main-is: Spec.hs
   other-modules:
       ChaiMicroSql.ASTSpec
+      ChaiMicroSql.Loaders.YamlContextLoaderSpec
+      ChaiMicroSql.MainSpec
+      ChaiMicroSql.Parsing.ParserSpec
       ChaiMicroSql.TASTSpec
       ChaiMicroSql.TypeCheckerSpec
       ChaiMicroSql.TypeContextSpec
@@ -77,6 +86,7 @@ test-suite chai-sql-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , chai-sql
     , containers
     , doctest

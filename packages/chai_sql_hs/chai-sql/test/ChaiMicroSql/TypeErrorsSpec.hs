@@ -1,7 +1,7 @@
 module ChaiMicroSql.TypeErrorsSpec (spec) where
 
 import qualified ChaiMicroSql.TypeErrors as TE
-import qualified Test.Hspec               as THS
+import qualified Test.Hspec              as THS
 
 
 spec :: THS.Spec
@@ -11,24 +11,24 @@ spec = do
         THS.describe "emptyError" $ do
             THS.it "returns an empty error" $ do
                 let a = TE.emptyError
-                let e = TE.makeError ""
+                let e = TE.TEBaseError []
                 THS.shouldBe a e
 
         THS.describe "joinErrors" $ do
             THS.describe "one empty and one with content" $ do
-                THS.it "returns a bullet point" $ do
+                THS.it "returns single with content" $ do
                     let a = TE.emptyError
                     let b = TE.makeError "oups"
                     let f = TE.joinErrors
-                    let e = TE.makeError "- oups"
+                    let e = TE.TEBaseError ["oups"]
                     THS.shouldBe (f a b) e
 
-            THS.describe "Two with content" $ do
-                THS.it "returns first followed by a bullet pointed second" $ do
+            THS.describe "two with content" $ do
+                THS.it "returns first followed by the second" $ do
                     let a = TE.makeError "ouch"
                     let b = TE.makeError "oups"
                     let f = TE.joinErrors
-                    let e = TE.makeError "ouch\n- oups"
+                    let e = TE.TEBaseError ["ouch", "oups"]
                     THS.shouldBe (f a b) e
 
         THS.describe "combineErrors" $ do
@@ -37,5 +37,5 @@ spec = do
                 let b = TE.makeError "oups"
                 let c = TE.makeError "ouch"
                 let f = TE.combineErrors
-                let e = TE.makeError "- oh\n- oups\n- ouch"
+                let e = TE.TEBaseError ["oh", "oups", "ouch"]
                 THS.shouldBe (f [a, b, c]) e

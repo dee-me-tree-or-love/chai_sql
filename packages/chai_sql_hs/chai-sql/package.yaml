@@ -36,6 +36,7 @@ ghc-options:
 library:
   source-dirs: src
   dependencies:
+    - cmdargs
     - array
     - base
     - bytestring
@@ -47,7 +48,7 @@ library:
     - happy
 
 executables:
-  chai-sql-exe:
+  chaisql:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -68,6 +69,7 @@ tests:
     dependencies:
       - chai-sql
       - containers
+      - bytestring
       - hspec
       - hspec-discover
       - doctest

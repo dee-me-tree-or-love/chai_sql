@@ -8,77 +8,81 @@ import qualified Data.Map                 as M
 -- ~~~~~~~~~~~~~~~~~~~~~~~
 
 -- -- | A collection of various types
--- type TASTSimpleTypeList = [TASTSimpleType]
+-- type TAstSimpleTypeList = [TAstSimpleType]
 
 -- | All supported basic types.
-data TASTSimpleTypeBasic
-    = TASTSimpleTypeBasicAtomic TASTAtomicType              -- ^ An atomic type @Bool | Number | Text@
-    | TASTSimpleAtomicIndex TASTSimpleAtomicIndex     -- ^ An index tuple @key: type-value@
+data TAstSimpleTypeBasic
+    = TAstSimpleTypeBasicAtomic TAstAtomicType              -- ^ An atomic type @Bool | Number | Text@
+    | TAstSimpleAtomicIndex TAstSimpleAtomicIndex     -- ^ An index tuple @key: type-value@
     deriving (Show, Eq)
 
 -- | Basic atomic types: @Bool | Number | Text@
-data TASTAtomicType
-    = TASTAtomicTypeBool    -- ^ @Bool@
-    | TASTAtomicTypeNumber  -- ^ @Number@
-    | TASTAtomicTypeText    -- ^ @Text@
+data TAstAtomicType
+    = TAstAtomicTypeBool    -- ^ @Bool@
+    | TAstAtomicTypeText    -- ^ @Text@
+    | TAstAtomicTypeNumber  -- ^ @Number@
     deriving (Show, Eq, Ord)
 
 -- | A type used to index type collections.
-data TASTSimpleAtomicIndex
-    = TASTSimpleTypeRecordTotal                                   -- ^ A special total record.
-    | TASTSimpleAtomicIndexPair TASTSimpleAtomicIndexPair   -- ^ A key-value pari for an atomic type.
+data TAstSimpleAtomicIndex
+    = TAstSimpleTypeRecordTotal                                   -- ^ A special total record.
+    | TAstSimpleAtomicIndexPair TAstSimpleAtomicIndexPair   -- ^ A key-value pari for an atomic type.
     deriving (Show, Eq, Ord)
 
 -- | A type used to construct key-value index pairs for atomic type collections.
-data TASTSimpleAtomicIndexPair = TASTSimpleAtomicIndexKeyValue TASTSimpleIndexKey TASTAtomicType   -- ^ A key-value pari for an atomic type.
+data TAstSimpleAtomicIndexPair = TAstSimpleAtomicIndexKeyValue TAstSimpleIndexKey TAstAtomicType   -- ^ A key-value pari for an atomic type.
     deriving (Show, Eq, Ord)
-
--- | A type key-value type record map.
-type TASTSimpleTypeRecord = (M.Map TASTSimpleIndexKey TASTAtomicType)
-
--- | A default empty record.
-emptyTypeRecord :: TASTSimpleTypeRecord
-emptyTypeRecord = M.empty
-
--- | A type used to construct key-value index pairs for atomic type collections.
-data TASTSimpleRecordIndexPair = TASTSimpleRecordIndexKeyValue TASTSimpleIndexKey TASTSimpleTypeRecord   -- ^ A key-value pari for a record type.
-        deriving (Show, Eq, Ord)
 
 -- | A specialized type construct representing DB query results.
 --
 -- Corresponds to a view type with possible duplicate keys.
-type TASTDbView = [TASTSimpleAtomicIndexPair]
+type TAstDbView = [TAstSimpleAtomicIndexPair]
+
+-- | A type key-value type record map.
+type TAstSimpleTypeRecord = (M.Map TAstSimpleIndexKey TAstAtomicType)
+
+-- | A default empty record.
+emptyRecord :: TAstSimpleTypeRecord
+emptyRecord = M.empty
+
+-- | A type used to construct key-value index pairs for atomic type collections.
+data TAstSimpleRecordIndexPair = TAstSimpleRecordIndexKeyValue TAstSimpleIndexKey TAstSimpleTypeRecord   -- ^ A key-value pair for a record type.
+        deriving (Show, Eq, Ord)
 
 -- Common utilities
 -- ----------------
 
 -- | Simple wrapper for Record type indexing.
-newtype TASTSimpleIndexKey = TASTSimpleIndexKey String deriving (Show, Eq, Ord)
+newtype TAstSimpleIndexKey = TAstSimpleIndexKey String deriving (Show, Eq, Ord)
 
--- | Simpler key maker
-makeKey :: String -> TASTSimpleIndexKey
-makeKey = TASTSimpleIndexKey
+-- | Simple key maker
+makeKey :: String -> TAstSimpleIndexKey
+makeKey = TAstSimpleIndexKey
 
-instance CU.ToStringable TASTSimpleIndexKey where
-    toString :: TASTSimpleIndexKey -> String
-    toString (TASTSimpleIndexKey s) = s
+-- | Get string of the key
+unKey :: TAstSimpleIndexKey -> String
+unKey (TAstSimpleIndexKey v) = v
+
+instance CU.ToStringable TAstSimpleIndexKey where
+    toString :: TAstSimpleIndexKey -> String
+    toString (TAstSimpleIndexKey s) = s
 
 -- | Creates a new record
-makeRecord :: [TASTSimpleAtomicIndexPair] -> TASTSimpleTypeRecord
+makeRecord :: [TAstSimpleAtomicIndexPair] -> TAstSimpleTypeRecord
 makeRecord is = M.fromList $ map tuplify is
 
--- | Tuplify the TASTSimpleAtomicIndex.
-tuplify :: TASTSimpleAtomicIndexPair -> (TASTSimpleIndexKey, TASTAtomicType)
-tuplify (TASTSimpleAtomicIndexKeyValue k v) = (k,v)
+-- | Tuplify the TAstSimpleAtomicIndex.
+tuplify :: TAstSimpleAtomicIndexPair -> (TAstSimpleIndexKey, TAstAtomicType)
+tuplify (TAstSimpleAtomicIndexKeyValue k v) = (k,v)
 
 -- | Type record retrieval
-get :: TASTSimpleIndexKey -> TASTSimpleTypeRecord -> Maybe TASTAtomicType
+get :: TAstSimpleIndexKey -> TAstSimpleTypeRecord -> Maybe TAstAtomicType
 get = M.lookup
 
 -- | Indexes from the record elements
-indexes :: TASTSimpleTypeRecord -> [TASTSimpleAtomicIndexPair]
-indexes = map (uncurry TASTSimpleAtomicIndexKeyValue) . pairs
+indexes :: TAstSimpleTypeRecord -> [TAstSimpleAtomicIndexPair]
+indexes = map (uncurry TAstSimpleAtomicIndexKeyValue) . pairs
 
 -- | Type record elements retrieval
-pairs :: TASTSimpleTypeRecord -> [(TASTSimpleIndexKey, TASTAtomicType)]
+pairs :: TAstSimpleTypeRecord -> [(TAstSimpleIndexKey, TAstAtomicType)]
 pairs = M.assocs

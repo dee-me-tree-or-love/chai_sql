@@ -1,6 +1,6 @@
-module Lib
-    ( someFunc
-    ) where
+module Lib (main) where
 
-someFunc :: IO ()
-someFunc = putStrLn "Hello!"
+import qualified CLI.Main as CLI
+
+main :: IO ()
+main = CLI.main

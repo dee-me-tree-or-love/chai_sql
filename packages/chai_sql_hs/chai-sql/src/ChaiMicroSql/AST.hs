@@ -1,5 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
-{- | The ASTT for a Micro SQL fragment.
+{- | The AstT for a Micro SQL fragment.
 
 = /Micro/ SQL Fragment
 
@@ -35,63 +35,52 @@ Some supported examples:
 module ChaiMicroSql.AST ( module ChaiMicroSql.AST ) where
 
 import qualified ChaiMicroSql.CommonUtils as CU
+import qualified ChaiMicroSql.TAST        as TAST
 
--- Basic AST
--- ~~~~~~~~~
+-- Concrete AST
+-- ------------
 
--- | A single SQL select query.
--- @Typed@
-data ASTSelectQuery = ASTSelectQuery ASTSelectList ASTFromList
+-- TODO(tech-debt): simplify the data names and align with parser
+
+-- | A single SQL select query with a possible type hint.
+data AstSelectQuery = AstSelectQuery (Maybe TAST.TAstDbView) [AstSelectAttributeAccess] [AstFromAccess]
     deriving (Show, Eq)
 
--- | A list of all attribute access.
--- @Typed@
-type ASTSelectList = [ASTSelectAttribute]
-
+-- TODO: extend to support constants
 -- | A single attribute access.
--- @Typed@
-data ASTSelectAttribute
-    = ASTSelectAttributeStar ASTSelectAttributeStarTotalRecord                      -- ^ e.g. @SELECT *@
-    | ASTSelectAttributeReference ASTSelectAttributeReference                       -- ^ e.g. @SELECT X@
-    | ASTSelectAttributeReferenceAlias ASTSelectAttributeReference ASTSimpleAlias   -- ^ e.g. @SELECT X AS Y@
+data AstSelectAttributeAccess
+    = AstSelectAttributeAccessStar AstSelectAttributeStarTotalRecord                        -- ^ e.g. @SELECT * ...@
+    | AstSelectAttributeAccessReference AstSelectAttributeReference                         -- ^ e.g. @SELECT X ...@
+    | AstSelectAttributeAccessReferenceAlias AstSelectAttributeReference AstSimpleAlias    -- ^ e.g. @SELECT X AS Y ...@
+    deriving (Show, Eq)
+
+-- | A single attribute reference.
+data AstSelectAttributeReference
+    = AstSelectAttributeReferenceUnqualified AstVariable               -- ^ e.g. @X@
+    | AstSelectAttributeReferenceQualified AstVariable AstVariable     -- ^ e.g. @X.Y@
     deriving (Show, Eq)
 
 -- | A constant total record representation.
--- @Typed@
-data ASTSelectAttributeStarTotalRecord = ASTSelectAttributeStarTotalRecord deriving (Show, Eq)
-
--- | A single attribute reference.
--- @Typed@
-data ASTSelectAttributeReference
-    = ASTSelectAttributeReferenceUnqualified ASTVariable                -- ^ e.g. `X`
-    | ASTSelectAttributeReferenceQualified ASTVariable ASTVariable      -- ^ e.g. `X.Y`
-    deriving (Show, Eq)
-
--- | A list of all source table access.
--- @Typed@
-type ASTFromList = [ASTFromTable]
+data AstSelectAttributeStarTotalRecord = AstSelectAttributeStarTotalRecord deriving (Show, Eq)
 
 -- | A single table access.
--- @Typed@
-data ASTFromTable
-    = ASTFromTableReference ASTVariable                                 -- ^ e.g. @FROM X@
-    | ASTFromTableReferenceAlias ASTVariable ASTSimpleAlias             -- ^ e.g. @FROM X AS Y@
-    | ASTFromNestedQueryReferenceAlias ASTSelectQuery ASTSimpleAlias    -- ^ e.g. @FROM (...) AS Y@
+data AstFromAccess
+    = AstFromAccessReference AstVariable                              -- ^ e.g. @... FROM x ...@
+    | AstFromAccessReferenceAlias AstVariable AstSimpleAlias          -- ^ e.g. @... FROM x AS y ...@
+    | AstFromAccessNestedQueryAlias AstSelectQuery AstSimpleAlias     -- ^ e.g. @... FROM (SELECT ...) AS Y ...@
     deriving (Show, Eq)
 
--- Common utilities
--- ----------------
-
 -- | A simple variable name wrapper.
--- @Typed@
-newtype ASTVariable = ASTVariable String deriving (Show, Eq)
+newtype AstVariable = AstVariable String deriving (Show, Eq)
+
 -- | A simple alias name wrapper.
-newtype ASTSimpleAlias = ASTSimpleAlias String deriving (Show, Eq)
+newtype AstSimpleAlias = AstSimpleAlias String deriving (Show, Eq)
 
-instance CU.ToStringable ASTVariable where
-    toString :: ASTVariable -> String
-    toString (ASTVariable v) = v
+instance CU.ToStringable AstVariable where
+    toString :: AstVariable -> String
+    toString (AstVariable v) = v
 
-instance CU.ToStringable ASTSimpleAlias where
-    toString :: ASTSimpleAlias -> String
-    toString (ASTSimpleAlias a) = a
+instance CU.ToStringable AstSimpleAlias where
+    toString :: AstSimpleAlias -> String
+    toString (AstSimpleAlias a) = a
+

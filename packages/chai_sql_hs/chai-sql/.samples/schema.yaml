@@ -1,0 +1,9 @@
+tables:
+  - title: Cats
+    columns:
+      - name: age
+        spec: Number
+      - name: name
+        spec: Text
+      - name: isFriendly
+        spec: Bool
