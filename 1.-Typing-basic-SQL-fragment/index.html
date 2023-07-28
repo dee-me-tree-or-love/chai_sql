@@ -1,0 +1,912 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>SQL fragment - ChaiSQL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#basic-sql-fragment" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ChaiSQL" class="md-header__button md-logo" aria-label="ChaiSQL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ChaiSQL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SQL fragment
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dee-me-tree-or-love/chai_sql" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      ChaiSQL
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        1. Typing basic SQL fragment
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../2.-Type-annotation-syntax/" class="md-tabs__link">
+        2. Type annotation syntax
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../3.-Specifying-DB-schemas/" class="md-tabs__link">
+        3. Specifying DB schemas
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../4.-Python-package/" class="md-tabs__link">
+        4. Python package
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ChaiSQL" class="md-nav__button md-logo" aria-label="ChaiSQL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    ChaiSQL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dee-me-tree-or-love/chai_sql" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        ChaiSQL
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index md-nav__link--active">
+          <a href="./">1. Typing basic SQL fragment</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="1. Typing basic SQL fragment" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          1. Typing basic SQL fragment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../2.-Type-annotation-syntax/">2. Type annotation syntax</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="2. Type annotation syntax" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          2. Type annotation syntax
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../3.-Specifying-DB-schemas/">3. Specifying DB schemas</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="3. Specifying DB schemas" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          3. Specifying DB schemas
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../4.-Python-package/">4. Python package</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="4. Python package" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          4. Python package
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#covered-syntax" class="md-nav__link">
+    Covered syntax
+  </a>
+  
+    <nav class="md-nav" aria-label="Covered syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#included-features" class="md-nav__link">
+    Included features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#semantic-interpretation" class="md-nav__link">
+    Semantic interpretation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queries" class="md-nav__link">
+    Queries
+  </a>
+  
+    <nav class="md-nav" aria-label="Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typing-queries" class="md-nav__link">
+    Typing Queries
+  </a>
+  
+    <nav class="md-nav" aria-label="Typing Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-type-inference-rules" class="md-nav__link">
+    Query type inference rules
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditions" class="md-nav__link">
+    Conditions
+  </a>
+  
+    <nav class="md-nav" aria-label="Conditions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typing-conditions" class="md-nav__link">
+    Typing conditions
+  </a>
+  
+    <nav class="md-nav" aria-label="Typing conditions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#condition-type-inference-rules" class="md-nav__link">
+    Condition type inference rules
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extra-reading" class="md-nav__link">
+    Extra reading
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/dee-me-tree-or-love/chai_sql/tree/main/docs/src/1.-Typing-basic-SQL-fragment/index.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="basic-sql-fragment">Basic SQL fragment<a class="headerlink" href="#basic-sql-fragment" title="Permanent link">&para;</a></h1>
+<p>Following Guagliardo and Libkin (2017), we start with
+the <em>"fragment that [they] call basic SQL"</em>.</p>
+<h2 id="covered-syntax">Covered syntax<a class="headerlink" href="#covered-syntax" title="Permanent link">&para;</a></h2>
+<p>The syntax below is an adaption of the proposed basic SQL fragment to
+<a href="https://en.wikipedia.org/wiki/Augmented_Backus%E2%80%93Naur_form">ABNF</a>.</p>
+<!-- TODO: review if there are better things to fork -->
+<blockquote>
+<p><em>The SQL syntax below is inspired on the BNF proposed by Foster and Godbole (2016).</em></p>
+</blockquote>
+<h3 id="included-features">Included features<a class="headerlink" href="#included-features" title="Permanent link">&para;</a></h3>
+<!-- TODO: add list of included and not included features of SQL -->
+<p>Following the work of Guagliardo and Libkin (2017, p.29), this syntax covers only the following features:</p>
+<ul>
+<li>TODO: provide the list of supported features!</li>
+</ul>
+<h3 id="semantic-interpretation">Semantic interpretation<a class="headerlink" href="#semantic-interpretation" title="Permanent link">&para;</a></h3>
+<!-- TODO: elaborate on the semantics of SQL discussed by Guagliardo and Libkin -->
+
+<h2 id="queries">Queries<a class="headerlink" href="#queries" title="Permanent link">&para;</a></h2>
+<!-- TODO: rewrite to PEGs -->
+<div class="highlight"><span class="filename">Query syntax</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">; utility definitions</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nc">TOKEN</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="l">&quot;foo&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nc">Alias</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="nc">TOKEN</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">; tables</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nc">Table</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="nc">TOKEN</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nc">TableAccess</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nc">Table</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;AS&quot;</span><span class="w"> </span><span class="nc">Alias</span><span class="p">]</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">TableAccess</span><span class="w"> </span><span class="l">&quot;,&quot;</span><span class="w"> </span><span class="nc">Table</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;AS&quot;</span><span class="w"> </span><span class="nc">Alias</span><span class="p">]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">; columns</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="nc">Column</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nc">TOKEN</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="nc">ColumnAccess</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nc">Column</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;AS&quot;</span><span class="w"> </span><span class="nc">Alias</span><span class="p">]</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">ColumnAccess</span><span class="w"> </span><span class="l">&quot;,&quot;</span><span class="w"> </span><span class="nc">Column</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;AS&quot;</span><span class="w"> </span><span class="nc">Alias</span><span class="p">]</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1">; query</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="nc">Query</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="l">&quot;SELECT&quot;</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;DISTINCT&quot;</span><span class="p">]</span><span class="w"> </span><span class="nc">ColumnAccess</span><span class="w"> </span><span class="nc">QueryFrom</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">       </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;SELECT&quot;</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;DISTINCT&quot;</span><span class="p">]</span><span class="w"> </span><span class="l">&quot;*&quot;</span><span class="w"> </span><span class="nc">QueryFrom</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">       </span><span class="o">/</span><span class="w"> </span><span class="nc">Query</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">         </span><span class="p">(</span><span class="l">&quot;UNION&quot;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;INTERSECT&quot;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;EXCEPT&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">         </span><span class="p">[</span><span class="l">&quot;ALL&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">         </span><span class="nc">Query</span><span class="w"> </span><span class="l">&quot;;&quot;</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="nc">QueryFrom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="l">&quot;FROM&quot;</span><span class="w"> </span><span class="nc">TableAccess</span><span class="w"> </span><span class="l">&quot;;&quot;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">          </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;FROM&quot;</span><span class="w"> </span><span class="nc">TableAccess</span><span class="w"> </span><span class="l">&quot;WHERE&quot;</span><span class="w"> </span><span class="nc">Condition</span><span class="w"> </span><span class="l">&quot;;&quot;</span>
+</code></pre></div>
+<h3 id="typing-queries">Typing Queries<a class="headerlink" href="#typing-queries" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> terms<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> table access</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> column access</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> asterix access</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> constant access</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> aliases</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> term expressions</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> term aggregations</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> queries<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> from</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> from where</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> select</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> select distinct</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> aggregations</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> compound queries</li>
+</ul>
+</li>
+</ul>
+<h4 id="query-type-inference-rules">Query type inference rules<a class="headerlink" href="#query-type-inference-rules" title="Permanent link">&para;</a></h4>
+<!-- TODO(backlog): follow the semantics chapter to work this out -->
+<!-- TODO: rewrite this into PEGs? -->
+<div class="highlight"><span class="filename">Query type inference</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">-- Terms</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">-- `````</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">     </span><span class="c1">-- TODO: currently no term &quot;expressions&quot; are typed</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">     </span><span class="c1">--   - [ ] add support for full-names: e.g. R.C</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">     </span><span class="c1">--   - [ ] add support for expressions: e.g. coalesce(X,Y,...)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">     </span><span class="c1">-- TODO: define type-operation `includes? XS YS`</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">(</span><span class="kt">T0</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BT</span><span class="w"> </span><span class="kt">BaseTypes</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">(</span><span class="kt">T1</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT_1</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">t_n</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT_n</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">t_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="n">t_n</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="kt">BT_n</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">(</span><span class="kt">T2</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="n">t_m</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="kt">BT_m</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">t_1</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="kt">N_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="n">t_m</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="kt">N_m</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BT_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="kt">BT_m</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1">-- Relations</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1">-- `````````</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">     </span><span class="c1">-- TODO: will this deal with subqueries?</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">(</span><span class="kt">R0</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="kt">Schema</span><span class="w"> </span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">     </span><span class="c1">-- TODO: define type-operation (`U`)nion: `XS U YS`</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="p">(</span><span class="kt">R1</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">r_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x_1</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS_1</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">r_n</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x_n</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS_n</span><span class="p">}</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">r_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="n">r_n</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS_1</span><span class="w"> </span><span class="kt">U</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="kt">U</span><span class="w"> </span><span class="kt">YS_n</span><span class="p">}</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="p">(</span><span class="kt">R2</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">r_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w"> </span><span class="n">r_n</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS_1</span><span class="w"> </span><span class="kt">U</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="kt">U</span><span class="w"> </span><span class="kt">YS_n</span><span class="p">}</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">r_1</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="kt">N_1</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">,</span><span class="w">  </span><span class="n">r_m</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="kt">N_m</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS_1</span><span class="w"> </span><span class="kt">U</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="kt">U</span><span class="w"> </span><span class="kt">YS_n</span><span class="p">}</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="c1">-- Query sources</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="c1">-- `````````````</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">(</span><span class="kt">S0</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="kt">FROM</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">     </span><span class="c1">-- NB: Trilean is the type of 3VL used in SQL</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">     </span><span class="c1">--     see: https://en.wikipedia.org/wiki/Three-valued_logic</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="p">(</span><span class="kt">S1</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="kt">FROM</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="kt">WHERE</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="c1">-- Queries</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="c1">-- ```````</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="p">(</span><span class="kt">Q0</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="kt">SELECT</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">BTS</span><span class="p">}</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="p">(</span><span class="kt">Q1</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="kt">SELECT</span><span class="w"> </span><span class="kt">DISTINCT</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">set</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">BTS</span><span class="p">}</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="p">(</span><span class="kt">Q2</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">fw</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="kt">YS</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="kt">SELECT</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">fw</span><span class="p">;</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">BTS</span><span class="p">}</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="p">(</span><span class="kt">Q3</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">fw</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="kt">YS</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="kt">SELECT</span><span class="w"> </span><span class="kt">DISTINCT</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">fw</span><span class="p">;</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">set</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">BTS</span><span class="p">}</span>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="w">     </span><span class="c1">-- NB: Here we deviate from Guagliardo &amp; Libkin (2017) by not</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="w">     </span><span class="c1">--     making a distinction between the scope of `SELECT * ...`</span>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="p">(</span><span class="kt">Q4</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">fw</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="kt">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">fw</span><span class="p">;</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="p">(</span><span class="kt">Q5</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">fw</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="kt">SELECT</span><span class="w"> </span><span class="kt">DISTINCT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">fw</span><span class="p">;</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">set</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="c1">-- Query operations</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="c1">-- ````````````````</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="p">(</span><span class="kt">O0</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">UNION</span><span class="w"> </span><span class="kt">ALL</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="p">(</span><span class="kt">O1</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">INTERSECT</span><span class="w"> </span><span class="kt">ALL</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="p">(</span><span class="kt">O2</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">EXCEPT</span><span class="w"> </span><span class="kt">ALL</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">bag</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a><span class="p">(</span><span class="kt">O3</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">UNION</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">set</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a><span class="p">(</span><span class="kt">O4</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">INTERSECT</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">set</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a><span class="p">(</span><span class="kt">O5</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">q_1</span><span class="w"> </span><span class="kt">EXCEPT</span><span class="w"> </span><span class="n">q_2</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">set</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span>
+</code></pre></div>
+<h2 id="conditions">Conditions<a class="headerlink" href="#conditions" title="Permanent link">&para;</a></h2>
+<!-- FIXME: rewrite to PEGs -->
+<div class="highlight"><span class="filename">Condition syntax</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">; predicate</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nc">Predicate</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nc">TOKEN</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">; condition</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nc">Condition</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="l">&quot;TRUE&quot;</span><span class="w"> </span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;FALSE&quot;</span><span class="w"> </span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">Predicate</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">Column</span><span class="w"> </span><span class="l">&quot;IS&quot;</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;NOT&quot;</span><span class="p">]</span><span class="w"> </span><span class="l">&quot;NULL&quot;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">Column</span><span class="w"> </span><span class="l">&quot;IS&quot;</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;NOT&quot;</span><span class="p">]</span><span class="w"> </span><span class="l">&quot;IN&quot;</span><span class="w"> </span><span class="nc">Query</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;EXISTS&quot;</span><span class="w"> </span><span class="nc">Query</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">Condition</span><span class="w"> </span><span class="l">&quot;AND&quot;</span><span class="w"> </span><span class="nc">Condition</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="nc">Condition</span><span class="w"> </span><span class="l">&quot;OR&quot;</span><span class="w"> </span><span class="nc">Condition</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">              </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;NOT&quot;</span><span class="w"> </span><span class="nc">Condition</span>
+</code></pre></div>
+<h3 id="typing-conditions">Typing conditions<a class="headerlink" href="#typing-conditions" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Base cases: <code>TRUE | FALSE | NULL</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>NULL</code> comparison</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>IN</code> value inclusion comparison</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>EXISTS</code> non-empty query check</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Basic boolean logic: <code>AND</code>, <code>OR</code>, <code>NOT</code>, <code>IS</code>, <code>IS NOT</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Extended predicate logic</li>
+</ul>
+<h4 id="condition-type-inference-rules">Condition type inference rules<a class="headerlink" href="#condition-type-inference-rules" title="Permanent link">&para;</a></h4>
+<!-- TODO: fix this up -->
+<div class="highlight"><span class="filename">Condition type inference</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">-- Basics</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1">-- ``````</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">(</span><span class="kt">C0</span><span class="p">)</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="o">&lt;</span><span class="n">true</span><span class="o">&gt;</span><span class="w">   </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">(</span><span class="kt">C1</span><span class="p">)</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="o">&lt;</span><span class="n">false</span><span class="o">&gt;</span><span class="w">  </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">(</span><span class="kt">C2</span><span class="p">)</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="o">&lt;</span><span class="n">null</span><span class="o">&gt;</span><span class="w">   </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1">-- Stanadrd logics</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">-- ```````````````</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">(</span><span class="kt">L0</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kt">AND</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">(</span><span class="kt">L1</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kt">OR</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">(</span><span class="kt">L2</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="kt">NOT</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">(</span><span class="kt">L3</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">len</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="kt">IS</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">(</span><span class="kt">L4</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">len</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="kt">IS</span><span class="w"> </span><span class="kt">NOT</span><span class="w"> </span><span class="n">r</span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="c1">-- Query predicates</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="c1">-- ``````````````</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">     </span><span class="c1">-- TODO: define type operation `len? XS N`</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="p">(</span><span class="kt">P2</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w">  </span><span class="o">|=</span><span class="w"> </span><span class="kt">EXISTS</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="p">(</span><span class="kt">P4</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS_a</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS_b</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">len</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS_a</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS_a</span><span class="w"> </span><span class="kt">BTS_b</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">IN</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="p">(</span><span class="kt">P5</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS_a</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS_b</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">len</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS_a</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS_a</span><span class="w"> </span><span class="kt">BTS_b</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">NOT</span><span class="w"> </span><span class="kt">IN</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="p">(</span><span class="kt">P4</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">len</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="kt">YS</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">IN</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="p">(</span><span class="kt">P5</span><span class="p">)</span><span class="w"> </span><span class="kt">G</span><span class="w"> </span><span class="o">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">DbView</span><span class="w"> </span><span class="o">&lt;</span><span class="n">x</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="kt">YS</span><span class="p">}</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">len</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/\</span><span class="w"> </span><span class="n">includes</span><span class="o">?</span><span class="w"> </span><span class="kt">BTS</span><span class="w"> </span><span class="kt">YS</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">       </span><span class="o">|=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="kt">NOT</span><span class="w"> </span><span class="kt">IN</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="kt">:</span><span class="w"> </span><span class="kt">Trilean</span>
+</code></pre></div>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Guagliardo, P., &amp; Libkin, L. (2017). A formal semantics of SQL queries, its validation, and applications. <em>Proceedings of the VLDB Endowment, 11</em>(1), 27–39. <a href="https://doi.org/10.14778/3151113.3151116">https://doi.org/10.14778/3151113.3151116</a></li>
+<li>Foster, E. C., &amp; Godbole, S. (2016). Bnf syntax for selected sql statements. In E. C. Foster &amp; S. Godbole (Eds.), <em>Database Systems: A Pragmatic Approach</em> (pp. 539–583). Apress. <a href="https://doi.org/10.1007/978-1-4842-1191-5_29">https://doi.org/10.1007/978-1-4842-1191-5_29</a><ul>
+<li>TODO: maybe this can be removed?</li>
+</ul>
+</li>
+</ul>
+<h2 id="extra-reading">Extra reading<a class="headerlink" href="#extra-reading" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Typing_rule">https://en.wikipedia.org/wiki/Typing_rule</a></li>
+<li><a href="https://stanford-cs221.github.io/autumn2021-extra/modules/logic/inference-rules.pdf">https://stanford-cs221.github.io/autumn2021-extra/modules/logic/inference-rules.pdf</a></li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: ChaiSQL" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              ChaiSQL
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../2.-Type-annotation-syntax/" class="md-footer__link md-footer__link--next" aria-label="Next: Type Annotations for SQL" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Type Annotations for SQL
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.tooltips", "navigation.indexes", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>

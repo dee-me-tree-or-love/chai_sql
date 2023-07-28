@@ -1,0 +1,1140 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>Type Annotations for SQL - ChaiSQL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#type-annotations-for-sql" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ChaiSQL" class="md-header__button md-logo" aria-label="ChaiSQL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ChaiSQL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Type Annotations for SQL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dee-me-tree-or-love/chai_sql" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      ChaiSQL
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../1.-Typing-basic-SQL-fragment/" class="md-tabs__link">
+        1. Typing basic SQL fragment
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        2. Type annotation syntax
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../3.-Specifying-DB-schemas/" class="md-tabs__link">
+        3. Specifying DB schemas
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../4.-Python-package/" class="md-tabs__link">
+        4. Python package
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ChaiSQL" class="md-nav__button md-logo" aria-label="ChaiSQL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    ChaiSQL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dee-me-tree-or-love/chai_sql" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        ChaiSQL
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../1.-Typing-basic-SQL-fragment/">1. Typing basic SQL fragment</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="1. Typing basic SQL fragment" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          1. Typing basic SQL fragment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index md-nav__link--active">
+          <a href="./">2. Type annotation syntax</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="2. Type annotation syntax" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          2. Type annotation syntax
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../3.-Specifying-DB-schemas/">3. Specifying DB schemas</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="3. Specifying DB schemas" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          3. Specifying DB schemas
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../4.-Python-package/">4. Python package</a>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="4. Python package" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          4. Python package
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#in-a-nutshell" class="md-nav__link">
+    In a nutshell
+  </a>
+  
+    <nav class="md-nav" aria-label="In a nutshell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntactic-sugar" class="md-nav__link">
+    Syntactic sugar
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-annotation-syntax" class="md-nav__link">
+    Type Annotation syntax
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Annotation syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-overview" class="md-nav__link">
+    High level overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chaisql-commands-trigger-alias-type-hint" class="md-nav__link">
+    ChaiSQL commands: Trigger, Alias, Type Hint
+  </a>
+  
+    <nav class="md-nav" aria-label="ChaiSQL commands: Trigger, Alias, Type Hint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chaisql-trigger" class="md-nav__link">
+    ChaiSQL trigger
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chaisql-type-alias" class="md-nav__link">
+    ChaiSQL type alias
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chaisql-type-hint" class="md-nav__link">
+    ChaiSQL type hint
+  </a>
+  
+    <nav class="md-nav" aria-label="ChaiSQL type hint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setbag-notations-elaborated" class="md-nav__link">
+    Set/bag notations elaborated
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#some-examples" class="md-nav__link">
+    Some examples
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specifying-type-aliases" class="md-nav__link">
+    Specifying type aliases
+  </a>
+  
+    <nav class="md-nav" aria-label="Specifying type aliases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-type-alias" class="md-nav__link">
+    New type alias
+  </a>
+  
+    <nav class="md-nav" aria-label="New type alias">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-type-aliases" class="md-nav__link">
+    Example type aliases
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syntactic-sugar-reference" class="md-nav__link">
+    Syntactic sugar reference
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/dee-me-tree-or-love/chai_sql/tree/main/docs/src/2.-Type-annotation-syntax/index.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="type-annotations-for-sql">Type Annotations for SQL<a class="headerlink" href="#type-annotations-for-sql" title="Permanent link">&para;</a></h1>
+<p>This document describes the type annotation syntax used by ChaiSQL.</p>
+<blockquote>
+<p>💡 With ChaiSQL being under development, this document represents the
+initial, but consolidated design decisions.</p>
+</blockquote>
+<h2 id="in-a-nutshell">In a nutshell<a class="headerlink" href="#in-a-nutshell" title="Permanent link">&para;</a></h2>
+<div class="highlight"><span class="filename">Type annotation in SQL</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">-- @chaisql:newtype Name = String</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {id: Number, name: Name}</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+<details>
+<summary>Example discussed:</summary>
+
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">-- -#- This command instructs the ChaiSQL engine to perform the checking:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">-- -#- This command creates a type alias Name, equating it to a String type:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">-- @chaisql:newtype Name = String</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1">-- -#- This command specifies the expected type of the query result:</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {id: Number, name: Name}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1">-- -#- Since we select, id, and name from the person table, we know the types:</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+
+</details>
+
+<h3 id="syntactic-sugar">Syntactic sugar<a class="headerlink" href="#syntactic-sugar" title="Permanent link">&para;</a></h3>
+<p>To reduce the amount of typing, type annotations are designed to support syntactic sugar.</p>
+<div class="highlight"><span class="filename">Type annotation in SQL, syntactic sugar</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">-- @chai:!</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1">-- @chai:+ Name = String</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1">-- @chai:~ DbView &lt;bag&gt; {id: Number, name: Name}</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+<blockquote>
+<p>Full syntactic sugar reference is available <a href="#syntactic-sugar-reference">below</a>.</p>
+</blockquote>
+<hr />
+<h2 id="type-annotation-syntax">Type Annotation syntax<a class="headerlink" href="#type-annotation-syntax" title="Permanent link">&para;</a></h2>
+<p>The comment-based type annotations allow to specify type hints without
+modifying any existing SQL query syntax, allowing, therefore, to execute
+the query in a RDBMS directly.</p>
+<h3 id="high-level-overview">High level overview<a class="headerlink" href="#high-level-overview" title="Permanent link">&para;</a></h3>
+<p>Below is the general structure of ChaiSQL annotations.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">(</span><span class="o">--</span><span class="w"> </span><span class="na">@chaisql</span><span class="ss">:&lt;</span><span class="n">meta</span><span class="w"> </span><span class="n">commands</span><span class="o">&gt;</span><span class="p">)</span><span class="o">*</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p">(</span><span class="o">--</span><span class="w"> </span><span class="na">@chaisql</span><span class="ss">:&lt;</span><span class="n">annotation</span><span class="w"> </span><span class="n">command</span><span class="o">&gt;</span><span class="p">)</span><span class="err">?</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="o">&lt;</span><span class="nc">SQL</span><span class="w"> </span><span class="nc">Query</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="chaisql-commands-trigger-alias-type-hint">ChaiSQL commands: Trigger, Alias, Type Hint<a class="headerlink" href="#chaisql-commands-trigger-alias-type-hint" title="Permanent link">&para;</a></h3>
+<h4 id="chaisql-trigger">ChaiSQL trigger<a class="headerlink" href="#chaisql-trigger" title="Permanent link">&para;</a></h4>
+<p>To inform the ChaiSQL that the SQL queries provided in the file need to be
+checked, it requires an explicit command, before any other type-related
+information is provided. The command is specified as follows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">-- @chaisql:check</span>
+</code></pre></div>
+<blockquote>
+<p>This informs the ChaiSQL process to check the provided SQL file.</p>
+</blockquote>
+<h4 id="chaisql-type-alias">ChaiSQL type alias<a class="headerlink" href="#chaisql-type-alias" title="Permanent link">&para;</a></h4>
+<p>Motivated by the need to, e.g., reuse a complex type in many places, or give a
+more descriptive identity to the underlying type, it may be convenient to
+declare a custom alias for a primitive or compound type.</p>
+<p>This is done as follows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">-- @chaisql:newtype [Alias] = [Primitive or compound type]</span>
+</code></pre></div>
+<p>This informs the ChaiSQL to associate a new type <code>[Alias]</code> with <code>[Primitive or compound type]</code>.
+A number of restrictions apply, requiring unique <code>[Alias]</code> declarations - same <code>[Alias]</code> cannot be
+declared more than once. And that <code>[Primitive or compound type]</code> may reuse other aliases, but
+should resolve to a primitive or compound type without any aliases. Furthermore, <code>[Alias</code>] should
+consist of alphanumeric values, including <code>_</code> and <code>-</code>.</p>
+<p>To illustrate this, consider the example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">-- @chaisql:newtype Key = Number</span>
+</code></pre></div>
+<blockquote>
+<p>this declares a new type alias Key.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">-- @chaisql:newtype IdView = DbView &lt;bag&gt; {id: Key}</span>
+</code></pre></div>
+<blockquote>
+<p>this declares a new type alias IdView, linked to a compound type, reusing the Key type alias.</p>
+</blockquote>
+<h4 id="chaisql-type-hint">ChaiSQL type hint<a class="headerlink" href="#chaisql-type-hint" title="Permanent link">&para;</a></h4>
+<p>This command specifies the expected type of the result of an SQL SELECT query.
+It can be used to annotate both nested and top-level queries. ChaiSQL will use
+these type hints to check the type-safety of the provided query. It should be
+done as follows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">-- @chaisql:returns [Primitive, compound, or alias type]</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="o">&lt;</span><span class="k">SQL</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">annotate</span><span class="o">&gt;</span>
+</code></pre></div>
+<p>This command specifies a type hint for the SQL SELECT below. It must always
+appear directly above the SQL query that it annotates. The
+<code>[Primitive, compound, or alias type]</code> part may contain any well-written type
+expression, be it a primitive type, a compound, or a type alias.</p>
+<p>Consider the following example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+<h5 id="setbag-notations-elaborated">Set/bag notations elaborated<a class="headerlink" href="#setbag-notations-elaborated" title="Permanent link">&para;</a></h5>
+<p>ChaiSQL’s compound type <code>DbView &lt;[notation: bag|set]]&gt; {[key]: [type], ...}</code>
+expects the notation, either <code>&lt;set&gt;</code> or <code>&lt;bag&gt;</code>, as its first type argument.</p>
+<p>This information is added to make the result type of the <code>SELECT</code> queries more
+detailed. In particular, it illustrates the use of SQL’s native bag or set
+semantics of the query results.</p>
+<p>In short, <code>bag</code>s allow duplicates in the result, meanwhile <code>set</code>s ensure that
+all duplicates are removed. This becomes relevant, when we attempt to
+distinguish between SQL’s <code>SELECT</code> and <code>SELECT DISTINCT</code>, or the SQL’s query
+operators <code>UNION/INTERSECT/EXCEPT</code> and <code>UNION/INTERSECT/EXCEPT ALL</code>.</p>
+<ol>
+<li>
+<p><code>SELECT</code> without <code>DISTINCT</code>:</p>
+<p>Every regular <code>SELECT</code> query results in a <code>DbView &lt;bag&gt; {[key]: [type], ...}</code>.</p>
+<div class="highlight"><span class="filename">Type hint example, SELECT *</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+<blockquote>
+<p>In this case, the result of the query may contain duplicate names.</p>
+</blockquote>
+</li>
+<li>
+<p><code>SELECT</code> <em>with</em> <code>DISTINCT</code></p>
+<p>Every regular SELECT query, results in a DbView <bag> {[key]: [type], ...}.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1">-- @chaisql:returns DbView &lt;set&gt; {name: String}</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+<blockquote>
+<p>In this case, the result of the query does not contain any duplicate names.</p>
+</blockquote>
+</li>
+<li>
+<p><code>UNION/INTERSECT/EXCEPT</code> without <code>ALL</code></p>
+<blockquote>
+<p>Note: although here we consider <code>UNION</code> as the main example for the coming
+    two cases, the same principle applies if we replace it with
+    <code>INTERSECT</code> or <code>EXCEPT</code> SQL query operators.</p>
+</blockquote>
+<p>By the semantics of <code>UNION/INTERSECT/EXCEPT</code> (accepted by most RDBMS),
+  unless the SQL author specifies <code>ALL</code> modifiers to this operator, the
+  result of the query expression follows set semantics.</p>
+<blockquote>
+<p>Following the SQL language specification (accepted by most RDBMS), to use
+    this operator, both the left hand side and the right hand side query must
+    have equal number and order of the returned columns, with compatible data
+    types. This, therefore, should also be captured at the type hint level.</p>
+</blockquote>
+<div class="highlight"><span class="filename">UNION operator, without all</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1">-- @chaisql:returns DbView &lt;set&gt; {name: String}</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="p">(</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">person</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="c1">-- -#- Here we select all names from the person table.</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">)</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="k">UNION</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="p">(</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">  </span><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">cat</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">  </span><span class="c1">-- -#- Here we select all names from the cat table.</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="p">);</span>
+</code></pre></div>
+<blockquote>
+<p>As a result, we select the <strong>set</strong> of all names from the person, or cat table.</p>
+</blockquote>
+</li>
+<li>
+<p><code>UNION/INTERSECT/EXCEPT</code> <strong>with</strong> <code>ALL</code></p>
+<p>In contrast to the previous example, where we use the SQL query operators
+  without the <code>ALL</code> modifier, here we explicitly mention it, to
+  allow duplicate results.</p>
+<div class="highlight"><span class="filename">UNION operator, with all</span><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">(</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">person</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">  </span><span class="c1">-- -#- Here we select all names from the person table.</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="p">)</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="p">(</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">  </span><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">cat</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">  </span><span class="c1">-- -#- Here we select all names from the cat table.</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="p">);</span>
+</code></pre></div>
+<blockquote>
+<p>As a result, we select the <strong>bag</strong> of all names from the person, or cat table.
+These names may be duplicates, without being filtered out.</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="some-examples">Some examples<a class="headerlink" href="#some-examples" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><code>SELECT *</code>:</p>
+<p>The asterisk, SELECT *, selects all columns from the “from” clause of the query.</p>
+<div class="highlight"><span class="filename">Type hint example, SELECT *</span><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {id: Number, name: String}</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Direct column access in <code>SELECT</code>:</p>
+<p>The <code>SELECT</code> queries with direct access to the column names are the bread
+  and butter of any SQL programmer. This type of queries, specifies precisely
+  which columns are projected from the <code>FROM</code> clause of the query.</p>
+<div class="highlight"><span class="filename">Type hint example, specific columns</span><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Aliased column access in <code>SELECT</code>:</p>
+<p>This select variation allows the programmer to override the name of
+  the selected column with custom aliases.</p>
+<div class="highlight"><span class="filename">Type hint example, column alias</span><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {personName: String}</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">personName</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Fully-qualified column access in <code>SELECT</code></p>
+<p>Besides specifying aliases, SQL allows the fully-qualified column access,
+  where the column is preceded by the table name. In such cases, only the
+  column name needs to be specified in the type hint.</p>
+<div class="highlight"><span class="filename">Type hint example, fully qualified column access</span><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">name</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Specifying the type of a sub-query:</p>
+<p>The type hints are always scoped to the nearest query below. Thus, this
+  can be used in any cases, where a subquery is relevant and a type hint
+  is beneficial.</p>
+<div class="highlight"><span class="filename">Type hint example, sub-query</span><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">-- @chaisql:check</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1">-- @chaisql:returns DbView &lt;bag&gt; {name: String}</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">name</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">FROM</span><span class="w"> </span><span class="n">person</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="c1">-- @chaisql:returns DbView &lt;set&gt; {personId: Number}</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">personId</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">catFriends</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="p">);</span>
+</code></pre></div>
+</li>
+</ol>
+<h3 id="specifying-type-aliases">Specifying type aliases<a class="headerlink" href="#specifying-type-aliases" title="Permanent link">&para;</a></h3>
+<h4 id="new-type-alias">New type alias<a class="headerlink" href="#new-type-alias" title="Permanent link">&para;</a></h4>
+<blockquote>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> (backlog): Feature supported in Python <code>chai_sql</code><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> parser</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> evaluation</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1">-- @chaisql:newtype &lt;T&gt; = &lt;R&gt;</span>
+</code></pre></div>
+<p>Note that the type aliases are evaluated regardless of their order.
+So all the following examples are legal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1">-- @chaisql:newtype FooView = DbView[Bar]</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="c1">-- @chaisql:newtype Bar = String</span>
+</code></pre></div>
+<p>and</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">-- @chaisql:newtype Bar = String</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="c1">-- @chaisql:newtype FooView = DbView[Bar]</span>
+</code></pre></div>
+<h5 id="example-type-aliases">Example type aliases<a class="headerlink" href="#example-type-aliases" title="Permanent link">&para;</a></h5>
+<ol>
+<li>
+<p>Reusing the same type:</p>
+<div class="highlight"><span class="filename">Type alias example, reuse</span><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">-- @chaisql:newtype PersonView = DbView&lt;bag&gt;[String, Number, String]</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="c1">-- @chaisql:returns PersonView</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="k">SELECT</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="n">age</span><span class="p">,</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="k">class</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="k">FROM</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">  </span><span class="c1">-- @chaisql:returns PersonView</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">  </span><span class="k">SELECT</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">    </span><span class="n">ppl</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">    </span><span class="n">ppl</span><span class="p">.</span><span class="n">age</span><span class="p">,</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">    </span><span class="ss">&quot;friend&quot;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">class</span>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">people</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ppl</span><span class="p">;</span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Providing extra meaning:</p>
+<div class="highlight"><span class="filename">Type hint example, term</span><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1">-- @chaisql:newtype Name = String</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="c1">-- @chaisql:newtype Age = Number</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="c1">-- @chaisql:newtype Remark = String</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="c1">-- @chaisql:returns DbView&lt;bag&gt;[Name, Age, Remark]</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="k">SELECT</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">  </span><span class="c1">-- @chaisql:returns Name</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">  </span><span class="c1">-- @chaisql:returns Age</span>
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="n">age</span><span class="p">,</span>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="w">  </span><span class="c1">-- @chaisql:returns Remark</span>
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="w">  </span><span class="ss">&quot;friend&quot;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">class</span>
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="k">FROM</span><span class="w"> </span><span class="n">people</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Combining the examples above</p>
+<div class="highlight"><span class="filename">Type hint example, term</span><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1">-- @chaisql:newtype Name = String</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="c1">-- @chaisql:newtype Age = Number</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1">-- @chaisql:newtype Remark = String</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="c1">-- @chaisql:newtype PersonView = DbView&lt;bag&gt;[String, Number, String]</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="c1">-- @chaisql:returns PersonView</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="k">SELECT</span>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="w">  </span><span class="c1">-- @chaisql:returns Name</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="w">  </span><span class="c1">-- @chaisql:returns Age</span>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="w">  </span><span class="n">p</span><span class="p">.</span><span class="n">age</span><span class="p">,</span>
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="w">  </span><span class="c1">-- @chaisql:returns Remark</span>
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a><span class="w">  </span><span class="ss">&quot;friend&quot;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">class</span>
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a><span class="k">FROM</span><span class="w"> </span><span class="n">people</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+</li>
+</ol>
+<h2 id="syntactic-sugar-reference">Syntactic sugar reference<a class="headerlink" href="#syntactic-sugar-reference" title="Permanent link">&para;</a></h2>
+<blockquote>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> (backlog): Feature supported in Python <code>chai_sql</code><ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> parser</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> evaluation</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<ul>
+<li>TODO: develop a syntactic sugar reference</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Syntactic sugar alias</th>
+<th>Full version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@cs:&lt;command&gt;</code></td>
+<td><code>@chaisql:&lt;command&gt;</code></td>
+<td>Invoke any <code>chaisql</code> command</td>
+</tr>
+<tr>
+<td><code>@chai:&lt;command&gt;</code></td>
+<td><code>@chaisql:&lt;command&gt;</code></td>
+<td>Invoke any <code>chaisql</code> command</td>
+</tr>
+<tr>
+<td><code>@&lt;chaisql/alias&gt;:!</code></td>
+<td><code>@chaisql:check</code></td>
+<td>Tag file for checking</td>
+</tr>
+<tr>
+<td><code>@&lt;chaisql/alias&gt;:~</code></td>
+<td><code>@chaisql:returns</code></td>
+<td>Specify type hint</td>
+</tr>
+<tr>
+<td><code>@&lt;chaisql/alias&gt;:+</code></td>
+<td><code>@chaisql:newtype</code></td>
+<td>Declare new type alias</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../1.-Typing-basic-SQL-fragment/" class="md-footer__link md-footer__link--prev" aria-label="Previous: SQL fragment" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              SQL fragment
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../3.-Specifying-DB-schemas/" class="md-footer__link md-footer__link--next" aria-label="Next: Specifying DB schemas" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Specifying DB schemas
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.tooltips", "navigation.indexes", "navigation.sections", "navigation.tabs", "navigation.top", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>
