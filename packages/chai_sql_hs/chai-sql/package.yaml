@@ -48,7 +48,7 @@ library:
     - happy
 
 executables:
-  chai-sql-exe:
+  chaisql:
     main: Main.hs
     source-dirs: app
     ghc-options:

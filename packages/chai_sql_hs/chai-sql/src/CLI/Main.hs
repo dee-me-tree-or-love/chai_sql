@@ -75,14 +75,7 @@ handle Infer {expression = Nothing, path = Just pIn, schema = sIn} = do
     cIn <- readFile sIn
     eIn <- readFile pIn
     handleInferExpression eIn cIn
--- Incorrect inference inputs
-handle Infer {expression = Just "", path = _, schema = _} = error "Provided SQL `expression` can not be empty."
-handle Infer {expression = _, path = Just "", schema = _} = error "Provided SQL file `path` can not be empty."
-handle Infer {expression = _, path = _, schema = ""} = error "Path to the schema file can not be empty."
-handle Infer {expression = _, path = _, schema = _} = error "Either `expression` or `path` to a SQL file must be provided."
-
 -- Type checking
--- Type inference
 handle Check {expression = Just eIn, path = Nothing, schema = sIn} = do
     cIn <- readFile sIn
     handleCheckExpression eIn cIn
@@ -90,6 +83,12 @@ handle Check {expression = Nothing, path = Just pIn, schema = sIn} = do
     cIn <- readFile sIn
     eIn <- readFile pIn
     handleCheckExpression eIn cIn
+
+-- Incorrect inference inputs
+handle Infer {expression = Just "", path = _, schema = _} = error "Provided SQL `expression` can not be empty."
+handle Infer {expression = _, path = Just "", schema = _} = error "Provided SQL file `path` can not be empty."
+handle Infer {expression = _, path = _, schema = ""} = error "Path to the schema file can not be empty."
+handle Infer {expression = _, path = _, schema = _} = error "Either `expression` or `path` to a SQL file must be provided."
 -- Incorrect inference inputs
 handle Check {expression = Just "", path = _, schema = _} = error "Provided SQL `expression` can not be empty."
 handle Check {expression = _, path = Just "", schema = _} = error "Provided SQL file `path` can not be empty."

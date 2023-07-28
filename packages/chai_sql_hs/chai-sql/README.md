@@ -8,10 +8,10 @@ This is the Haskell implementation of ChaiSQL.
 
 ## Setup
 
-- [`./app`](./app/) - Defines the executable `chai-sql`
-- [`./src`](./src/) - Defines the library/backend for `chai-sql`
+- [`./app`](./app/) - Defines the executable `chaisql`
+- [`./src`](./src/) - Defines the library/backend for `chaisql`
   - [`./src/CLI`](./src/CLI/) - Defines the CLI interface and handling
-  - [`./src/Language`](./src/Language/) - Defines the *ChaiSQL* language tooling
+  - [`./src/ChaiMicroSql`](./src/ChaiMicroSql/) - Defines the *ChaiSQL* language tooling
 
 ## Running the project
 
@@ -21,20 +21,42 @@ This is the Haskell implementation of ChaiSQL.
 
 ```bash
 $ stack run -- --help
-# TODO: provide once this is implemented
+The chaisql program
+
+chaisql [COMMAND] ... [OPTIONS]
+
+...
 ```
+
+## Installing the executable
 
 ### 📦 `stack install` - to make *ChaiSQL* available globally
 
 > After this, all examples in the section above
-> can use `chaisql-cli` instead of `stack run --`
-
-#### 🧰 `chaisql-cli` is available locally after installing
+> can use `chaisql` instead of `stack run --`
 
 ```bash
-$ chaisql-cli --help
-# TODO: provide once this is implemented
+$ stack install
+...
+chai-sql> build (lib + exe)
+...
+Copied executables to ~/.local/bin:
+- chaisql
 ```
+
+#### 🧰 `chaisql` is now available locally
+
+```bash
+$ chaisql --help
+The chaisql program
+
+chaisql [COMMAND] ... [OPTIONS]
+
+...
+```
+
+> :warning: If you no longer need the executable,
+> you need to remove it from `~/.local/bin` manually.
 
 ## Development
 
@@ -49,3 +71,11 @@ $ chaisql-cli --help
 ### 📝 `stack exec -- doctest src` - checks the examples in the library documentation
 
 ### 📔 `stack exec -- haddock --html src/**/*.hs -o .docs` - builds the API documentation
+
+### 🏃 `stack run -- --help` - compile and run the CLI
+
+#### 🔍 `stack run -- infer -p .samples/expression.sql -s .samples/schema.yaml` - run the inference
+
+#### 🩺 `stack run -- check -p .samples/expression.sql -s .samples/schema.yaml` - run the type checking
+
+### 🧹 `stack clean` - to remove build artifacts
