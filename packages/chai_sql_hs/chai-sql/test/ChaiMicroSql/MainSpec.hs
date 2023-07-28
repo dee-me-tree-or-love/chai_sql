@@ -45,7 +45,7 @@ spec = do
             THS.shouldBe inferredType $ Right t
 
     THS.describe "with valid context and invalid SQL" $ do
-      THS.it "returns successfull failed inference" $ do
+      THS.it "returns failed inference" $ do
         let contextSrc = "tables: \n\
               \  - title: Cats \n\
               \    columns: \n\
@@ -72,8 +72,30 @@ spec = do
             let inferredType = CSM.inferSqlType c sql
 
             let e1 = TE.makeError "Could not infer variable type. Variable `NotFriends` is not in context."
-            let e2 = TE.makeError"Could not infer variable type. Variable `NotCats` is not in context."
+            let e2 = TE.makeError "Could not infer variable type. Variable `NotCats` is not in context."
             THS.shouldBe inferredType $ Left $ TE.joinErrors e1 e2
+
+    THS.describe "with valid context and mismatching SQL" $ do
+      THS.it "returns failed inference" $ do
+        let contextSrc = "tables: \n\
+              \  - title: Cats \n\
+              \    columns: \n\
+              \      - name: age\n\
+              \        spec: Number\n\
+              \      - name: name\n\
+              \        spec: Text\n\
+              \      - name: isHomely\n\
+              \        spec: Bool" :: ByteString
+        let sqlSrc = "SELECT name as catName, name as dogName FROM Cats AS c, Dogs AS d;" :: String
+
+        case CSM.loadYamlContext contextSrc of
+          Left _ -> error "should not be reachable"
+          Right c -> do
+            let sql = head $ CSM.parseSql sqlSrc
+            let inferredType = CSM.inferSqlType c sql
+
+            let e1 = TE.makeError "Could not infer variable type. Variable `Dogs` is not in context."
+            THS.shouldBe inferredType $ Left e1
 
     THS.describe "with invalid context" $ do
       THS.it "returns an error before inference" $ do
@@ -98,6 +120,7 @@ spec = do
         let context =  CSM.loadYamlContext contextSrc
         let e = TE.makeError "Error occurred when decoding the scheme: AesonException \"Error in $: parsing ChaiMicroSql.Loaders.YamlContextLoader.DbSchema(DbSchema) failed, key \\\"tables\\\" not found\""
         THS.shouldBe context $ Left e
+
 
   THS.describe "type checking sample" $ do
     THS.describe "with valid context and SQL type hint" $ do
@@ -161,3 +184,27 @@ spec = do
             -- TODO(tech-debt): improve the checking error readability
             let e = TE.makeError "Specified type hint `[TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"age\") TAstAtomicTypeNumber]` does not match inferred type `[TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"secondFriendName\") TAstAtomicTypeText,TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"firstFriendName\") TAstAtomicTypeText,TAstSimpleAtomicIndexKeyValue (TAstSimpleIndexKey \"name\") TAstAtomicTypeText]`"
             THS.shouldBe checkResult $ Just e
+
+    --FIXME(bug): this is a captured bug
+    THS.describe "with valid context and mismatching SQL but right type hint" $ do
+      THS.it "returns failed inference" $ do
+        let contextSrc = "tables: \n\
+              \  - title: Cats \n\
+              \    columns: \n\
+              \      - name: age\n\
+              \        spec: Number\n\
+              \      - name: name\n\
+              \        spec: Text\n\
+              \      - name: isHomely\n\
+              \        spec: Bool" :: ByteString
+        let sqlSrc = "--@cs :: {catName: Text, dogName: Text}\n\
+              \SELECT name as catName, name as dogName FROM Cats AS c, Dogs AS d;" :: String
+
+        case CSM.loadYamlContext contextSrc of
+          Left _ -> error "should not be reachable"
+          Right c -> do
+            let sql = head $ CSM.parseSql sqlSrc
+            let checkResult = CSM.checkSqlType c sql
+
+            let e1 = TE.makeError "Could not infer variable type. Variable `Dogs` is not in context."
+            THS.shouldBe checkResult $ Just e1
