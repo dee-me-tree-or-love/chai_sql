@@ -4,7 +4,7 @@ module CLI.Main (main) where
 
 import qualified ChaiMicroSql.Main      as CSM
 import           System.Console.CmdArgs (Data, Default (def), Typeable, cmdArgs,
-                                         help, modes, typFile, (&=))
+                                         help, modes, typ, typFile, (&=))
 
 
 data ChaiSql
@@ -22,17 +22,17 @@ schemaHint :: String
 schemaHint = "Database schema to use for evaluation"
 
 
-exec :: ChaiSql
-exec = Infer {
-        expression = def &= help expressionHint,
+infer :: ChaiSql
+infer = Infer {
+        expression = def &= help expressionHint &= typ "SQL",
         path = def &= help pathHint &= typFile,
         schema = def &= help schemaHint &= typFile
     }
 
 
-file :: ChaiSql
-file = Check {
-        expression = def &= help expressionHint,
+check :: ChaiSql
+check = Check {
+        expression = def &= help expressionHint &= typ "SQL",
         path = def &= help pathHint &= typFile,
         schema = def &= help schemaHint &= typFile
     }
@@ -98,4 +98,4 @@ handle Check {expression = _, path = _, schema = _} = error "Either `expression`
     putStrLn "🤔 I think I am still a work in progress."
 
 main :: IO ()
-main = handle =<< cmdArgs (modes [exec,file])
+main = handle =<< cmdArgs (modes [infer,check])
