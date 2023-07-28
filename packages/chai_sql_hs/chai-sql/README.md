@@ -74,8 +74,10 @@ chaisql [COMMAND] ... [OPTIONS]
 
 ### 🏃 `stack run -- --help` - compile and run the CLI
 
+> See contents of [`./.samples`](./.samples/) directory for SQL examples.
+
 #### 🔍 `stack run -- infer -p .samples/expression.sql -s .samples/schema.yaml` - run the inference
 
-#### 🩺 `stack run -- check -p .samples/expression.sql -s .samples/schema.yaml` - run the type checking
+#### 🩺 `stack run -- check -p .samples/expression-typed-ok.sql -s .samples/schema.yaml` - run the type checking
 
 ### 🧹 `stack clean` - to remove build artifacts
